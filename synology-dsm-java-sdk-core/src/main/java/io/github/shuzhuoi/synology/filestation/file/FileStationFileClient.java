@@ -1,5 +1,7 @@
 package io.github.shuzhuoi.synology.filestation.file;
 
+import io.github.shuzhuoi.synology.filestation.task.SynologyTaskPoller;
+import io.github.shuzhuoi.synology.filestation.task.TaskPollingOptions;
 import io.github.shuzhuoi.synology.filestation.task.TaskStartResponse;
 import io.github.shuzhuoi.synology.filestation.task.TaskStatusResponse;
 import io.github.shuzhuoi.synology.filestation.task.TaskStopResponse;
@@ -17,8 +19,13 @@ import java.util.Map;
  */
 public class FileStationFileClient {
 
-    private static final int DELETE_WAIT_MAX_ATTEMPTS = 120;
-    private static final long DELETE_WAIT_INTERVAL_MILLIS = 500L;
+    /**
+     * 同步删除默认轮询配置：间隔 500ms，最多 120 次（约 1 分钟）。
+     */
+    private static final TaskPollingOptions DELETE_WAIT_OPTIONS = TaskPollingOptions.builder()
+            .intervalMillis(500L)
+            .maxAttempts(120)
+            .build();
 
     private final SynologyApiExecutor executor;
 
@@ -109,15 +116,12 @@ public class FileStationFileClient {
 
     private void waitDeleteFinished(TaskStartResponse startResponse) {
         String taskId = requireTaskId(startResponse);
-        for (int i = 0; i < DELETE_WAIT_MAX_ATTEMPTS; i++) {
-            TaskStatusResponse statusResponse = deleteStatus(taskId);
-            if (Boolean.TRUE.equals(statusResponse.getFinished())) {
-                return;
-            }
-            sleepBeforeNextStatus(taskId);
-        }
-        throw new SynologyDsmException("delete task timeout: taskId=" + taskId
-                + ", please use deleteAsync and deleteStatus for long-running delete operations");
+        // 复用通用轮询器，保持与 DirSize/Search 等任务型接口一致的等待语义。
+        SynologyTaskPoller.wait(
+                () -> deleteStatus(taskId),
+                status -> Boolean.TRUE.equals(status.getFinished()),
+                DELETE_WAIT_OPTIONS
+        );
     }
 
     private String requireTaskId(TaskStartResponse startResponse) {
@@ -125,14 +129,5 @@ public class FileStationFileClient {
             throw new SynologyDsmException("delete task start response does not contain taskid");
         }
         return startResponse.getTaskid();
-    }
-
-    private void sleepBeforeNextStatus(String taskId) {
-        try {
-            Thread.sleep(DELETE_WAIT_INTERVAL_MILLIS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new SynologyDsmException("interrupted while waiting delete task: taskId=" + taskId, e);
-        }
     }
 }

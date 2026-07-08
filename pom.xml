@@ -20,7 +20,8 @@
     </modules>
 
     <properties>
-        <revision>0.1.0</revision>
+        <!-- v0.2.0 开发期间使用 SNAPSHOT，全部完成并验证后改为 0.2.0 正式发布 -->
+        <revision>0.2.0-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>

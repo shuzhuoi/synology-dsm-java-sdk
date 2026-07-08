@@ -65,9 +65,9 @@ for (SynologyFile file : response.getFiles()) {
 client.session().logout();
 ```
 
-更多操作示例见 `synology-dsm-java-sdk-example` 模块下的 `FileStationBasicSample`，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除等完整链路。
+更多操作示例见 `synology-dsm-java-sdk-example` 模块下的 `FileStationBasicExample`，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除等完整链路。
 
-运行示例前，将 `synology-dsm-java-sdk-example/src/main/resources/filestation-basic.example.yaml` 复制为同目录下的 `filestation-basic.yaml`，填入真实 DSM 地址、账号、密码及本地路径后执行 `FileStationBasicSample#main`。
+运行示例前，将 `synology-dsm-java-sdk-example/src/main/resources/filestation-basic.example.yaml` 复制为同目录下的 `filestation-basic.yaml`，填入真实 DSM 地址、账号、密码及本地路径后执行 `FileStationBasicExample#main`。
 
 ## Client configuration
 
@@ -92,7 +92,7 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
 | `connectTimeoutMillis` | `10000` | HTTP 连接超时（毫秒） |
 | `readTimeoutMillis` | `60000` | HTTP 读取超时（毫秒），大文件上传/下载可调大 |
 | `autoLogin` | `true` | 没有 SID 时是否自动登录 |
-| `autoRefreshSession` | `true` | 预留：会话失效时是否自动刷新 |
+| `autoRefreshSession` | `true` | 会话失效（错误码 106/107/119）时自动重新登录并重试一次 |
 
 `baseUrl` 末尾的 `/` 会被自动去除。SDK 内部通过 `baseUrl + /webapi/entry.cgi` 拼接请求地址。密码、SID、Cookie 等敏感信息不会出现在日志中。
 

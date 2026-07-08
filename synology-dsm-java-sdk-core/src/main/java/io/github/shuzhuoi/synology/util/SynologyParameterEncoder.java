@@ -21,6 +21,11 @@ public final class SynologyParameterEncoder {
         return value == null ? null : String.valueOf(value);
     }
 
+    public static String longValue(Long value) {
+        // Search 的 size_from/size_to、mtime_from/to 等参数可能超出 int 范围，统一用 Long 编码。
+        return value == null ? null : String.valueOf(value);
+    }
+
     public static String stringValue(String value) {
         return value;
     }

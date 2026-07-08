@@ -35,5 +35,7 @@ build/
 ### Synology DSM SDK example ###
 synology-dsm-java-sdk-example/src/main/resources/filestation-basic.yaml
 !synology-dsm-java-sdk-example/src/main/resources/filestation-basic.example.yaml
+synology-dsm-java-sdk-example/src/main/resources/filestation-advanced.yaml
+!synology-dsm-java-sdk-example/src/main/resources/filestation-advanced.example.yaml
 
 *.flattened-pom.xml

@@ -23,8 +23,4 @@ public class TaskStatusResponse {
      * DSM 返回的任务状态文本。
      */
     private String status;
-    /**
-     * MD5 任务完成后的文件摘要。非 MD5 任务通常为空。
-     */
-    private String md5;
 }
