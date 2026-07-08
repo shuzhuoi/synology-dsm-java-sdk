@@ -2,6 +2,7 @@ package io.github.shuzhuoi.synology.auth;
 
 import java.util.Date;
 
+
 public class SynologySession {
 
     private final String sid;
