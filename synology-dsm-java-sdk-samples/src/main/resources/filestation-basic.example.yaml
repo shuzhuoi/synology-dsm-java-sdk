@@ -1,0 +1,20 @@
+# File Station 基础示例配置。
+# 运行前请复制本文件为 filestation-basic.yaml，并填写真实 DSM 信息。
+
+# DSM 服务地址，例如：https://nas.example.com:5001
+dsmUrl: "https://your-nas-host:5001"
+
+# DSM 登录账号。
+account: "your-account"
+
+# DSM 登录密码。真实文件 filestation-basic.yaml 已被 .gitignore 忽略，请不要提交。
+password: "your-password"
+
+# 用于上传演示的本地文件路径。
+sampleFile: "D:/tmp/synology-sample.txt"
+
+# File Station 中用于演示操作的远端目录。
+sampleFolder: "/home/sdk-demo"
+
+# 下载文件保存到本地的目录。目录不存在时，示例程序会自动创建。
+downloadFolder: "D:/tmp/synology-downloads"
