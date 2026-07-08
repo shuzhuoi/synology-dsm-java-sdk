@@ -7,12 +7,19 @@
     <parent>
         <groupId>io.github.shuzhuoi</groupId>
         <artifactId>synology-dsm-java-sdk-parent</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>synology-dsm-java-sdk-samples</artifactId>
     <name>synology-dsm-java-sdk-samples</name>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.source.skip>true</maven.source.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <gpg.skip>true</gpg.skip>
+    </properties>
 
     <dependencies>
         <dependency>

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.shuzhuoi.synology.client.SynologyDsmClient;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.filestation.download.DownloadFileResponse;
-import io.github.shuzhuoi.synology.filestation.file.*;
 import io.github.shuzhuoi.synology.filestation.list.ListFilesRequest;
 import io.github.shuzhuoi.synology.filestation.list.ListFilesResponse;
 import io.github.shuzhuoi.synology.filestation.model.SynologyFile;
@@ -65,8 +64,8 @@ public class FileStationBasicSample {
             log.info("{}", file.getPath());
         }
 
-        CreateFolderResponse folder = client.fileStation().file().createFolder(
-                CreateFolderRequest.builder()
+        io.github.shuzhuoi.synology.filestation.file.CreateFolderResponse folder = client.fileStation().file().createFolder(
+                io.github.shuzhuoi.synology.filestation.file.CreateFolderRequest.builder()
                         .addFolder(parentPath(remoteFolder), folderName(remoteFolder))
                         .forceParent(Boolean.TRUE)
                         .build()
@@ -86,14 +85,14 @@ public class FileStationBasicSample {
         log.info("下载文件：{}", downloadedFile.getAbsolutePath());
 
         client.fileStation().file().rename(
-                RenameRequest.builder()
+                io.github.shuzhuoi.synology.filestation.file.RenameRequest.builder()
                         .addRename(uploadedPath, fileName(renamedPath))
                         .build()
         );
         log.info("重命名文件：{} -> {}", uploadedPath, renamedPath);
 
-        DeleteResponse delete = client.fileStation().file().delete(
-                DeleteRequest.builder()
+        io.github.shuzhuoi.synology.filestation.file.DeleteResponse delete = client.fileStation().file().delete(
+                io.github.shuzhuoi.synology.filestation.file.DeleteRequest.builder()
                         .addPath(renamedPath)
                         .build()
         );

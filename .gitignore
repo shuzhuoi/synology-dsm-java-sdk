@@ -37,3 +37,4 @@ synology-dsm-java-sdk-samples/src/main/resources/filestation-basic.yaml
 !synology-dsm-java-sdk-samples/src/main/resources/filestation-basic.example.yaml
 
 /docs
+*.flattened-pom.xml
