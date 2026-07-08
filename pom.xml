@@ -16,7 +16,7 @@
     <modules>
         <module>synology-dsm-java-sdk-core</module>
         <module>synology-dsm-java-sdk-http-hutool</module>
-        <module>synology-dsm-java-sdk-samples</module>
+        <module>synology-dsm-java-sdk-example</module>
     </modules>
 
     <properties>
@@ -27,7 +27,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <jackson.version>2.17.2</jackson.version>
         <hutool.version>5.8.46</hutool.version>
-        <lombok.version>1.18.32</lombok.version>
+        <lombok.version>1.18.46</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <junit.jupiter.version>5.10.3</junit.jupiter.version>
     </properties>
@@ -113,9 +113,16 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>shuzhuo-maven-central</publishingServerId>
+                    <!--
+                        autoPublish 控制 mvn deploy 上传 bundle 并通过校验后是否自动正式发布：
+                        - false：bundle 校验通过后停在 validated 状态，需要登录 Central Portal 手动点 Publish 才会正式发布到 Maven Central。
+                        - true ：bundle 校验通过后自动正式发布，无需再登录 Portal 操作。
+                        当前保持 false：首次发布阶段更稳妥，上传后发现问题时可在 Portal 放弃 deployment，
+                        避免污染 Maven Central（同版本号发布后不可覆盖）。流程跑顺后可改为 true。
+                    -->
                     <autoPublish>false</autoPublish>
                     <excludeArtifacts>
-                        <excludeArtifact>synology-dsm-java-sdk-samples</excludeArtifact>
+                        <excludeArtifact>synology-dsm-java-sdk-example</excludeArtifact>
                     </excludeArtifacts>
                 </configuration>
             </plugin>

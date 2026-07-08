@@ -1,11 +1,15 @@
-package io.github.shuzhuoi.synology.samples;
+package io.github.shuzhuoi.synology.example;
 
 import cn.hutool.core.io.FileUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.shuzhuoi.synology.client.SynologyDsmClient;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
+import io.github.shuzhuoi.synology.example.config.FileStationBasicExampleConfig;
 import io.github.shuzhuoi.synology.filestation.download.DownloadFileResponse;
+import io.github.shuzhuoi.synology.filestation.file.CreateFolderRequest;
+import io.github.shuzhuoi.synology.filestation.file.CreateFolderResponse;
+import io.github.shuzhuoi.synology.filestation.file.DeleteResponse;
 import io.github.shuzhuoi.synology.filestation.list.ListFilesRequest;
 import io.github.shuzhuoi.synology.filestation.list.ListFilesResponse;
 import io.github.shuzhuoi.synology.filestation.model.SynologyFile;
@@ -13,7 +17,6 @@ import io.github.shuzhuoi.synology.filestation.upload.UploadFileRequest;
 import io.github.shuzhuoi.synology.filestation.upload.UploadFileResponse;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyDsmClientFactory;
 import io.github.shuzhuoi.synology.model.Additional;
-import io.github.shuzhuoi.synology.samples.config.FileStationBasicSampleConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -27,13 +30,13 @@ import java.io.InputStream;
  * 并在 filestation-basic.yaml 中填写真实 DSM 地址、账号、密码、本地示例文件、远端示例目录和本地下载目录。
  */
 @Slf4j
-public class FileStationBasicSample {
+public class FileStationBasicExample {
 
     private static final String CONFIG_FILE = "filestation-basic.yaml";
     private static final String CONFIG_EXAMPLE_FILE = "filestation-basic.example.yaml";
 
     public static void main(String[] args) throws IOException {
-        FileStationBasicSampleConfig sampleConfig = readSampleConfig();
+        FileStationBasicExampleConfig sampleConfig = readSampleConfig();
         SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl(requiredConfigValue(sampleConfig.getDsmUrl(), "dsmUrl"))
                 .account(requiredConfigValue(sampleConfig.getAccount(), "account"))
@@ -64,8 +67,8 @@ public class FileStationBasicSample {
             log.info("{}", file.getPath());
         }
 
-        io.github.shuzhuoi.synology.filestation.file.CreateFolderResponse folder = client.fileStation().file().createFolder(
-                io.github.shuzhuoi.synology.filestation.file.CreateFolderRequest.builder()
+        CreateFolderResponse folder = client.fileStation().file().createFolder(
+                CreateFolderRequest.builder()
                         .addFolder(parentPath(remoteFolder), folderName(remoteFolder))
                         .forceParent(Boolean.TRUE)
                         .build()
@@ -90,8 +93,7 @@ public class FileStationBasicSample {
                         .build()
         );
         log.info("重命名文件：{} -> {}", uploadedPath, renamedPath);
-
-        io.github.shuzhuoi.synology.filestation.file.DeleteResponse delete = client.fileStation().file().delete(
+        DeleteResponse delete = client.fileStation().file().delete(
                 io.github.shuzhuoi.synology.filestation.file.DeleteRequest.builder()
                         .addPath(renamedPath)
                         .build()
@@ -101,20 +103,20 @@ public class FileStationBasicSample {
         client.session().logout();
     }
 
-    private static FileStationBasicSampleConfig readSampleConfig() throws IOException {
-        InputStream inputStream = FileStationBasicSample.class.getClassLoader().getResourceAsStream(CONFIG_FILE);
+    private static FileStationBasicExampleConfig readSampleConfig() throws IOException {
+        InputStream inputStream = FileStationBasicExample.class.getClassLoader().getResourceAsStream(CONFIG_FILE);
         if (inputStream == null) {
             throw new IllegalArgumentException("未找到示例配置文件 " + CONFIG_FILE
                     + "，请先复制 " + CONFIG_EXAMPLE_FILE + " 为 " + CONFIG_FILE + " 后再运行。");
         }
         try (InputStream configInputStream = inputStream) {
             ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-            return objectMapper.readValue(configInputStream, FileStationBasicSampleConfig.class);
+            return objectMapper.readValue(configInputStream, FileStationBasicExampleConfig.class);
         }
     }
 
     private static String requiredConfigValue(String value, String fieldName) {
-        if (value == null || value.trim().length() == 0) {
+        if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException("示例配置文件 " + CONFIG_FILE + " 缺少必填配置：" + fieldName);
         }
         return value;

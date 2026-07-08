@@ -32,9 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
-### Synology DSM SDK samples ###
-synology-dsm-java-sdk-samples/src/main/resources/filestation-basic.yaml
-!synology-dsm-java-sdk-samples/src/main/resources/filestation-basic.example.yaml
+### Synology DSM SDK example ###
+synology-dsm-java-sdk-example/src/main/resources/filestation-basic.yaml
+!synology-dsm-java-sdk-example/src/main/resources/filestation-basic.example.yaml
 
-/docs
 *.flattened-pom.xml
