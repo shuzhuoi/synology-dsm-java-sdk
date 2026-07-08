@@ -11,8 +11,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>synology-dsm-java-sdk-samples</artifactId>
-    <name>synology-dsm-java-sdk-samples</name>
+    <artifactId>synology-dsm-java-sdk-example</artifactId>
+    <name>synology-dsm-java-sdk-example</name>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>

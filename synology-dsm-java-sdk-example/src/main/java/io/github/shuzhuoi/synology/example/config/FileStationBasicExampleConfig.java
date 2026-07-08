@@ -1,4 +1,4 @@
-package io.github.shuzhuoi.synology.samples.config;
+package io.github.shuzhuoi.synology.example.config;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,11 +6,11 @@ import lombok.Setter;
 /**
  * File Station 基础示例的本地配置。
  * <p>
- * 该类只服务于 samples 模块，用于承载从 filestation-basic.yaml 读取到的运行参数。
+ * 该类只服务于 example 模块，用于承载从 filestation-basic.yaml 读取到的运行参数。
  */
 @Getter
 @Setter
-public class FileStationBasicSampleConfig {
+public class FileStationBasicExampleConfig {
 
     /**
      * DSM 服务地址，例如：https://nas.example.com:5001。
