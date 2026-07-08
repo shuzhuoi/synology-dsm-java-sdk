@@ -1,9 +1,12 @@
 package io.github.shuzhuoi.synology.filestation;
 
+import io.github.shuzhuoi.synology.filestation.backgroundtask.FileStationBackgroundTaskClient;
+import io.github.shuzhuoi.synology.filestation.dirsize.FileStationDirSizeClient;
 import io.github.shuzhuoi.synology.filestation.download.FileStationDownloadClient;
 import io.github.shuzhuoi.synology.filestation.file.FileStationFileClient;
 import io.github.shuzhuoi.synology.filestation.info.FileStationInfoClient;
 import io.github.shuzhuoi.synology.filestation.list.FileStationListClient;
+import io.github.shuzhuoi.synology.filestation.search.FileStationSearchClient;
 import io.github.shuzhuoi.synology.filestation.task.FileStationTaskClient;
 import io.github.shuzhuoi.synology.filestation.upload.FileStationUploadClient;
 import io.github.shuzhuoi.synology.internal.SynologyApiExecutor;
@@ -39,6 +42,18 @@ public class FileStationClient {
      * MD5 等任务型接口。
      */
     private final FileStationTaskClient taskClient;
+    /**
+     * 文件搜索接口。
+     */
+    private final FileStationSearchClient searchClient;
+    /**
+     * 目录大小统计接口。
+     */
+    private final FileStationDirSizeClient dirSizeClient;
+    /**
+     * 后台任务列表与清理接口。
+     */
+    private final FileStationBackgroundTaskClient backgroundTaskClient;
 
     public FileStationClient(SynologyApiExecutor executor) {
         this.infoClient = new FileStationInfoClient(executor);
@@ -47,6 +62,9 @@ public class FileStationClient {
         this.downloadClient = new FileStationDownloadClient(executor);
         this.fileClient = new FileStationFileClient(executor);
         this.taskClient = new FileStationTaskClient(executor);
+        this.searchClient = new FileStationSearchClient(executor);
+        this.dirSizeClient = new FileStationDirSizeClient(executor);
+        this.backgroundTaskClient = new FileStationBackgroundTaskClient(executor);
     }
 
     public FileStationInfoClient info() {
@@ -71,5 +89,17 @@ public class FileStationClient {
 
     public FileStationTaskClient task() {
         return taskClient;
+    }
+
+    public FileStationSearchClient search() {
+        return searchClient;
+    }
+
+    public FileStationDirSizeClient dirSize() {
+        return dirSizeClient;
+    }
+
+    public FileStationBackgroundTaskClient backgroundTask() {
+        return backgroundTaskClient;
     }
 }

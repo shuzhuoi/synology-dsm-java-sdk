@@ -33,6 +33,11 @@ public class SynologyApiExecutor {
      * 会话管理器由 SynologyDsmClient 初始化后注入，用于认证接口自动追加 _sid。
      */
     private SynologySessionManager sessionManager;
+    /**
+     * 是否在认证请求遇到会话失效错误码时自动重新登录并重试一次。
+     * 默认关闭，由 SynologyDsmClient 根据配置开启。
+     */
+    private boolean autoRefreshSession;
 
     public SynologyApiExecutor(SynologyDsmConfig config, SynologyHttpClient httpClient) {
         this.config = config;
@@ -42,6 +47,25 @@ public class SynologyApiExecutor {
 
     public void setSessionManager(SynologySessionManager sessionManager) {
         this.sessionManager = sessionManager;
+    }
+
+    public void setAutoRefreshSession(boolean autoRefreshSession) {
+        this.autoRefreshSession = autoRefreshSession;
+    }
+
+    /**
+     * 判断 DSM 错误码是否表示会话已失效，需要重新登录。
+     * <ul>
+     *   <li>106: Session timeout</li>
+     *   <li>107: Session interrupted by duplicate login</li>
+     *   <li>119: SID not found</li>
+     * </ul>
+     */
+    private static boolean isSessionError(Integer code) {
+        if (code == null) {
+            return false;
+        }
+        return code == 106 || code == 107 || code == 119;
     }
 
     public <T> T getPublic(String path, String apiName, int version, String method, Map<String, String> parameters, Class<T> dataType) {
@@ -55,7 +79,16 @@ public class SynologyApiExecutor {
     }
 
     public <T> T getAuthenticated(String path, String apiName, int version, String method, Map<String, String> parameters, Class<T> dataType) {
-        return executeJson(path, apiName, version, method, parameters, dataType, true);
+        try {
+            return executeJson(path, apiName, version, method, parameters, dataType, true);
+        } catch (SynologyApiException e) {
+            // 会话失效时自动重新登录并重试一次，避免长连接场景下因 SID 过期中断业务。
+            if (autoRefreshSession && isSessionError(e.getErrorCode())) {
+                sessionManager.refresh();
+                return executeJson(path, apiName, version, method, parameters, dataType, true);
+            }
+            throw e;
+        }
     }
 
     public SynologyHttpResponse downloadAuthenticated(String path, String apiName, int version, String method, Map<String, String> parameters) {
@@ -76,6 +109,19 @@ public class SynologyApiExecutor {
     }
 
     public <T> T executeMultipartAuthenticated(String path, String apiName, int version, String method, SynologyHttpRequest multipartRequest, Class<T> dataType) {
+        try {
+            return doExecuteMultipartAuthenticated(path, apiName, version, method, multipartRequest, dataType);
+        } catch (SynologyApiException e) {
+            // 上传同样可能在 SID 失效时触发 106/107/119，重试一次避免大文件重新拼装后失败。
+            if (autoRefreshSession && isSessionError(e.getErrorCode())) {
+                sessionManager.refresh();
+                return doExecuteMultipartAuthenticated(path, apiName, version, method, multipartRequest, dataType);
+            }
+            throw e;
+        }
+    }
+
+    private <T> T doExecuteMultipartAuthenticated(String path, String apiName, int version, String method, SynologyHttpRequest multipartRequest, Class<T> dataType) {
         Map<String, String> merged = baseParameters(apiName, version, method, multipartRequest.getParameters());
         addSid(merged);
         SynologyHttpRequest.Builder builder = SynologyHttpRequest.builder()

@@ -52,6 +52,8 @@ public class SynologyDsmClient {
         this.authClient = new AuthClient(config, executor);
         this.sessionManager = new SynologySessionManager(config, authClient);
         this.executor.setSessionManager(sessionManager);
+        // 根据配置开启会话失效自动重试，避免长连接场景下 SID 过期导致业务中断。
+        this.executor.setAutoRefreshSession(config.isAutoRefreshSession());
         this.apiInfoClient = new ApiInfoClient(executor);
         this.fileStationClient = new FileStationClient(executor);
     }
