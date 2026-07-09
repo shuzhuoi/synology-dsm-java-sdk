@@ -30,6 +30,21 @@ public final class SynologyTaskPoller {
      * @return 最后一次查询到的状态响应（已完成）
      */
     public static <S> S wait(Supplier<S> statusSupplier, Predicate<S> finishedPredicate, TaskPollingOptions options) {
+        return wait(statusSupplier, finishedPredicate, null, options);
+    }
+
+    /**
+     * 轮询直到任务完成或超过最大尝试次数，并在配置允许时执行超时清理动作。
+     *
+     * @param statusSupplier    状态查询函数，每次调用应返回最新的状态响应
+     * @param finishedPredicate 完成判断谓词，返回 true 时结束轮询
+     * @param timeoutStopAction 超时后的 stop 动作；当 stopOnTimeout=false 时不会执行
+     * @param options           轮询配置
+     * @param <S>               状态响应类型
+     * @return 最后一次查询到的状态响应（已完成）
+     */
+    public static <S> S wait(Supplier<S> statusSupplier, Predicate<S> finishedPredicate,
+                             Runnable timeoutStopAction, TaskPollingOptions options) {
         if (statusSupplier == null) {
             throw new IllegalArgumentException("statusSupplier must not be null");
         }
@@ -48,8 +63,16 @@ public final class SynologyTaskPoller {
             }
             sleepBeforeNext(options.getIntervalMillis());
         }
+        stopIfNecessary(timeoutStopAction, options);
         throw new SynologyDsmException("task polling timeout after " + options.getMaxAttempts()
                 + " attempts, please use the corresponding status method for long-running tasks");
+    }
+
+    private static void stopIfNecessary(Runnable timeoutStopAction, TaskPollingOptions options) {
+        if (!options.isStopOnTimeout() || timeoutStopAction == null) {
+            return;
+        }
+        timeoutStopAction.run();
     }
 
     private static void sleepBeforeNext(long intervalMillis) {
