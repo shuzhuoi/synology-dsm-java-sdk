@@ -90,6 +90,7 @@ public class FileStationSearchClient {
         return SynologyTaskPoller.wait(
                 () -> list(request),
                 response -> Boolean.TRUE.equals(response.getFinished()),
+                () -> stop(taskid),
                 options
         );
     }

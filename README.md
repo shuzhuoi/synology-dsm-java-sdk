@@ -2,9 +2,9 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Java: 8+](https://img.shields.io/badge/java-8%2B-orange.svg)](https://www.java.com/)
-[![Version: 0.1.0](https://img.shields.io/badge/version-0.1.0-green.svg)](CHANGELOG.md)
+[![Version: 0.2.0](https://img.shields.io/badge/version-0.2.0-green.svg)](CHANGELOG.md)
 
-Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，首个版本聚焦 **File Station** 文件操作。
+Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，当前版本聚焦 **File Station** 文件操作和任务型接口。
 
 ## Installation
 
@@ -14,14 +14,14 @@ Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.sy
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-core</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 
 <!-- 默认 HTTP 实现，基于 Hutool -->
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-hutool</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -65,7 +65,7 @@ for (SynologyFile file : response.getFiles()) {
 client.session().logout();
 ```
 
-更多操作示例见 `synology-dsm-java-sdk-example` 模块下的 `FileStationBasicExample`，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除等完整链路。
+更多操作示例见 `synology-dsm-java-sdk-example` 模块下代码，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务等完整链路。
 
 运行示例前，将 `synology-dsm-java-sdk-example/src/main/resources/filestation-basic.example.yaml` 复制为同目录下的 `filestation-basic.yaml`，填入真实 DSM 地址、账号、密码及本地路径后执行 `FileStationBasicExample#main`。
 
@@ -111,7 +111,10 @@ SynologyDsmClient
     ├── upload()               // SYNO.FileStation.Upload
     ├── download()             // SYNO.FileStation.Download
     ├── file()                 // 创建/重命名/删除/复制/移动
-    └── task()                 // 任务型接口（MD5 等）
+    ├── task()                 // 任务型接口（MD5 等）
+    ├── search()               // SYNO.FileStation.Search
+    ├── dirSize()              // SYNO.FileStation.DirSize
+    └── backgroundTask()       // SYNO.FileStation.BackgroundTask
 ```
 
 ## License

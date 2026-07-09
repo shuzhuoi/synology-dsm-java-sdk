@@ -56,6 +56,7 @@ public class FileStationDirSizeClient {
         return SynologyTaskPoller.wait(
                 () -> status(taskid),
                 response -> Boolean.TRUE.equals(response.getFinished()),
+                () -> stop(taskid),
                 options
         );
     }
