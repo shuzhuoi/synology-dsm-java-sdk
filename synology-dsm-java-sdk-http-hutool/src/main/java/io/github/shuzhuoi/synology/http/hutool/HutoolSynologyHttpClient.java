@@ -24,7 +24,7 @@ public class HutoolSynologyHttpClient implements SynologyHttpClient {
             hutoolRequest.timeout(request.getReadTimeoutMillis());
             appendParameters(hutoolRequest, request);
             HttpResponse response = hutoolRequest.execute();
-            if (isDownloadResponse(request)) {
+            if (isBinaryResponse(request)) {
                 return new SynologyHttpResponse(response.getStatus(), response.headers(), null, response.bodyStream());
             }
             return new SynologyHttpResponse(response.getStatus(), response.headers(), response.body(), null);
@@ -52,8 +52,10 @@ public class HutoolSynologyHttpClient implements SynologyHttpClient {
         }
     }
 
-    private boolean isDownloadResponse(SynologyHttpRequest request) {
-        // 下载接口返回二进制内容，不能调用 body() 把响应读成字符串。
-        return "SYNO.FileStation.Download".equals(request.getParameters().get("api"));
+    private boolean isBinaryResponse(SynologyHttpRequest request) {
+        // 下载和缩略图接口都返回二进制内容，不能调用 body() 把响应读成字符串。
+        String apiName = String.valueOf(request.getParameters().get("api"));
+        return "SYNO.FileStation.Download".equals(apiName)
+                || "SYNO.FileStation.Thumb".equals(apiName);
     }
 }

@@ -3,12 +3,16 @@ package io.github.shuzhuoi.synology.filestation;
 import io.github.shuzhuoi.synology.filestation.backgroundtask.FileStationBackgroundTaskClient;
 import io.github.shuzhuoi.synology.filestation.dirsize.FileStationDirSizeClient;
 import io.github.shuzhuoi.synology.filestation.download.FileStationDownloadClient;
+import io.github.shuzhuoi.synology.filestation.favorite.FileStationFavoriteClient;
 import io.github.shuzhuoi.synology.filestation.file.FileStationFileClient;
 import io.github.shuzhuoi.synology.filestation.info.FileStationInfoClient;
 import io.github.shuzhuoi.synology.filestation.list.FileStationListClient;
 import io.github.shuzhuoi.synology.filestation.search.FileStationSearchClient;
+import io.github.shuzhuoi.synology.filestation.sharing.FileStationSharingClient;
 import io.github.shuzhuoi.synology.filestation.task.FileStationTaskClient;
+import io.github.shuzhuoi.synology.filestation.thumb.FileStationThumbClient;
 import io.github.shuzhuoi.synology.filestation.upload.FileStationUploadClient;
+import io.github.shuzhuoi.synology.filestation.virtualfolder.FileStationVirtualFolderClient;
 import io.github.shuzhuoi.synology.internal.SynologyApiExecutor;
 
 /**
@@ -54,6 +58,22 @@ public class FileStationClient {
      * 后台任务列表与清理接口。
      */
     private final FileStationBackgroundTaskClient backgroundTaskClient;
+    /**
+     * 分享链接管理接口。
+     */
+    private final FileStationSharingClient sharingClient;
+    /**
+     * 收藏夹接口。
+     */
+    private final FileStationFavoriteClient favoriteClient;
+    /**
+     * 缩略图接口。
+     */
+    private final FileStationThumbClient thumbClient;
+    /**
+     * 虚拟目录挂载点接口。
+     */
+    private final FileStationVirtualFolderClient virtualFolderClient;
 
     public FileStationClient(SynologyApiExecutor executor) {
         this.infoClient = new FileStationInfoClient(executor);
@@ -65,6 +85,10 @@ public class FileStationClient {
         this.searchClient = new FileStationSearchClient(executor);
         this.dirSizeClient = new FileStationDirSizeClient(executor);
         this.backgroundTaskClient = new FileStationBackgroundTaskClient(executor);
+        this.sharingClient = new FileStationSharingClient(executor);
+        this.favoriteClient = new FileStationFavoriteClient(executor);
+        this.thumbClient = new FileStationThumbClient(executor);
+        this.virtualFolderClient = new FileStationVirtualFolderClient(executor);
     }
 
     public FileStationInfoClient info() {
@@ -101,5 +125,21 @@ public class FileStationClient {
 
     public FileStationBackgroundTaskClient backgroundTask() {
         return backgroundTaskClient;
+    }
+
+    public FileStationSharingClient sharing() {
+        return sharingClient;
+    }
+
+    public FileStationFavoriteClient favorite() {
+        return favoriteClient;
+    }
+
+    public FileStationThumbClient thumb() {
+        return thumbClient;
+    }
+
+    public FileStationVirtualFolderClient virtualFolder() {
+        return virtualFolderClient;
     }
 }

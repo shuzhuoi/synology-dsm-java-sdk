@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 (2026-07-10)
+
+- 新增 `SYNO.FileStation.Sharing`：支持分享链接 getinfo / list / create / delete / clear_invalid / edit
+- 新增 `SYNO.FileStation.Favorite`：支持收藏夹 list / add / delete / clear_broken / edit / replace_all
+- 新增 `SYNO.FileStation.Thumb`：支持获取文件缩略图二进制流
+- 新增 `SYNO.FileStation.VirtualFolder`：支持列出 CIFS / NFS / ISO 等虚拟目录挂载点
+- `FileStationClient` 新增 `sharing()` / `favorite()` / `thumb()` / `virtualFolder()` 入口
+- example 模块新增资源能力示例 `FileStationResourceExample` 与 `filestation-resource.example.yaml`
+- 修复 Hutool HTTP 适配层未将 `SYNO.FileStation.Thumb` 识别为二进制响应，导致缩略图响应流为空的问题
+
 ## 0.2.0 (2026-07-08)
 
 - 新增 `SYNO.FileStation.Search`：按文件名/大小/时间/类型/归属等条件搜索文件，支持 start / list / stop / clean 和轮询等待

@@ -50,6 +50,17 @@ public final class SynologyParameterEncoder {
         return "[" + join(quotedValues) + "]";
     }
 
+    public static String quotedOrList(List<String> values) {
+        // 官方部分接口单值示例用 "id"，多值语义用 ["id1","id2"]；这里统一按数量选择编码。
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        if (values.size() == 1) {
+            return quoted(values.get(0));
+        }
+        return stringList(values);
+    }
+
     public static String additionalList(List<Additional> values) {
         // additional 参数同样使用数组字符串，方便 DSM 返回扩展字段。
         if (values == null || values.isEmpty()) {
