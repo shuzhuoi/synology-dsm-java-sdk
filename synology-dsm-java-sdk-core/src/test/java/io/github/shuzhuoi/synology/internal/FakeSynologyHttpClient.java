@@ -4,6 +4,8 @@ import io.github.shuzhuoi.synology.http.SynologyHttpClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
 import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
 
+import java.io.InputStream;
+
 /**
  * 执行器测试用 HTTP 客户端，避免单元测试请求真实 DSM。
  */
@@ -14,6 +16,10 @@ class FakeSynologyHttpClient implements SynologyHttpClient {
 
     FakeSynologyHttpClient(String body) {
         this.response = new SynologyHttpResponse(200, null, body, null);
+    }
+
+    FakeSynologyHttpClient(InputStream bodyStream) {
+        this.response = new SynologyHttpResponse(200, null, null, bodyStream);
     }
 
     @Override

@@ -8,6 +8,7 @@ import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.exception.SynologyApiException;
 import io.github.shuzhuoi.synology.exception.SynologyDsmException;
 import io.github.shuzhuoi.synology.exception.SynologyHttpException;
+import io.github.shuzhuoi.synology.http.ResponseBodyMode;
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpMethod;
 import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
@@ -100,6 +101,7 @@ public class SynologyApiExecutor {
                 .parameters(merged)
                 .connectTimeoutMillis(config.getConnectTimeoutMillis())
                 .readTimeoutMillis(config.getReadTimeoutMillis())
+                .responseBodyMode(ResponseBodyMode.STREAM)
                 .build();
         SynologyHttpResponse response = httpClient.execute(request);
         if (response.getStatusCode() < 200 || response.getStatusCode() >= 300) {

@@ -37,6 +37,10 @@ public class SynologyHttpRequest {
      * 读取超时时间，单位毫秒。
      */
     private final int readTimeoutMillis;
+    /**
+     * 响应体读取模式，默认按普通 JSON 文本读取。
+     */
+    private final ResponseBodyMode responseBodyMode;
 
     private SynologyHttpRequest(Builder builder) {
         this.method = builder.method;
@@ -45,6 +49,7 @@ public class SynologyHttpRequest {
         this.multipartParts = Collections.unmodifiableList(new ArrayList<SynologyMultipartPart>(builder.multipartParts));
         this.connectTimeoutMillis = builder.connectTimeoutMillis;
         this.readTimeoutMillis = builder.readTimeoutMillis;
+        this.responseBodyMode = builder.responseBodyMode;
     }
 
     public static Builder builder() {
@@ -75,6 +80,10 @@ public class SynologyHttpRequest {
         return readTimeoutMillis;
     }
 
+    public ResponseBodyMode getResponseBodyMode() {
+        return responseBodyMode;
+    }
+
     public boolean isMultipart() {
         return !multipartParts.isEmpty();
     }
@@ -86,6 +95,7 @@ public class SynologyHttpRequest {
         private List<SynologyMultipartPart> multipartParts = new ArrayList<SynologyMultipartPart>();
         private int connectTimeoutMillis = 10000;
         private int readTimeoutMillis = 60000;
+        private ResponseBodyMode responseBodyMode = ResponseBodyMode.TEXT;
 
         public Builder method(SynologyHttpMethod method) {
             this.method = method;
@@ -125,6 +135,13 @@ public class SynologyHttpRequest {
 
         public Builder readTimeoutMillis(int readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
+            return this;
+        }
+
+        public Builder responseBodyMode(ResponseBodyMode responseBodyMode) {
+            if (responseBodyMode != null) {
+                this.responseBodyMode = responseBodyMode;
+            }
             return this;
         }
 

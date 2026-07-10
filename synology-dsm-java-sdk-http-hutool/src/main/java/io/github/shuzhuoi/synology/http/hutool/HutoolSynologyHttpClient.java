@@ -3,6 +3,7 @@ package io.github.shuzhuoi.synology.http.hutool;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import io.github.shuzhuoi.synology.exception.SynologyHttpException;
+import io.github.shuzhuoi.synology.http.ResponseBodyMode;
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpMethod;
 import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
@@ -24,7 +25,7 @@ public class HutoolSynologyHttpClient implements SynologyHttpClient {
             hutoolRequest.timeout(request.getReadTimeoutMillis());
             appendParameters(hutoolRequest, request);
             HttpResponse response = hutoolRequest.execute();
-            if (isBinaryResponse(request)) {
+            if (request.getResponseBodyMode() == ResponseBodyMode.STREAM) {
                 return new SynologyHttpResponse(response.getStatus(), response.headers(), null, response.bodyStream());
             }
             return new SynologyHttpResponse(response.getStatus(), response.headers(), response.body(), null);
@@ -50,12 +51,5 @@ public class HutoolSynologyHttpClient implements SynologyHttpClient {
         if (!form.isEmpty()) {
             hutoolRequest.form(form);
         }
-    }
-
-    private boolean isBinaryResponse(SynologyHttpRequest request) {
-        // 下载和缩略图接口都返回二进制内容，不能调用 body() 把响应读成字符串。
-        String apiName = String.valueOf(request.getParameters().get("api"));
-        return "SYNO.FileStation.Download".equals(apiName)
-                || "SYNO.FileStation.Thumb".equals(apiName);
     }
 }
