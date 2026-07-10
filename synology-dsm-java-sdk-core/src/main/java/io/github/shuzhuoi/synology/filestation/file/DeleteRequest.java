@@ -18,6 +18,14 @@ public class DeleteRequest {
      * 非阻塞删除时是否精确计算进度。精确计算更准但可能更慢。
      */
     private final Boolean accurateProgress;
+    /**
+     * 是否递归删除文件夹内的内容。为空时按 DSM 默认 true 处理。
+     */
+    private final Boolean recursive;
+    /**
+     * Search start 返回的任务 ID，用于让 DSM 同步更新搜索结果。
+     */
+    private final String searchTaskId;
 
     private DeleteRequest(Builder builder) {
         List<String> normalized = new ArrayList<String>();
@@ -26,6 +34,8 @@ public class DeleteRequest {
         }
         this.paths = Collections.unmodifiableList(normalized);
         this.accurateProgress = builder.accurateProgress;
+        this.recursive = builder.recursive;
+        this.searchTaskId = builder.searchTaskId;
     }
 
     public static Builder builder() {
@@ -35,6 +45,8 @@ public class DeleteRequest {
     public static class Builder {
         private List<String> paths = new ArrayList<String>();
         private Boolean accurateProgress;
+        private Boolean recursive;
+        private String searchTaskId;
 
         public Builder addPath(String path) {
             this.paths.add(path);
@@ -43,6 +55,16 @@ public class DeleteRequest {
 
         public Builder accurateProgress(Boolean accurateProgress) {
             this.accurateProgress = accurateProgress;
+            return this;
+        }
+
+        public Builder recursive(Boolean recursive) {
+            this.recursive = recursive;
+            return this;
+        }
+
+        public Builder searchTaskId(String searchTaskId) {
+            this.searchTaskId = searchTaskId;
             return this;
         }
 

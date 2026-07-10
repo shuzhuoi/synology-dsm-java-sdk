@@ -1,5 +1,6 @@
 package io.github.shuzhuoi.synology.filestation.file;
 
+import io.github.shuzhuoi.synology.model.Additional;
 import io.github.shuzhuoi.synology.util.SynologyPath;
 import lombok.Getter;
 
@@ -22,6 +23,10 @@ public class CreateFolderRequest {
      * 父目录不存在时是否自动创建父目录。
      */
     private final Boolean forceParent;
+    /**
+     * 需要额外返回的文件夹属性，例如 size、owner、time、perm。
+     */
+    private final List<Additional> additional;
 
     private CreateFolderRequest(Builder builder) {
         List<String> normalized = new ArrayList<String>();
@@ -31,6 +36,7 @@ public class CreateFolderRequest {
         this.folderPaths = Collections.unmodifiableList(normalized);
         this.names = Collections.unmodifiableList(new ArrayList<String>(builder.names));
         this.forceParent = builder.forceParent;
+        this.additional = Collections.unmodifiableList(new ArrayList<Additional>(builder.additional));
     }
 
     public static Builder builder() {
@@ -41,6 +47,7 @@ public class CreateFolderRequest {
         private List<String> folderPaths = new ArrayList<String>();
         private List<String> names = new ArrayList<String>();
         private Boolean forceParent = Boolean.TRUE;
+        private List<Additional> additional = new ArrayList<Additional>();
 
         public Builder addFolder(String folderPath, String name) {
             this.folderPaths.add(folderPath);
@@ -50,6 +57,13 @@ public class CreateFolderRequest {
 
         public Builder forceParent(Boolean forceParent) {
             this.forceParent = forceParent;
+            return this;
+        }
+
+        public Builder addAdditional(Additional additional) {
+            if (additional != null) {
+                this.additional.add(additional);
+            }
             return this;
         }
 

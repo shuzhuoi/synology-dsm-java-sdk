@@ -39,6 +39,7 @@ public class FileStationFileClient {
         parameters.put("folder_path", SynologyParameterEncoder.stringList(request.getFolderPaths()));
         parameters.put("name", SynologyParameterEncoder.stringList(request.getNames()));
         parameters.put("force_parent", SynologyParameterEncoder.booleanValue(request.getForceParent()));
+        parameters.put("additional", SynologyParameterEncoder.additionalList(request.getAdditional()));
         return executor.getAuthenticated("entry.cgi", "SYNO.FileStation.CreateFolder", 2, "create", parameters, CreateFolderResponse.class);
     }
 
@@ -47,13 +48,14 @@ public class FileStationFileClient {
         Map<String, String> parameters = new LinkedHashMap<String, String>();
         parameters.put("path", SynologyParameterEncoder.stringList(request.getPaths()));
         parameters.put("name", SynologyParameterEncoder.stringList(request.getNames()));
+        parameters.put("additional", SynologyParameterEncoder.additionalList(request.getAdditional()));
+        parameters.put("search_task_id", SynologyParameterEncoder.quoted(request.getSearchTaskId()));
         return executor.getAuthenticated("entry.cgi", "SYNO.FileStation.Rename", 2, "rename", parameters, RenameResponse.class);
     }
 
     public TaskStartResponse deleteAsync(DeleteRequest request) {
         // start 是非阻塞删除，会返回 taskid，调用方可继续查询 status。
-        Map<String, String> parameters = new LinkedHashMap<String, String>();
-        parameters.put("path", SynologyParameterEncoder.stringList(request.getPaths()));
+        Map<String, String> parameters = deleteParameters(request);
         parameters.put("accurate_progress", SynologyParameterEncoder.booleanValue(request.getAccurateProgress()));
         return executor.getAuthenticated("entry.cgi", "SYNO.FileStation.Delete", 2, "start", parameters, TaskStartResponse.class);
     }
@@ -65,12 +67,18 @@ public class FileStationFileClient {
         return new DeleteResponse(true);
     }
 
+    public DeleteResponse deleteBlocking(DeleteRequest request) {
+        // 直接调用官方阻塞 delete 方法，用于完整表达 SYNO.FileStation.Delete.delete 契约。
+        executor.getAuthenticated("entry.cgi", "SYNO.FileStation.Delete", 2, "delete", deleteParameters(request), Object.class);
+        return new DeleteResponse(true);
+    }
+
     public TaskStatusResponse deleteStatus(String taskId) {
-        return taskStatus("SYNO.FileStation.Delete", taskId);
+        return taskStatus("SYNO.FileStation.Delete", 2, taskId);
     }
 
     public TaskStopResponse deleteStop(String taskId) {
-        taskStop("SYNO.FileStation.Delete", taskId);
+        taskStop("SYNO.FileStation.Delete", 2, taskId);
         return new TaskStopResponse(true);
     }
 
@@ -83,11 +91,11 @@ public class FileStationFileClient {
     }
 
     public TaskStatusResponse copyMoveStatus(String taskId) {
-        return taskStatus("SYNO.FileStation.CopyMove", taskId);
+        return taskStatus("SYNO.FileStation.CopyMove", 3, taskId);
     }
 
     public TaskStopResponse copyMoveStop(String taskId) {
-        taskStop("SYNO.FileStation.CopyMove", taskId);
+        taskStop("SYNO.FileStation.CopyMove", 3, taskId);
         return new TaskStopResponse(true);
     }
 
@@ -99,19 +107,28 @@ public class FileStationFileClient {
         parameters.put("overwrite", SynologyParameterEncoder.booleanValue(request.getOverwrite()));
         parameters.put("remove_src", SynologyParameterEncoder.booleanValue(removeSrc));
         parameters.put("accurate_progress", SynologyParameterEncoder.booleanValue(request.getAccurateProgress()));
+        parameters.put("search_task_id", SynologyParameterEncoder.quoted(request.getSearchTaskId()));
         return executor.getAuthenticated("entry.cgi", "SYNO.FileStation.CopyMove", 3, "start", parameters, TaskStartResponse.class);
     }
 
-    private TaskStatusResponse taskStatus(String apiName, String taskId) {
+    private Map<String, String> deleteParameters(DeleteRequest request) {
         Map<String, String> parameters = new LinkedHashMap<String, String>();
-        parameters.put("taskid", SynologyParameterEncoder.quoted(taskId));
-        return executor.getAuthenticated("entry.cgi", apiName, 2, "status", parameters, TaskStatusResponse.class);
+        parameters.put("path", SynologyParameterEncoder.stringList(request.getPaths()));
+        parameters.put("recursive", SynologyParameterEncoder.booleanValue(request.getRecursive()));
+        parameters.put("search_task_id", SynologyParameterEncoder.quoted(request.getSearchTaskId()));
+        return parameters;
     }
 
-    private void taskStop(String apiName, String taskId) {
+    private TaskStatusResponse taskStatus(String apiName, int version, String taskId) {
         Map<String, String> parameters = new LinkedHashMap<String, String>();
         parameters.put("taskid", SynologyParameterEncoder.quoted(taskId));
-        executor.getAuthenticated("entry.cgi", apiName, 2, "stop", parameters, Object.class);
+        return executor.getAuthenticated("entry.cgi", apiName, version, "status", parameters, TaskStatusResponse.class);
+    }
+
+    private void taskStop(String apiName, int version, String taskId) {
+        Map<String, String> parameters = new LinkedHashMap<String, String>();
+        parameters.put("taskid", SynologyParameterEncoder.quoted(taskId));
+        executor.getAuthenticated("entry.cgi", apiName, version, "stop", parameters, Object.class);
     }
 
     private void waitDeleteFinished(TaskStartResponse startResponse) {

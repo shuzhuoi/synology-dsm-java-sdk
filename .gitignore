@@ -41,6 +41,8 @@ synology-dsm-java-sdk-example/src/main/resources/filestation-resource.yaml
 !synology-dsm-java-sdk-example/src/main/resources/filestation-resource.example.yaml
 synology-dsm-java-sdk-example/src/main/resources/filestation-archive.yaml
 !synology-dsm-java-sdk-example/src/main/resources/filestation-archive.example.yaml
+synology-dsm-java-sdk-example/src/main/resources/filestation-official-coverage.yaml
+!synology-dsm-java-sdk-example/src/main/resources/filestation-official-coverage.example.yaml
 synology-dsm-java-sdk-example/src/main/resources/filestation-v030.yaml
 
 *.flattened-pom.xml

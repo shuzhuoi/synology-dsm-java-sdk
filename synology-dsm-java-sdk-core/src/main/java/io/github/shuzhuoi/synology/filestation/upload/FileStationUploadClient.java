@@ -21,14 +21,17 @@ public class FileStationUploadClient {
         SynologyHttpRequest multipartRequest = SynologyHttpRequest.builder()
                 .parameter("path", request.getPath())
                 .parameter("create_parents", SynologyParameterEncoder.booleanValue(request.getCreateParents()))
-                .parameter("overwrite", SynologyParameterEncoder.booleanValue(request.getOverwrite()))
+                .parameter("overwrite", request.overwriteParameter())
+                .parameter("mtime", SynologyParameterEncoder.longValue(request.getMtime()))
+                .parameter("crtime", SynologyParameterEncoder.longValue(request.getCrtime()))
+                .parameter("atime", SynologyParameterEncoder.longValue(request.getAtime()))
                 // 官方文档要求 multipart 上传时 file 字段放在最后。
                 .multipartPart(SynologyMultipartPart.file("file", request.getFile()))
                 .build();
         executor.executeMultipartAuthenticated(
                 "entry.cgi",
                 "SYNO.FileStation.Upload",
-                2,
+                request.useUploadApiV3() ? 3 : 2,
                 "upload",
                 multipartRequest,
                 Object.class
