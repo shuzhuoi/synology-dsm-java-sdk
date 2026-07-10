@@ -20,8 +20,8 @@
     </modules>
 
     <properties>
-        <!-- v0.3.0 已完成 example 验证和发布收尾，切换为正式发布版本。 -->
-        <revision>0.3.0</revision>
+        <!-- v0.4.0 已完成 Extract / Compress 和归档示例验证，Starter 后续补齐。 -->
+        <revision>0.4.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>

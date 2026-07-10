@@ -1,8 +1,10 @@
 package io.github.shuzhuoi.synology.filestation;
 
 import io.github.shuzhuoi.synology.filestation.backgroundtask.FileStationBackgroundTaskClient;
+import io.github.shuzhuoi.synology.filestation.compress.FileStationCompressClient;
 import io.github.shuzhuoi.synology.filestation.dirsize.FileStationDirSizeClient;
 import io.github.shuzhuoi.synology.filestation.download.FileStationDownloadClient;
+import io.github.shuzhuoi.synology.filestation.extract.FileStationExtractClient;
 import io.github.shuzhuoi.synology.filestation.favorite.FileStationFavoriteClient;
 import io.github.shuzhuoi.synology.filestation.file.FileStationFileClient;
 import io.github.shuzhuoi.synology.filestation.info.FileStationInfoClient;
@@ -74,6 +76,14 @@ public class FileStationClient {
      * 虚拟目录挂载点接口。
      */
     private final FileStationVirtualFolderClient virtualFolderClient;
+    /**
+     * 解压接口。
+     */
+    private final FileStationExtractClient extractClient;
+    /**
+     * 压缩接口。
+     */
+    private final FileStationCompressClient compressClient;
 
     public FileStationClient(SynologyApiExecutor executor) {
         this.infoClient = new FileStationInfoClient(executor);
@@ -89,6 +99,8 @@ public class FileStationClient {
         this.favoriteClient = new FileStationFavoriteClient(executor);
         this.thumbClient = new FileStationThumbClient(executor);
         this.virtualFolderClient = new FileStationVirtualFolderClient(executor);
+        this.extractClient = new FileStationExtractClient(executor);
+        this.compressClient = new FileStationCompressClient(executor);
     }
 
     public FileStationInfoClient info() {
@@ -141,5 +153,13 @@ public class FileStationClient {
 
     public FileStationVirtualFolderClient virtualFolder() {
         return virtualFolderClient;
+    }
+
+    public FileStationExtractClient extract() {
+        return extractClient;
+    }
+
+    public FileStationCompressClient compress() {
+        return compressClient;
     }
 }

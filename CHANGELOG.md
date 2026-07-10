@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 (2026-07-10)
+
+- 新增 `SYNO.FileStation.Extract`：支持 start / status / stop / list / wait
+- 新增 `SYNO.FileStation.Compress`：支持 start / status / stop / wait
+- `FileStationClient` 新增 `extract()` / `compress()` 入口
+- 新增 `ArchiveItem`、`ExtractListResponse`、`ExtractStatusResponse`、`CompressStatusResponse` 等强类型响应实体
+- example 模块新增归档能力示例 `FileStationArchiveExample` 与 `filestation-archive.example.yaml`
+- Extract / Compress 和归档示例已在真实 DSM 环境验证通过
+
 ## 0.3.0 (2026-07-10)
 
 - 新增 `SYNO.FileStation.Sharing`：支持分享链接 getinfo / list / create / delete / clear_invalid / edit
