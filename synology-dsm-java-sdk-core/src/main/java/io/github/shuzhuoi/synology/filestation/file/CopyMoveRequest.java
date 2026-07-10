@@ -26,6 +26,10 @@ public class CopyMoveRequest {
      * 是否精确计算复制/移动进度。
      */
     private final Boolean accurateProgress;
+    /**
+     * Search start 返回的任务 ID，用于让 DSM 同步更新搜索结果。
+     */
+    private final String searchTaskId;
 
     private CopyMoveRequest(Builder builder) {
         List<String> normalized = new ArrayList<String>();
@@ -36,6 +40,7 @@ public class CopyMoveRequest {
         this.destFolderPath = SynologyPath.normalize(builder.destFolderPath);
         this.overwrite = builder.overwrite;
         this.accurateProgress = builder.accurateProgress;
+        this.searchTaskId = builder.searchTaskId;
     }
 
     public static Builder builder(String destFolderPath) {
@@ -47,6 +52,7 @@ public class CopyMoveRequest {
         private final String destFolderPath;
         private Boolean overwrite;
         private Boolean accurateProgress;
+        private String searchTaskId;
 
         private Builder(String destFolderPath) {
             this.destFolderPath = destFolderPath;
@@ -64,6 +70,11 @@ public class CopyMoveRequest {
 
         public Builder accurateProgress(Boolean accurateProgress) {
             this.accurateProgress = accurateProgress;
+            return this;
+        }
+
+        public Builder searchTaskId(String searchTaskId) {
+            this.searchTaskId = searchTaskId;
             return this;
         }
 

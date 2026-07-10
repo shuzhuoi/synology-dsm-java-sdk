@@ -9,6 +9,7 @@ import io.github.shuzhuoi.synology.filestation.favorite.FileStationFavoriteClien
 import io.github.shuzhuoi.synology.filestation.file.FileStationFileClient;
 import io.github.shuzhuoi.synology.filestation.info.FileStationInfoClient;
 import io.github.shuzhuoi.synology.filestation.list.FileStationListClient;
+import io.github.shuzhuoi.synology.filestation.permission.FileStationCheckPermissionClient;
 import io.github.shuzhuoi.synology.filestation.search.FileStationSearchClient;
 import io.github.shuzhuoi.synology.filestation.sharing.FileStationSharingClient;
 import io.github.shuzhuoi.synology.filestation.task.FileStationTaskClient;
@@ -53,6 +54,10 @@ public class FileStationClient {
      */
     private final FileStationSearchClient searchClient;
     /**
+     * 写入权限预检查接口。
+     */
+    private final FileStationCheckPermissionClient permissionClient;
+    /**
      * 目录大小统计接口。
      */
     private final FileStationDirSizeClient dirSizeClient;
@@ -93,6 +98,7 @@ public class FileStationClient {
         this.fileClient = new FileStationFileClient(executor);
         this.taskClient = new FileStationTaskClient(executor);
         this.searchClient = new FileStationSearchClient(executor);
+        this.permissionClient = new FileStationCheckPermissionClient(executor);
         this.dirSizeClient = new FileStationDirSizeClient(executor);
         this.backgroundTaskClient = new FileStationBackgroundTaskClient(executor);
         this.sharingClient = new FileStationSharingClient(executor);
@@ -129,6 +135,10 @@ public class FileStationClient {
 
     public FileStationSearchClient search() {
         return searchClient;
+    }
+
+    public FileStationCheckPermissionClient permission() {
+        return permissionClient;
     }
 
     public FileStationDirSizeClient dirSize() {

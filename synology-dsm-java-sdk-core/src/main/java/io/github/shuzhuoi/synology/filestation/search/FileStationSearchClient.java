@@ -7,7 +7,9 @@ import io.github.shuzhuoi.synology.filestation.task.TaskStopResponse;
 import io.github.shuzhuoi.synology.internal.SynologyApiExecutor;
 import io.github.shuzhuoi.synology.util.SynologyParameterEncoder;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,17 +63,25 @@ public class FileStationSearchClient {
     }
 
     public TaskStopResponse stop(String taskid) {
+        return stop(Collections.singletonList(taskid));
+    }
+
+    public TaskStopResponse stop(List<String> taskids) {
         // stop 仅取消搜索，临时数据库仍保留，可继续 list；完成后需调用 clean 清理。
         Map<String, String> parameters = new LinkedHashMap<String, String>();
-        parameters.put("taskid", SynologyParameterEncoder.quoted(taskid));
+        parameters.put("taskid", SynologyParameterEncoder.quotedOrList(taskids));
         executor.getAuthenticated("entry.cgi", "SYNO.FileStation.Search", 2, "stop", parameters, Object.class);
         return new TaskStopResponse(true);
     }
 
     public TaskStopResponse clean(String taskid) {
+        return clean(Collections.singletonList(taskid));
+    }
+
+    public TaskStopResponse clean(List<String> taskids) {
         // clean 删除搜索临时数据库，释放 DSM 端资源。
         Map<String, String> parameters = new LinkedHashMap<String, String>();
-        parameters.put("taskid", SynologyParameterEncoder.quoted(taskid));
+        parameters.put("taskid", SynologyParameterEncoder.quotedOrList(taskids));
         executor.getAuthenticated("entry.cgi", "SYNO.FileStation.Search", 2, "clean", parameters, Object.class);
         return new TaskStopResponse(true);
     }
