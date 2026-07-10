@@ -1,19 +1,26 @@
 package io.github.shuzhuoi.synology.internal;
 
+import io.github.shuzhuoi.synology.auth.AuthClient;
+import io.github.shuzhuoi.synology.auth.SynologySession;
+import io.github.shuzhuoi.synology.auth.SynologySessionManager;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.exception.SynologyApiException;
 import io.github.shuzhuoi.synology.exception.SynologyDsmException;
 import io.github.shuzhuoi.synology.exception.SynologyHttpException;
+import io.github.shuzhuoi.synology.http.ResponseBodyMode;
 import io.github.shuzhuoi.synology.http.SynologyHttpMethod;
 import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
+import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -113,10 +120,55 @@ class SynologyApiExecutorTest {
         });
     }
 
+    @Test
+    void downloadAuthenticatedBuildsStreamRequest() {
+        ByteArrayInputStream bodyStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
+        FakeSynologyHttpClient httpClient = new FakeSynologyHttpClient(bodyStream);
+        SynologyDsmConfig config = SynologyDsmConfig.builder()
+                .baseUrl("http://nas:5000")
+                .build();
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient);
+        executor.setSessionManager(new FixedSessionManager(config, "sid-1"));
+
+        SynologyHttpResponse response = executor.downloadAuthenticated(
+                "entry.cgi",
+                "SYNO.FileStation.Download",
+                2,
+                "download",
+                null
+        );
+
+        assertSame(bodyStream, response.getBodyStream());
+
+        SynologyHttpRequest request = httpClient.getLastRequest();
+        assertEquals(SynologyHttpMethod.GET, request.getMethod());
+        assertEquals(ResponseBodyMode.STREAM, request.getResponseBodyMode());
+        assertEquals("SYNO.FileStation.Download", request.getParameters().get("api"));
+        assertEquals("sid-1", request.getParameters().get("_sid"));
+    }
+
     private SynologyApiExecutor newExecutor(FakeSynologyHttpClient httpClient) {
         SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
                 .build();
         return new SynologyApiExecutor(config, httpClient);
+    }
+
+    /**
+     * 固定 SID 的测试会话管理器，用于验证认证请求参数，不触发真实登录。
+     */
+    private static class FixedSessionManager extends SynologySessionManager {
+
+        private final SynologySession session;
+
+        FixedSessionManager(SynologyDsmConfig config, String sid) {
+            super(config, (AuthClient) null);
+            this.session = new SynologySession(sid, config.getSessionName(), null);
+        }
+
+        @Override
+        public synchronized SynologySession currentSession() {
+            return session;
+        }
     }
 }
