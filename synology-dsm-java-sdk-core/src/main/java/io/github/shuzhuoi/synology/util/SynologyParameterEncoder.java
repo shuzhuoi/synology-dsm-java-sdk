@@ -61,6 +61,23 @@ public final class SynologyParameterEncoder {
         return stringList(values);
     }
 
+    public static String integerList(List<Integer> values) {
+        // Extract 的 item_id 支持多个整数 ID，官方描述为逗号分隔，不使用字符串引号。
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        List<String> numberValues = new ArrayList<String>();
+        for (Integer value : values) {
+            if (value != null) {
+                numberValues.add(String.valueOf(value));
+            }
+        }
+        if (numberValues.isEmpty()) {
+            return null;
+        }
+        return join(numberValues);
+    }
+
     public static String additionalList(List<Additional> values) {
         // additional 参数同样使用数组字符串，方便 DSM 返回扩展字段。
         if (values == null || values.isEmpty()) {

@@ -2,7 +2,7 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Java: 8+](https://img.shields.io/badge/java-8%2B-orange.svg)](https://www.java.com/)
-[![Version: 0.3.0](https://img.shields.io/badge/version-0.3.0-green.svg)](CHANGELOG.md)
+[![Version: 0.4.0](https://img.shields.io/badge/version-0.4.0-green.svg)](CHANGELOG.md)
 
 Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，当前版本聚焦 **File Station** 文件操作、任务型接口和分享/收藏等资源能力。
 
@@ -14,14 +14,14 @@ Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.sy
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-core</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 
 <!-- 默认 HTTP 实现，基于 Hutool -->
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-hutool</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -65,13 +65,14 @@ for (SynologyFile file : response.getFiles()) {
 client.session().logout();
 ```
 
-更多操作示例见 `synology-dsm-java-sdk-example` 模块下代码，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录等完整链路。
+更多操作示例见 `synology-dsm-java-sdk-example` 模块下代码，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压等完整链路。
 
 运行示例前，根据要验证的能力复制对应配置文件并填写真实 DSM 信息：
 
-- 基础文件操作：复制 `filestation-basic.example.yaml` 为 `filestation-basic.yaml`，执行 `FileStationBasicExample#main`。
-- 任务型接口：复制 `filestation-advanced.example.yaml` 为 `filestation-advanced.yaml`，执行 `FileStationAdvancedExample#main`。
-- 分享、收藏、缩略图、虚拟目录：复制 `filestation-resource.example.yaml` 为 `filestation-resource.yaml`，执行 `FileStationResourceExample#main`。
+- 基础文件操作： `FileStationBasicExample#main`。
+- 任务型接口： `FileStationAdvancedExample#main`。
+- 分享、收藏、缩略图、虚拟目录： `FileStationResourceExample#main`。
+- 压缩和解压：`FileStationArchiveExample#main`。
 
 ## Client configuration
 
@@ -122,7 +123,9 @@ SynologyDsmClient
     ├── sharing()              // SYNO.FileStation.Sharing
     ├── favorite()             // SYNO.FileStation.Favorite
     ├── thumb()                // SYNO.FileStation.Thumb
-    └── virtualFolder()        // SYNO.FileStation.VirtualFolder
+    ├── virtualFolder()        // SYNO.FileStation.VirtualFolder
+    ├── compress()             // SYNO.FileStation.Compress
+    └── extract()              // SYNO.FileStation.Extract
 ```
 
 ## License
