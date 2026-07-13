@@ -132,7 +132,7 @@ class SynologyApiExecutorTest {
         SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
                 .build();
-        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient);
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient, new FakeSynologyJsonCodec());
         executor.setSessionManager(new FixedSessionManager(config, "sid-1"));
 
         SynologyHttpResponse response = executor.downloadAuthenticated(
@@ -161,7 +161,7 @@ class SynologyApiExecutorTest {
         SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
                 .build();
-        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient);
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient, new FakeSynologyJsonCodec());
         RefreshingSessionManager sessionManager = new RefreshingSessionManager(config);
         executor.setSessionManager(sessionManager);
         executor.setAutoRefreshSession(true);
@@ -181,7 +181,7 @@ class SynologyApiExecutorTest {
         SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
                 .build();
-        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient);
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient, new FakeSynologyJsonCodec());
         executor.setSessionManager(new FixedSessionManager(config, "sid-upload"));
 
         SynologyApiRequest request = SynologyApiRequest.builder()
@@ -216,7 +216,7 @@ class SynologyApiExecutorTest {
         SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
                 .build();
-        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient);
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient, new FakeSynologyJsonCodec());
         RefreshingSessionManager sessionManager = new RefreshingSessionManager(config);
         executor.setSessionManager(sessionManager);
         executor.setAutoRefreshSession(true);
@@ -245,7 +245,7 @@ class SynologyApiExecutorTest {
         SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
                 .build();
-        return new SynologyApiExecutor(config, httpClient);
+        return new SynologyApiExecutor(config, httpClient, new FakeSynologyJsonCodec());
     }
 
     /**

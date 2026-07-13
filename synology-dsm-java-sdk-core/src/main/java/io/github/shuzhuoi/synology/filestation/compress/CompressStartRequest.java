@@ -79,14 +79,26 @@ public class CompressStartRequest {
             return this;
         }
 
+        public Builder level(CompressLevel level) {
+            return level(level == null ? null : level.getValue());
+        }
+
         public Builder mode(String mode) {
             this.mode = mode;
             return this;
         }
 
+        public Builder mode(CompressMode mode) {
+            return mode(mode == null ? null : mode.getValue());
+        }
+
         public Builder format(String format) {
             this.format = format;
             return this;
+        }
+
+        public Builder format(CompressFormat format) {
+            return format(format == null ? null : format.getValue());
         }
 
         public Builder password(String password) {

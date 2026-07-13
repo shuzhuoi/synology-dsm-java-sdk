@@ -1,24 +1,22 @@
 package io.github.shuzhuoi.synology.filestation.backgroundtask;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
+import io.github.shuzhuoi.synology.json.annotation.SynologyJsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Map;
 
 /**
  * 后台任务对象。
  * <p>
  * 对应 SYNO.FileStation.BackgroundTask list 方法返回的 tasks 数组中的单个元素，
  * 涵盖 copy、move、delete、compress、extract 等非阻塞任务的状态快照。
- * 注意：DSM 返回的部分字段为下划线风格，ObjectMapper 未启用 SNAKE_CASE，
- * 因此这里通过 @JsonProperty 显式映射，与项目中 SynologyFileAdditional 等类的做法一致。
+ * 注意：DSM 返回的部分字段为下划线风格，因此通过 SDK 中立注解显式映射。
  */
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class BackgroundTask {
 
     /**
@@ -43,9 +41,9 @@ public class BackgroundTask {
     private Boolean finished;
     /**
      * start 方法的请求参数，官方为 JSON-Style Object，包含 path 数组等嵌套结构。
-     * 这里保留原始 JSON，调用方按需自行解析，避免丢失字段。
+     * 使用 JDK Map 保留嵌套对象、列表、数字、布尔值和 null，避免公开具体 JSON 库类型。
      */
-    private JsonNode params;
+    private Map<String, Object> params;
     /**
      * 任务处理的路径。
      */
@@ -53,17 +51,17 @@ public class BackgroundTask {
     /**
      * 已处理的文件数。
      */
-    @JsonProperty("processed_num")
+    @SynologyJsonProperty("processed_num")
     private Integer processedNum;
     /**
      * 已处理的字节数。
      */
-    @JsonProperty("processed_size")
+    @SynologyJsonProperty("processed_size")
     private Long processedSize;
     /**
      * 当前正在处理的文件路径。
      */
-    @JsonProperty("processing_path")
+    @SynologyJsonProperty("processing_path")
     private String processingPath;
     /**
      * 总数或总字节数。API 不支持时官方返回 -1。

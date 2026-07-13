@@ -19,6 +19,7 @@ import io.github.shuzhuoi.synology.filestation.task.TaskStatusResponse;
 import io.github.shuzhuoi.synology.filestation.upload.UploadFileRequest;
 import io.github.shuzhuoi.synology.filestation.upload.UploadOverwritePolicy;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyDsmClientFactory;
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 import io.github.shuzhuoi.synology.model.Additional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,7 +57,7 @@ public class FileStationOfficialCoverageExample {
                 .autoRefreshSession(Boolean.TRUE)
                 .build();
 
-        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config);
+        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config, new JacksonSynologyJsonCodec());
         String sampleFolder = trimTrailingSlash(requiredConfigValue(sampleConfig.getSampleFolder(), "sampleFolder"));
         String runFolder = sampleFolder + "/" + RUN_FOLDER_PREFIX + System.currentTimeMillis();
         String searchTaskId = null;

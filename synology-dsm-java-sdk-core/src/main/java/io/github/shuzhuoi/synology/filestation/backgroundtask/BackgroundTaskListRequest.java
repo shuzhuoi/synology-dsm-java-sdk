@@ -1,5 +1,7 @@
 package io.github.shuzhuoi.synology.filestation.backgroundtask;
 
+import io.github.shuzhuoi.synology.filestation.option.SortDirection;
+
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -76,6 +78,10 @@ public class BackgroundTaskListRequest {
         public Builder sortDirection(String sortDirection) {
             this.sortDirection = sortDirection;
             return this;
+        }
+
+        public Builder sortDirection(SortDirection sortDirection) {
+            return sortDirection == null ? sortDirection((String) null) : sortDirection(sortDirection.getValue());
         }
 
         /**

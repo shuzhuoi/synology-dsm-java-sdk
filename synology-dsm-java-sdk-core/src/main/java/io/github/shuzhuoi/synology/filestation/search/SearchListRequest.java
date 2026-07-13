@@ -1,5 +1,8 @@
 package io.github.shuzhuoi.synology.filestation.search;
 
+import io.github.shuzhuoi.synology.filestation.option.FileTypeFilter;
+import io.github.shuzhuoi.synology.filestation.option.SortDirection;
+
 import io.github.shuzhuoi.synology.model.Additional;
 import lombok.Getter;
 
@@ -98,6 +101,10 @@ public class SearchListRequest {
             return this;
         }
 
+        public Builder sortDirection(SortDirection sortDirection) {
+            return sortDirection(sortDirection == null ? null : sortDirection.getValue());
+        }
+
         public Builder pattern(String pattern) {
             this.pattern = pattern;
             return this;
@@ -106,6 +113,10 @@ public class SearchListRequest {
         public Builder filetype(String filetype) {
             this.filetype = filetype;
             return this;
+        }
+
+        public Builder filetype(FileTypeFilter filetype) {
+            return filetype(filetype == null ? null : filetype.getValue());
         }
 
         public Builder addAdditional(Additional additional) {

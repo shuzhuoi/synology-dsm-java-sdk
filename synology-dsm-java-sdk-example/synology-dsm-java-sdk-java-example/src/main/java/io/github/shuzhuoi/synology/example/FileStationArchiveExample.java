@@ -7,6 +7,9 @@ import io.github.shuzhuoi.synology.client.SynologyDsmClient;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.example.config.FileStationArchiveExampleConfig;
 import io.github.shuzhuoi.synology.filestation.compress.CompressStartRequest;
+import io.github.shuzhuoi.synology.filestation.compress.CompressFormat;
+import io.github.shuzhuoi.synology.filestation.compress.CompressLevel;
+import io.github.shuzhuoi.synology.filestation.compress.CompressMode;
 import io.github.shuzhuoi.synology.filestation.compress.CompressStatusResponse;
 import io.github.shuzhuoi.synology.filestation.extract.ArchiveItem;
 import io.github.shuzhuoi.synology.filestation.extract.ExtractListRequest;
@@ -20,6 +23,7 @@ import io.github.shuzhuoi.synology.filestation.task.TaskStartResponse;
 import io.github.shuzhuoi.synology.filestation.upload.UploadFileRequest;
 import io.github.shuzhuoi.synology.filestation.upload.UploadFileResponse;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyDsmClientFactory;
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -60,7 +64,7 @@ public class FileStationArchiveExample {
                 .password(requiredConfigValue(sampleConfig.getPassword(), "password"))
                 .build();
 
-        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config);
+        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config, new JacksonSynologyJsonCodec());
         String sampleFolder = requiredConfigValue(sampleConfig.getSampleFolder(), "sampleFolder");
         String runFolder = appendPath(sampleFolder, "sdk-archive-" + System.currentTimeMillis());
 
@@ -126,9 +130,9 @@ public class FileStationArchiveExample {
     private static void compressDemo(SynologyDsmClient client, List<String> sourcePaths, String archivePath) {
         log.info("========== Compress 演示开始 ==========");
         CompressStartRequest.Builder requestBuilder = CompressStartRequest.builder(sourcePaths.get(0), archivePath)
-                .level("moderate")
-                .mode("add")
-                .format("zip");
+                .level(CompressLevel.MODERATE)
+                .mode(CompressMode.ADD)
+                .format(CompressFormat.ZIP);
         for (int index = 1; index < sourcePaths.size(); index++) {
             requestBuilder.addPath(sourcePaths.get(index));
         }
@@ -151,7 +155,7 @@ public class FileStationArchiveExample {
                 ExtractListRequest.builder(archivePath)
                         .limit(-1)
                         .sortBy("name")
-                        .sortDirection("asc")
+                        .sortDirection(io.github.shuzhuoi.synology.filestation.option.SortDirection.ASC)
                         .build()
         );
         log.info("压缩包内部条目总数：{}", response.getTotal());

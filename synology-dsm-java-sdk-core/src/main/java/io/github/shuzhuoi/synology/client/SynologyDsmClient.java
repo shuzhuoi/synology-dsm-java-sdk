@@ -9,6 +9,7 @@ import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.filestation.FileStationClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
 import io.github.shuzhuoi.synology.internal.SynologyApiExecutor;
+import io.github.shuzhuoi.synology.json.SynologyJsonCodec;
 
 /**
  * Synology DSM SDK 的统一入口。
@@ -50,7 +51,7 @@ public class SynologyDsmClient {
 
     private SynologyDsmClient(Builder builder) {
         this.config = builder.config;
-        this.executor = new SynologyApiExecutor(config, builder.httpClient);
+        this.executor = new SynologyApiExecutor(config, builder.httpClient, builder.jsonCodec);
         this.authClient = new AuthClient(config, executor);
         SynologySessionStore sessionStore = builder.sessionStore == null
                 ? new InMemorySynologySessionStore()
@@ -91,6 +92,7 @@ public class SynologyDsmClient {
         private SynologyDsmConfig config;
         private SynologyHttpClient httpClient;
         private SynologySessionStore sessionStore;
+        private SynologyJsonCodec jsonCodec;
 
         /**
          * 设置 DSM 连接配置。
@@ -116,12 +118,23 @@ public class SynologyDsmClient {
             return this;
         }
 
+        /**
+         * 设置 JSON Codec。core 不提供默认实现，调用方必须明确选择具体 JSON 模块。
+         */
+        public Builder jsonCodec(SynologyJsonCodec jsonCodec) {
+            this.jsonCodec = jsonCodec;
+            return this;
+        }
+
         public SynologyDsmClient build() {
             if (config == null) {
                 throw new IllegalArgumentException("config must not be null");
             }
             if (httpClient == null) {
                 throw new IllegalArgumentException("httpClient must not be null");
+            }
+            if (jsonCodec == null) {
+                throw new IllegalArgumentException("jsonCodec must not be null");
             }
             return new SynologyDsmClient(this);
         }

@@ -1,7 +1,6 @@
 package io.github.shuzhuoi.synology.filestation.extract;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.shuzhuoi.synology.json.annotation.SynologyJsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExtractStatusResponse {
 
     /**
@@ -26,6 +24,6 @@ public class ExtractStatusResponse {
     /**
      * 解压目标目录。
      */
-    @JsonProperty("dest_folder_path")
+    @SynologyJsonProperty("dest_folder_path")
     private String destFolderPath;
 }

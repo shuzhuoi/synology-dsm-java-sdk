@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class SynologyResponseParserTest {
 
-    private final SynologyResponseParser parser = new SynologyResponseParser();
+    private final SynologyResponseParser parser = new SynologyResponseParser(new FakeSynologyJsonCodec());
 
     @Test
     void parseJsonConvertsDataToEntity() {
@@ -88,7 +88,7 @@ class SynologyResponseParserTest {
         SynologyApiException exception = assertThrows(SynologyApiException.class, new org.junit.jupiter.api.function.Executable() {
             @Override
             public void execute() {
-                parser.parseDataNode("SYNO.Test", "list", "{\"success\":false,\"error\":{\"code\":119}}");
+            parser.parseJson("SYNO.Test", "list", "{\"success\":false,\"error\":{\"code\":119}}", ExecutorData.class);
             }
         });
 
@@ -102,7 +102,7 @@ class SynologyResponseParserTest {
         SynologyApiException exception = assertThrows(SynologyApiException.class, new org.junit.jupiter.api.function.Executable() {
             @Override
             public void execute() {
-                parser.parseDataNode("SYNO.Test", "list", "{\"success\":false,\"error\":{}}");
+            parser.parseJson("SYNO.Test", "list", "{\"success\":false,\"error\":{}}", ExecutorData.class);
             }
         });
 
@@ -114,7 +114,7 @@ class SynologyResponseParserTest {
         assertThrows(SynologyHttpException.class, new org.junit.jupiter.api.function.Executable() {
             @Override
             public void execute() {
-                parser.parseDataNode("SYNO.Test", "list", " ");
+            parser.parseJson("SYNO.Test", "list", " ", ExecutorData.class);
             }
         });
     }
@@ -124,7 +124,7 @@ class SynologyResponseParserTest {
         assertThrows(SynologyDsmException.class, new org.junit.jupiter.api.function.Executable() {
             @Override
             public void execute() {
-                parser.parseDataNode("SYNO.Test", "list", "not-json");
+            parser.parseJson("SYNO.Test", "list", "not-json", ExecutorData.class);
             }
         });
     }

@@ -12,6 +12,7 @@ import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
 import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
 import io.github.shuzhuoi.synology.http.SynologyMultipartPart;
 import io.github.shuzhuoi.synology.internal.request.SynologyApiRequest;
+import io.github.shuzhuoi.synology.json.SynologyJsonCodec;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,10 +39,13 @@ public class SynologyApiExecutor {
      */
     private SynologySessionRetryPolicy sessionRetryPolicy = new SynologySessionRetryPolicy(false);
 
-    public SynologyApiExecutor(SynologyDsmConfig config, SynologyHttpClient httpClient) {
+    public SynologyApiExecutor(
+            SynologyDsmConfig config,
+            SynologyHttpClient httpClient,
+            SynologyJsonCodec jsonCodec) {
         this.config = config;
         this.httpClient = httpClient;
-        this.responseParser = new SynologyResponseParser();
+        this.responseParser = new SynologyResponseParser(jsonCodec);
     }
 
     public void setSessionManager(SynologySessionManager sessionManager) {

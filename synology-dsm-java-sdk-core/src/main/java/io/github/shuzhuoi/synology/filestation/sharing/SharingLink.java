@@ -1,7 +1,6 @@
 package io.github.shuzhuoi.synology.filestation.sharing;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.shuzhuoi.synology.json.annotation.SynologyJsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class SharingLink {
 
     /**
@@ -26,7 +24,7 @@ public class SharingLink {
     /**
      * 分享者账号。
      */
-    @JsonProperty("link_owner")
+    @SynologyJsonProperty("link_owner")
     private String linkOwner;
     /**
      * 被分享的文件或目录路径。
@@ -39,22 +37,22 @@ public class SharingLink {
     /**
      * 是否为目录。DSM 字段名为 isFolder。
      */
-    @JsonProperty("isFolder")
+    @SynologyJsonProperty("isFolder")
     private Boolean folder;
     /**
      * 是否设置访问密码。
      */
-    @JsonProperty("has_password")
+    @SynologyJsonProperty("has_password")
     private Boolean hasPassword;
     /**
      * 过期日期，0 表示永久。
      */
-    @JsonProperty("date_expired")
+    @SynologyJsonProperty("date_expired")
     private String dateExpired;
     /**
      * 生效日期，0 表示立即生效。
      */
-    @JsonProperty("date_available")
+    @SynologyJsonProperty("date_available")
     private String dateAvailable;
     /**
      * 分享状态：valid、invalid、expired、broken。

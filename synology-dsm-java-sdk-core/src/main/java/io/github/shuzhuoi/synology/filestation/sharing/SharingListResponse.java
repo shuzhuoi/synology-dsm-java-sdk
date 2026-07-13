@@ -1,6 +1,5 @@
 package io.github.shuzhuoi.synology.filestation.sharing;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +8,6 @@ import java.util.List;
 /**
  * 分享链接列表响应。
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class SharingListResponse {
 
     private Integer total;

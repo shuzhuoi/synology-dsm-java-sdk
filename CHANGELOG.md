@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- 新增独立 `synology-dsm-java-sdk-json-jackson` 模块，core 不再依赖或公开 Jackson 类型
+- 新增 `SynologyJsonCodec` SPI 和中立模型映射注解，为后续 Fastjson2 等实现保留扩展边界
+- Boot 2/3 Starter 默认装配 Jackson Codec，用户提供 `SynologyJsonCodec` Bean 时优先使用用户实现
+- 新增 `SortDirection`、`FileTypeFilter`、`ThumbSize`、`CompressFormat`、`CompressMode`、`CompressLevel` enum 重载，保留原 String 方法
+- **Breaking:** 普通 Java `SynologyDsmClient.Builder` 必须显式设置 `jsonCodec`
+- **Breaking:** Hutool/OkHttp3 便捷工厂创建方法增加 `SynologyJsonCodec` 参数
+- **Breaking:** `BackgroundTask.params` 从 Jackson `JsonNode` 改为 `Map<String, Object>`
+
 ## 0.4.0 (2026-07-10)
 
 - 新增 `SYNO.FileStation.Extract`：支持 start / status / stop / list / wait

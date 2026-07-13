@@ -6,6 +6,7 @@ import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyHttpClient;
 import io.github.shuzhuoi.synology.http.okhttp3.OkHttp3SynologyHttpClient;
+import io.github.shuzhuoi.synology.json.SynologyJsonCodec;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -30,6 +31,13 @@ public class SynologyDsmAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(SynologyJsonCodec.class)
+    @ConditionalOnClass(name = "io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec")
+    public SynologyJsonCodec jacksonSynologyJsonCodec() {
+        return new io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(SynologyHttpClient.class)
     @ConditionalOnProperty(prefix = "synology.dsm", name = "http-adapter", havingValue = "hutool", matchIfMissing = true)
     @ConditionalOnClass(HutoolSynologyHttpClient.class)
@@ -50,14 +58,20 @@ public class SynologyDsmAutoConfiguration {
     public SynologyDsmClient synologyDsmClient(
             SynologyDsmConfig config,
             ObjectProvider<SynologyHttpClient> httpClientProvider,
-            ObjectProvider<SynologySessionStore> sessionStoreProvider) {
+            ObjectProvider<SynologySessionStore> sessionStoreProvider,
+            ObjectProvider<SynologyJsonCodec> jsonCodecProvider) {
         SynologyHttpClient httpClient = httpClientProvider.getIfAvailable();
         if (httpClient == null) {
             throw new IllegalStateException("No SynologyHttpClient is available for synology.dsm.http-adapter");
         }
+        SynologyJsonCodec jsonCodec = jsonCodecProvider.getIfAvailable();
+        if (jsonCodec == null) {
+            throw new IllegalStateException("No SynologyJsonCodec is available; add a JSON implementation module");
+        }
         return SynologyDsmClient.builder()
                 .config(config)
                 .httpClient(httpClient)
+                .jsonCodec(jsonCodec)
                 .sessionStore(sessionStoreProvider.getIfAvailable())
                 .build();
     }
