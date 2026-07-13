@@ -16,10 +16,10 @@
     <name>synology-dsm-java-sdk-example</name>
 
     <modules>
-        <module>common</module>
-        <module>java-example</module>
-        <module>spring-boot2-example</module>
-        <module>spring-boot3-example</module>
+        <module>synology-dsm-java-sdk-example-common</module>
+        <module>synology-dsm-java-sdk-java-example</module>
+        <module>synology-dsm-java-sdk-spring-boot2-example</module>
+        <module>synology-dsm-java-sdk-spring-boot3-example</module>
     </modules>
 
     <properties>
