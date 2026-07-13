@@ -33,16 +33,15 @@ build/
 .vscode/
 
 ### Synology DSM SDK example ###
-synology-dsm-java-sdk-example/src/main/resources/filestation-basic.yaml
-!synology-dsm-java-sdk-example/src/main/resources/filestation-basic.example.yaml
-synology-dsm-java-sdk-example/src/main/resources/filestation-advanced.yaml
-!synology-dsm-java-sdk-example/src/main/resources/filestation-advanced.example.yaml
-synology-dsm-java-sdk-example/src/main/resources/filestation-resource.yaml
-!synology-dsm-java-sdk-example/src/main/resources/filestation-resource.example.yaml
-synology-dsm-java-sdk-example/src/main/resources/filestation-archive.yaml
-!synology-dsm-java-sdk-example/src/main/resources/filestation-archive.example.yaml
-synology-dsm-java-sdk-example/src/main/resources/filestation-official-coverage.yaml
-!synology-dsm-java-sdk-example/src/main/resources/filestation-official-coverage.example.yaml
-synology-dsm-java-sdk-example/src/main/resources/filestation-v030.yaml
+/synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/resources/filestation-*.yaml
+!/synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/resources/filestation-*.example.yaml
+
+/synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example/src/main/resources/application.yaml
+/synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example/src/main/resources/application.yml
+!/synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example/src/main/resources/application.example.yaml
+
+/synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example/src/main/resources/application.yaml
+/synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example/src/main/resources/application.yml
+!/synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example/src/main/resources/application.example.yaml
 
 *.flattened-pom.xml

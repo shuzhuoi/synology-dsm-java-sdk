@@ -89,7 +89,7 @@ SynologyDsmClient client = SynologyDsmClient.builder()
         .build();
 ```
 
-更多操作示例见 `synology-dsm-java-sdk-example/java-example` 子模块，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压等完整链路。
+更多操作示例见 `synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example` 子模块，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压等完整链路。
 
 ### Spring Boot Starter
 
@@ -134,8 +134,12 @@ public class FileStationRunner implements ApplicationRunner {
 
 完整的目录查询、创建、上传、下载、重命名和删除示例位于：
 
-- Boot 2：`synology-dsm-java-sdk-example/spring-boot2-example`
-- Boot 3：`synology-dsm-java-sdk-example/spring-boot3-example`
+- Boot 2：`synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example`
+- Boot 3：`synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example`
+
+首次运行时，将对应模块 `src/main/resources/application.example.yaml` 复制为
+`application.yaml`。模板文件可以提交，本地 `application.yaml` 已由根目录
+`.gitignore` 忽略，避免 DSM 账号和密码被误提交。
 
 两个 Spring Boot 示例启动前都需要设置：
 
