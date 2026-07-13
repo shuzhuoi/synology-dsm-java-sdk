@@ -3,6 +3,8 @@ package io.github.shuzhuoi.synology.client;
 import io.github.shuzhuoi.synology.api.ApiInfoClient;
 import io.github.shuzhuoi.synology.auth.AuthClient;
 import io.github.shuzhuoi.synology.auth.SynologySessionManager;
+import io.github.shuzhuoi.synology.auth.store.InMemorySynologySessionStore;
+import io.github.shuzhuoi.synology.auth.store.SynologySessionStore;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.filestation.FileStationClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
@@ -50,7 +52,10 @@ public class SynologyDsmClient {
         this.config = builder.config;
         this.executor = new SynologyApiExecutor(config, builder.httpClient);
         this.authClient = new AuthClient(config, executor);
-        this.sessionManager = new SynologySessionManager(config, authClient);
+        SynologySessionStore sessionStore = builder.sessionStore == null
+                ? new InMemorySynologySessionStore()
+                : builder.sessionStore;
+        this.sessionManager = new SynologySessionManager(config, authClient, sessionStore);
         this.executor.setSessionManager(sessionManager);
         // 根据配置开启会话失效自动重试，避免长连接场景下 SID 过期导致业务中断。
         this.executor.setAutoRefreshSession(config.isAutoRefreshSession());
@@ -85,6 +90,7 @@ public class SynologyDsmClient {
     public static class Builder {
         private SynologyDsmConfig config;
         private SynologyHttpClient httpClient;
+        private SynologySessionStore sessionStore;
 
         /**
          * 设置 DSM 连接配置。
@@ -99,6 +105,14 @@ public class SynologyDsmClient {
          */
         public Builder httpClient(SynologyHttpClient httpClient) {
             this.httpClient = httpClient;
+            return this;
+        }
+
+        /**
+         * 设置 Session/SID 缓存实现。未设置时使用 SDK 默认的本地 Map 实现。
+         */
+        public Builder sessionStore(SynologySessionStore sessionStore) {
+            this.sessionStore = sessionStore;
             return this;
         }
 

@@ -3,6 +3,7 @@ package io.github.shuzhuoi.synology.example;
 import cn.hutool.core.io.FileUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.github.shuzhuoi.synology.auth.store.InMemorySynologySessionStore;
 import io.github.shuzhuoi.synology.client.SynologyDsmClient;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.example.config.FileStationAdvancedExampleConfig;
@@ -72,7 +73,9 @@ public class FileStationAdvancedExample {
                 .autoRefreshSession(Boolean.TRUE)
                 .build();
 
-        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config);
+        // 显式传入默认本地 Map session store；不传时 SDK 也会创建同样的默认实现。
+        // 如果用户需要 Redis、Caffeine 或数据库缓存，可自行实现 SynologySessionStore 后在这里注入。
+        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config, new InMemorySynologySessionStore());
         String remoteFolder = requiredConfigValue(sampleConfig.getSampleFolder(), "sampleFolder");
 
         try {
