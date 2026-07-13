@@ -91,6 +91,27 @@ SynologyDsmClient client = SynologyDsmClient.builder()
 
 更多操作示例见 `synology-dsm-java-sdk-example` 模块下代码，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压等完整链路。
 
+### Spring Boot Starter
+
+项目提供两个独立的 Starter：
+
+- `synology-dsm-java-sdk-spring-boot2-starter`：Spring Boot 2.7.x，Java 8。
+- `synology-dsm-java-sdk-spring-boot3-starter`：Spring Boot 3.x，Java 17。
+
+引入对应 Starter 后，在配置文件中设置：
+
+```yaml
+synology:
+  dsm:
+    base-url: http://192.168.1.10:5000
+    account: admin
+    password: your-password
+    session-name: FileStation
+    http-adapter: hutool
+```
+
+Starter 默认使用 Hutool。使用 OkHttp3 时，需要额外引入 `synology-dsm-java-sdk-http-okhttp3`，并设置 `http-adapter: okhttp3`。用户提供自己的 `SynologyHttpClient` 或 `SynologySessionStore` Bean 时，Starter 会保留用户实现，不会覆盖。
+
 运行示例前，根据要验证的能力复制对应配置文件并填写真实 DSM 信息：
 
 - 基础文件操作： `FileStationBasicExample#main`。

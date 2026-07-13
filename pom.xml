@@ -18,6 +18,10 @@
         <module>synology-dsm-java-sdk-http-hutool</module>
         <module>synology-dsm-java-sdk-http-okhttp3</module>
         <module>synology-dsm-java-sdk-example</module>
+        <module>synology-dsm-java-sdk-spring-boot2-starter</module>
+        <module>synology-dsm-java-sdk-spring-boot3-starter</module>
+        <module>synology-dsm-java-sdk-spring-boot2-example</module>
+        <module>synology-dsm-java-sdk-spring-boot3-example</module>
     </modules>
 
     <properties>
@@ -30,6 +34,8 @@
         <jackson.version>2.17.2</jackson.version>
         <hutool.version>5.8.46</hutool.version>
         <okhttp3.version>3.14.9</okhttp3.version>
+        <spring-boot2.version>2.7.18</spring-boot2.version>
+        <spring-boot3.version>3.3.13</spring-boot3.version>
         <lombok.version>1.18.46</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <junit.jupiter.version>5.10.3</junit.jupiter.version>

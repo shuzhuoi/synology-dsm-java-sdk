@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.shuzhuoi</groupId>
+        <artifactId>synology-dsm-java-sdk-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>synology-dsm-java-sdk-spring-boot3-starter</artifactId>
+    <name>synology-dsm-java-sdk-spring-boot3-starter</name>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring-boot3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.shuzhuoi</groupId>
+            <artifactId>synology-dsm-java-sdk-http-hutool</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.shuzhuoi</groupId>
+            <artifactId>synology-dsm-java-sdk-http-okhttp3</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>${spring-boot3.version}</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>
