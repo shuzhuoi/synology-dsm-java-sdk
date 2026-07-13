@@ -25,12 +25,12 @@
     </modules>
 
     <properties>
-        <!-- v0.4.0 已完成 Extract / Compress 和归档示例验证，Starter 后续补齐。 -->
-        <revision>0.4.0</revision>
+        <!-- v1.0.0：核心 API、HTTP/JSON 扩展边界和 Boot Starter 已形成稳定发布基线。 -->
+        <revision>1.0.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- 使用 JDK 17 构建 Reactor，release=8 同时约束 Java 8 语法、字节码和 JDK API。 -->
+        <maven.compiler.release>8</maven.compiler.release>
         <jackson.version>2.17.2</jackson.version>
         <fastjson2.version>2.0.61</fastjson2.version>
         <hutool.version>5.8.46</hutool.version>
@@ -118,8 +118,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.15.0</version>
                     <configuration>
-                        <source>${maven.compiler.source}</source>
-                        <target>${maven.compiler.target}</target>
+                        <release>${maven.compiler.release}</release>
                         <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
@@ -229,4 +228,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- 本地构建使用，避免没有 GPG 密钥时被签名插件阻断；正式发布不要启用。 -->
+        <profile>
+            <id>local-build</id>
+            <properties>
+                <gpg.skip>true</gpg.skip>
+            </properties>
+        </profile>
+    </profiles>
 </project>
