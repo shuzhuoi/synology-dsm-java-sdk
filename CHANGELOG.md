@@ -3,7 +3,8 @@
 ## Unreleased
 
 - 新增独立 `synology-dsm-java-sdk-json-jackson` 模块，core 不再依赖或公开 Jackson 类型
-- 新增 `SynologyJsonCodec` SPI 和中立模型映射注解，为后续 Fastjson2 等实现保留扩展边界
+- 新增可选 `synology-dsm-java-sdk-json-fastjson2` 模块，基于 Fastjson2 2.0.61 实现相同 JSON 契约
+- 新增 `SynologyJsonCodec` SPI 和中立模型映射注解，支持 Jackson、Fastjson2 等平级实现
 - Boot 2/3 Starter 默认装配 Jackson Codec，用户提供 `SynologyJsonCodec` Bean 时优先使用用户实现
 - 新增 `SortDirection`、`FileTypeFilter`、`ThumbSize`、`CompressFormat`、`CompressMode`、`CompressLevel` enum 重载，保留原 String 方法
 - **Breaking:** 普通 Java `SynologyDsmClient.Builder` 必须显式设置 `jsonCodec`
