@@ -33,6 +33,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.github.shuzhuoi</groupId>
+            <artifactId>synology-dsm-java-sdk-http-okhttp3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
         </dependency>

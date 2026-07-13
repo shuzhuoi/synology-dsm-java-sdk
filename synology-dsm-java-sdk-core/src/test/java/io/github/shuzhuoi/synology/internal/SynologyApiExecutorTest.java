@@ -11,6 +11,8 @@ import io.github.shuzhuoi.synology.http.ResponseBodyMode;
 import io.github.shuzhuoi.synology.http.SynologyHttpMethod;
 import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
 import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
+import io.github.shuzhuoi.synology.http.SynologyMultipartPart;
+import io.github.shuzhuoi.synology.internal.request.SynologyApiRequest;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -169,6 +171,72 @@ class SynologyApiExecutorTest {
         assertEquals("alpha", data.getName());
         assertEquals(Integer.valueOf(9), data.getCount());
         assertEquals(1, sessionManager.getRefreshCount());
+        assertEquals("sid-old", httpClient.getRequests().get(0).getParameters().get("_sid"));
+        assertEquals("sid-new", httpClient.getRequests().get(1).getParameters().get("_sid"));
+    }
+
+    @Test
+    void executeAuthenticatedBuildsMultipartRequestFromApiRequest() {
+        FakeSynologyHttpClient httpClient = new FakeSynologyHttpClient("{\"success\":true}");
+        SynologyDsmConfig config = SynologyDsmConfig.builder()
+                .baseUrl("http://nas:5000")
+                .build();
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient);
+        executor.setSessionManager(new FixedSessionManager(config, "sid-upload"));
+
+        SynologyApiRequest request = SynologyApiRequest.builder()
+                .path("entry.cgi")
+                .apiName("SYNO.FileStation.Upload")
+                .version(3)
+                .method("upload")
+                .authenticated(true)
+                .parameter("path", "/target")
+                .responseType(Object.class)
+                .httpMethod(SynologyHttpMethod.POST)
+                .multipartPart(SynologyMultipartPart.text("file", "content"))
+                .build();
+
+        Object result = executor.executeAuthenticated(request);
+
+        assertNull(result);
+        SynologyHttpRequest httpRequest = httpClient.getLastRequest();
+        assertEquals(SynologyHttpMethod.POST, httpRequest.getMethod());
+        assertEquals("sid-upload", httpRequest.getParameters().get("_sid"));
+        assertEquals("/target", httpRequest.getParameters().get("path"));
+        assertEquals(1, httpRequest.getMultipartParts().size());
+        assertEquals("file", httpRequest.getMultipartParts().get(0).getName());
+    }
+
+    @Test
+    void executeAuthenticatedMultipartRefreshesSessionAndRetriesOnce() {
+        SequencedSynologyHttpClient httpClient = new SequencedSynologyHttpClient(Arrays.asList(
+                new SynologyHttpResponse(200, null, "{\"success\":false,\"error\":{\"code\":119}}", null),
+                new SynologyHttpResponse(200, null, "{\"success\":true}", null)
+        ));
+        SynologyDsmConfig config = SynologyDsmConfig.builder()
+                .baseUrl("http://nas:5000")
+                .build();
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient);
+        RefreshingSessionManager sessionManager = new RefreshingSessionManager(config);
+        executor.setSessionManager(sessionManager);
+        executor.setAutoRefreshSession(true);
+
+        SynologyApiRequest request = SynologyApiRequest.builder()
+                .path("entry.cgi")
+                .apiName("SYNO.FileStation.Upload")
+                .version(3)
+                .method("upload")
+                .authenticated(true)
+                .responseType(Object.class)
+                .httpMethod(SynologyHttpMethod.POST)
+                .multipartPart(SynologyMultipartPart.text("file", "content"))
+                .build();
+
+        Object result = executor.executeAuthenticated(request);
+
+        assertNull(result);
+        assertEquals(1, sessionManager.getRefreshCount());
+        assertEquals(2, httpClient.getRequests().size());
         assertEquals("sid-old", httpClient.getRequests().get(0).getParameters().get("_sid"));
         assertEquals("sid-new", httpClient.getRequests().get(1).getParameters().get("_sid"));
     }

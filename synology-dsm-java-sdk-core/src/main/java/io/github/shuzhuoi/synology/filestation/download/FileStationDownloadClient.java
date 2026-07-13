@@ -1,7 +1,9 @@
 package io.github.shuzhuoi.synology.filestation.download;
 
+import io.github.shuzhuoi.synology.http.ResponseBodyMode;
 import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
 import io.github.shuzhuoi.synology.internal.SynologyApiExecutor;
+import io.github.shuzhuoi.synology.internal.request.SynologyApiRequest;
 import io.github.shuzhuoi.synology.util.SynologyParameterEncoder;
 
 import java.util.LinkedHashMap;
@@ -27,13 +29,17 @@ public class FileStationDownloadClient {
         Map<String, String> parameters = new LinkedHashMap<String, String>();
         parameters.put("path", SynologyParameterEncoder.stringList(request.getPaths()));
         parameters.put("mode", SynologyParameterEncoder.quoted(request.getMode().getValue()));
-        SynologyHttpResponse response = executor.downloadAuthenticated(
-                "entry.cgi",
-                "SYNO.FileStation.Download",
-                2,
-                "download",
-                parameters
-        );
+        SynologyApiRequest apiRequest = SynologyApiRequest.builder()
+                .path("entry.cgi")
+                .apiName("SYNO.FileStation.Download")
+                .version(2)
+                .method("download")
+                .authenticated(true)
+                .parameters(parameters)
+                .responseType(SynologyHttpResponse.class)
+                .responseBodyMode(ResponseBodyMode.STREAM)
+                .build();
+        SynologyHttpResponse response = executor.executeAuthenticated(apiRequest);
         return new DownloadFileResponse(response.getStatusCode(), response.getHeaders(), response.getBodyStream());
     }
 }

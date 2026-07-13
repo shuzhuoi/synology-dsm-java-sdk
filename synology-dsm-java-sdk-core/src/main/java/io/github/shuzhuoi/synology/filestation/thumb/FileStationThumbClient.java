@@ -1,7 +1,9 @@
 package io.github.shuzhuoi.synology.filestation.thumb;
 
+import io.github.shuzhuoi.synology.http.ResponseBodyMode;
 import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
 import io.github.shuzhuoi.synology.internal.SynologyApiExecutor;
+import io.github.shuzhuoi.synology.internal.request.SynologyApiRequest;
 import io.github.shuzhuoi.synology.util.SynologyParameterEncoder;
 
 import java.util.LinkedHashMap;
@@ -30,13 +32,17 @@ public class FileStationThumbClient {
         parameters.put("path", SynologyParameterEncoder.quoted(request.getPath()));
         parameters.put("size", request.getSize());
         parameters.put("rotate", SynologyParameterEncoder.integerValue(request.getRotate()));
-        SynologyHttpResponse response = executor.downloadAuthenticated(
-                "entry.cgi",
-                API_NAME,
-                API_VERSION,
-                "get",
-                parameters
-        );
+        SynologyApiRequest apiRequest = SynologyApiRequest.builder()
+                .path("entry.cgi")
+                .apiName(API_NAME)
+                .version(API_VERSION)
+                .method("get")
+                .authenticated(true)
+                .parameters(parameters)
+                .responseType(SynologyHttpResponse.class)
+                .responseBodyMode(ResponseBodyMode.STREAM)
+                .build();
+        SynologyHttpResponse response = executor.executeAuthenticated(apiRequest);
         return new ThumbGetResponse(response.getStatusCode(), response.getHeaders(), response.getBodyStream());
     }
 }

@@ -23,6 +23,13 @@ Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.sy
     <artifactId>synology-dsm-java-sdk-http-hutool</artifactId>
     <version>0.4.0</version>
 </dependency>
+
+<!-- 可选 HTTP 实现，基于 OkHttp 3.x；与 Hutool 二选一即可 -->
+<dependency>
+    <groupId>io.github.shuzhuoi</groupId>
+    <artifactId>synology-dsm-java-sdk-http-okhttp3</artifactId>
+    <version>0.4.0</version>
+</dependency>
 ```
 
 ## Requirements
@@ -65,11 +72,29 @@ for (SynologyFile file : response.getFiles()) {
 client.session().logout();
 ```
 
+使用 OkHttp3 时，core 的公开调用方式不变，只需要替换客户端工厂：
+
+```java
+import io.github.shuzhuoi.synology.http.okhttp3.OkHttp3SynologyDsmClientFactory;
+
+SynologyDsmClient client = OkHttp3SynologyDsmClientFactory.create(config);
+```
+
+需要配置代理、TLS 或连接池时，可以自行创建 `OkHttpClient` 并注入 `OkHttp3SynologyHttpClient`：
+
+```java
+SynologyDsmClient client = SynologyDsmClient.builder()
+        .config(config)
+        .httpClient(new OkHttp3SynologyHttpClient(customOkHttpClient))
+        .build();
+```
+
 更多操作示例见 `synology-dsm-java-sdk-example` 模块下代码，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压等完整链路。
 
 运行示例前，根据要验证的能力复制对应配置文件并填写真实 DSM 信息：
 
 - 基础文件操作： `FileStationBasicExample#main`。
+- OkHttp3 基础调用：`FileStationOkHttp3Example#main`。
 - 任务型接口： `FileStationAdvancedExample#main`。
 - 分享、收藏、缩略图、虚拟目录： `FileStationResourceExample#main`。
 - 压缩和解压：`FileStationArchiveExample#main`。

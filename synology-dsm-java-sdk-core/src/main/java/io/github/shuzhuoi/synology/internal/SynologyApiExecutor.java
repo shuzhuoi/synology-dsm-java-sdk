@@ -10,6 +10,8 @@ import io.github.shuzhuoi.synology.http.SynologyHttpClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpMethod;
 import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
 import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
+import io.github.shuzhuoi.synology.http.SynologyMultipartPart;
+import io.github.shuzhuoi.synology.internal.request.SynologyApiRequest;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -79,46 +81,89 @@ public class SynologyApiExecutor {
     }
 
     public SynologyHttpResponse downloadAuthenticated(String path, String apiName, int version, String method, Map<String, String> parameters) {
-        Map<String, String> merged = baseParameters(apiName, version, method, parameters);
-        addSid(merged);
-        SynologyHttpRequest request = SynologyHttpRequest.builder()
-                .method(SynologyHttpMethod.GET)
-                .url(config.resolveWebApiUrl(path))
-                .parameters(merged)
-                .connectTimeoutMillis(config.getConnectTimeoutMillis())
-                .readTimeoutMillis(config.getReadTimeoutMillis())
+        SynologyApiRequest request = SynologyApiRequest.builder()
+                .path(path)
+                .apiName(apiName)
+                .version(version)
+                .method(method)
+                .authenticated(true)
+                .parameters(parameters)
+                .responseType(SynologyHttpResponse.class)
                 .responseBodyMode(ResponseBodyMode.STREAM)
                 .build();
-        SynologyHttpResponse response = httpClient.execute(request);
+        return executeAuthenticated(request);
+    }
+
+    public <T> T executeMultipartAuthenticated(String path, String apiName, int version, String method, SynologyHttpRequest multipartRequest, Class<T> dataType) {
+        SynologyApiRequest.Builder builder = SynologyApiRequest.builder()
+                .path(path)
+                .apiName(apiName)
+                .version(version)
+                .method(method)
+                .authenticated(true)
+                .parameters(multipartRequest.getParameters())
+                .responseType(dataType)
+                .httpMethod(SynologyHttpMethod.POST);
+        for (SynologyMultipartPart part : multipartRequest.getMultipartParts()) {
+            builder.multipartPart(part);
+        }
+        return executeAuthenticated(builder.build());
+    }
+
+    /**
+     * 执行已封装的 Synology API 请求。
+     * <p>
+     * 流式响应保持阶段 4 的行为，不解析 JSON 错误体；文本和 multipart 响应参与会话失效重试。
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T executeAuthenticated(final SynologyApiRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("request must not be null");
+        }
+        if (!request.isAuthenticated()) {
+            throw new IllegalArgumentException("request must be authenticated");
+        }
+        if (request.getResponseBodyMode() == ResponseBodyMode.STREAM) {
+            return (T) executeStream(request);
+        }
+        return executeWithSessionRetry(new AuthenticatedOperation<T>() {
+            @Override
+            public T execute() {
+                return executeText(request);
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T executeText(SynologyApiRequest request) {
+        SynologyHttpResponse response = httpClient.execute(buildHttpRequest(request));
+        return (T) responseParser.parseBody(request.getApiName(), request.getMethod(), response.getBody(), request.getResponseType());
+    }
+
+    private SynologyHttpResponse executeStream(SynologyApiRequest request) {
+        SynologyHttpResponse response = httpClient.execute(buildHttpRequest(request));
         if (response.getStatusCode() < 200 || response.getStatusCode() >= 300) {
             throw new SynologyHttpException("download request failed with HTTP status " + response.getStatusCode());
         }
         return response;
     }
 
-    public <T> T executeMultipartAuthenticated(String path, String apiName, int version, String method, SynologyHttpRequest multipartRequest, Class<T> dataType) {
-        return executeWithSessionRetry(new AuthenticatedOperation<T>() {
-            @Override
-            public T execute() {
-                return doExecuteMultipartAuthenticated(path, apiName, version, method, multipartRequest, dataType);
-            }
-        });
-    }
-
-    private <T> T doExecuteMultipartAuthenticated(String path, String apiName, int version, String method, SynologyHttpRequest multipartRequest, Class<T> dataType) {
-        Map<String, String> merged = baseParameters(apiName, version, method, multipartRequest.getParameters());
-        addSid(merged);
+    private SynologyHttpRequest buildHttpRequest(SynologyApiRequest request) {
+        Map<String, String> merged = baseParameters(request.getApiName(), request.getVersion(), request.getMethod(), request.getParameters());
+        if (request.isAuthenticated()) {
+            addSid(merged);
+        }
         SynologyHttpRequest.Builder builder = SynologyHttpRequest.builder()
-                .method(SynologyHttpMethod.POST)
-                .url(config.resolveWebApiUrl(path))
+                .method(request.getHttpMethod())
+                .url(config.resolveWebApiUrl(request.getPath()))
                 .parameters(merged)
                 .connectTimeoutMillis(config.getConnectTimeoutMillis())
-                .readTimeoutMillis(config.getReadTimeoutMillis());
-        for (int i = 0; i < multipartRequest.getMultipartParts().size(); i++) {
-            builder.multipartPart(multipartRequest.getMultipartParts().get(i));
+                .readTimeoutMillis(config.getReadTimeoutMillis())
+                .responseBodyMode(request.getResponseBodyMode());
+        for (SynologyMultipartPart part : request.getMultipartParts()) {
+            builder.multipartPart(part);
         }
-        SynologyHttpResponse response = httpClient.execute(builder.build());
-        return responseParser.parseBody(apiName, method, response.getBody(), dataType);
+        return builder.build();
     }
 
     private <T> T executeJson(String path, String apiName, int version, String method, Map<String, String> parameters, Class<T> dataType, boolean authenticated) {
