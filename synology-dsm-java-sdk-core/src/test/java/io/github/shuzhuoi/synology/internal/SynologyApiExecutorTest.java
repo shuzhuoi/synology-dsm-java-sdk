@@ -14,7 +14,10 @@ import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -147,6 +150,29 @@ class SynologyApiExecutorTest {
         assertEquals("sid-1", request.getParameters().get("_sid"));
     }
 
+    @Test
+    void getAuthenticatedRefreshesSessionAndRetriesOnceWhenSessionExpired() {
+        SequencedSynologyHttpClient httpClient = new SequencedSynologyHttpClient(Arrays.asList(
+                new SynologyHttpResponse(200, null, "{\"success\":false,\"error\":{\"code\":119}}", null),
+                new SynologyHttpResponse(200, null, "{\"success\":true,\"data\":{\"name\":\"alpha\",\"count\":9}}", null)
+        ));
+        SynologyDsmConfig config = SynologyDsmConfig.builder()
+                .baseUrl("http://nas:5000")
+                .build();
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient);
+        RefreshingSessionManager sessionManager = new RefreshingSessionManager(config);
+        executor.setSessionManager(sessionManager);
+        executor.setAutoRefreshSession(true);
+
+        ExecutorData data = executor.getAuthenticated("entry.cgi", "SYNO.Test", 1, "list", null, ExecutorData.class);
+
+        assertEquals("alpha", data.getName());
+        assertEquals(Integer.valueOf(9), data.getCount());
+        assertEquals(1, sessionManager.getRefreshCount());
+        assertEquals("sid-old", httpClient.getRequests().get(0).getParameters().get("_sid"));
+        assertEquals("sid-new", httpClient.getRequests().get(1).getParameters().get("_sid"));
+    }
+
     private SynologyApiExecutor newExecutor(FakeSynologyHttpClient httpClient) {
         SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
@@ -169,6 +195,61 @@ class SynologyApiExecutorTest {
         @Override
         public synchronized SynologySession currentSession() {
             return session;
+        }
+    }
+
+    /**
+     * 可刷新 SID 的测试会话管理器，用于验证 executor 自动刷新后是否使用新 SID 重试。
+     */
+    private static class RefreshingSessionManager extends SynologySessionManager {
+
+        private final SynologyDsmConfig config;
+        private SynologySession session;
+        private int refreshCount;
+
+        RefreshingSessionManager(SynologyDsmConfig config) {
+            super(config, (AuthClient) null);
+            this.config = config;
+            this.session = new SynologySession("sid-old", config.getSessionName(), null);
+        }
+
+        @Override
+        public synchronized SynologySession currentSession() {
+            return session;
+        }
+
+        @Override
+        public synchronized SynologySession refresh() {
+            refreshCount++;
+            session = new SynologySession("sid-new", config.getSessionName(), null);
+            return session;
+        }
+
+        int getRefreshCount() {
+            return refreshCount;
+        }
+    }
+
+    /**
+     * 按顺序返回响应的测试 HTTP 客户端，用于模拟第一次 SID 失效、第二次成功。
+     */
+    private static class SequencedSynologyHttpClient implements io.github.shuzhuoi.synology.http.SynologyHttpClient {
+
+        private final List<SynologyHttpResponse> responses;
+        private final List<SynologyHttpRequest> requests = new ArrayList<SynologyHttpRequest>();
+
+        SequencedSynologyHttpClient(List<SynologyHttpResponse> responses) {
+            this.responses = responses;
+        }
+
+        @Override
+        public SynologyHttpResponse execute(SynologyHttpRequest request) {
+            requests.add(request);
+            return responses.get(Math.min(requests.size() - 1, responses.size() - 1));
+        }
+
+        List<SynologyHttpRequest> getRequests() {
+            return requests;
         }
     }
 }
