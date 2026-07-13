@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "synology.dsm.http-adapter",
+      "type": "java.lang.String",
+      "defaultValue": "hutool",
+      "description": "HTTP adapter，可选 hutool 或 okhttp3。"
+    }
+  ]
+}
