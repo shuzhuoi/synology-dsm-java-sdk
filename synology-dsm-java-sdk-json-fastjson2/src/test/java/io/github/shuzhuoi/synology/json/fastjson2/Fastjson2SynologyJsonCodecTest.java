@@ -1,8 +1,10 @@
-package io.github.shuzhuoi.synology.json.jackson;
+package io.github.shuzhuoi.synology.json.fastjson2;
 
 import io.github.shuzhuoi.synology.api.SynologyApiDescriptor;
+import io.github.shuzhuoi.synology.exception.SynologyJsonException;
 import io.github.shuzhuoi.synology.filestation.backgroundtask.BackgroundTask;
 import io.github.shuzhuoi.synology.filestation.extract.ArchiveItem;
+import io.github.shuzhuoi.synology.filestation.extract.ExtractListResponse;
 import io.github.shuzhuoi.synology.filestation.info.FileStationInfoResponse;
 import io.github.shuzhuoi.synology.json.SynologyJsonResponse;
 import org.junit.jupiter.api.Test;
@@ -12,13 +14,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Jackson Codec 契约测试，覆盖 core 模型的特殊映射和 DSM 标准响应边界。
+ * Fastjson2 Codec 契约测试，使用与 Jackson 模块对等的 DSM 响应场景。
  */
-class JacksonSynologyJsonCodecTest {
+class Fastjson2SynologyJsonCodecTest {
 
-    private final JacksonSynologyJsonCodec codec = new JacksonSynologyJsonCodec();
+    private final Fastjson2SynologyJsonCodec codec = new Fastjson2SynologyJsonCodec();
 
     @Test
     void decodesEntityAndIgnoresUnknownFields() {
@@ -77,6 +80,18 @@ class JacksonSynologyJsonCodecTest {
     }
 
     @Test
+    void decodesAnnotationsInNestedListItems() {
+        SynologyJsonResponse<ExtractListResponse> response = codec.decode(
+                "{\"success\":true,\"data\":{\"items\":[{\"item_id\":2,\"pack_size\":12,\"is_dir\":true}]}}",
+                ExtractListResponse.class
+        );
+
+        assertEquals(Integer.valueOf(2), response.getData().getItems().get(0).getItemId());
+        assertEquals(Long.valueOf(12), response.getData().getItems().get(0).getPackSize());
+        assertEquals(Boolean.TRUE, response.getData().getItems().get(0).getDir());
+    }
+
+    @Test
     void preservesErrorCodeAndNullDataSemantics() {
         SynologyJsonResponse<BackgroundTask> error = codec.decode(
                 "{\"success\":false,\"error\":{\"code\":119}}",
@@ -91,5 +106,10 @@ class JacksonSynologyJsonCodecTest {
         assertEquals(Integer.valueOf(119), error.getError().getCode());
         assertNull(error.getData());
         assertNull(empty.getData());
+    }
+
+    @Test
+    void wrapsMalformedJsonAsSdkException() {
+        assertThrows(SynologyJsonException.class, () -> codec.decode("{", BackgroundTask.class));
     }
 }

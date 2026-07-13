@@ -16,6 +16,7 @@
     <modules>
         <module>synology-dsm-java-sdk-core</module>
         <module>synology-dsm-java-sdk-json-jackson</module>
+        <module>synology-dsm-java-sdk-json-fastjson2</module>
         <module>synology-dsm-java-sdk-http-hutool</module>
         <module>synology-dsm-java-sdk-http-okhttp3</module>
         <module>synology-dsm-java-sdk-example</module>
@@ -31,6 +32,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jackson.version>2.17.2</jackson.version>
+        <fastjson2.version>2.0.61</fastjson2.version>
         <hutool.version>5.8.46</hutool.version>
         <okhttp3.version>3.14.9</okhttp3.version>
         <spring-boot2.version>2.7.18</spring-boot2.version>
@@ -81,6 +83,11 @@
                 <version>${hutool.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2.version}</version>
             </dependency>
             <!-- OkHttp 3.14.x 是官方最后一个支持 Java 8 的主版本。 -->
             <dependency>
