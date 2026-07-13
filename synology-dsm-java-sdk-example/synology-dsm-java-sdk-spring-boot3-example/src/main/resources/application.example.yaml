@@ -1,3 +1,6 @@
+# Spring Boot 3 示例配置模板。
+# 运行前请复制本文件为 application.yaml，再设置对应环境变量或填写本地测试值。
+
 synology:
   dsm:
     base-url: ${SYNOLOGY_DSM_BASE_URL}
