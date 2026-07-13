@@ -1,5 +1,6 @@
 package io.github.shuzhuoi.synology.filestation.search;
 
+import io.github.shuzhuoi.synology.filestation.option.FileTypeFilter;
 import io.github.shuzhuoi.synology.util.SynologyPath;
 import lombok.Getter;
 
@@ -146,6 +147,10 @@ public class SearchStartRequest {
         public Builder filetype(String filetype) {
             this.filetype = filetype;
             return this;
+        }
+
+        public Builder filetype(FileTypeFilter filetype) {
+            return filetype(filetype == null ? null : filetype.getValue());
         }
 
         public Builder sizeFrom(Long sizeFrom) {

@@ -9,6 +9,7 @@ import io.github.shuzhuoi.synology.example.common.FileStationBasicWorkflowResult
 import io.github.shuzhuoi.synology.example.config.FileStationBasicExampleConfig;
 import io.github.shuzhuoi.synology.example.support.ExampleConfigReader;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyDsmClientFactory;
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -39,7 +40,10 @@ public class FileStationBasicExample {
                 .password(ExampleConfigReader.requiredValue(sampleConfig.getPassword(), CONFIG_FILE, "password"))
                 .build();
 
-        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config);
+        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(
+                config,
+                new JacksonSynologyJsonCodec()
+        );
         FileStationBasicWorkflowConfig workflowConfig = new FileStationBasicWorkflowConfig(
                 new File(ExampleConfigReader.requiredValue(sampleConfig.getSampleFile(), CONFIG_FILE, "sampleFile")),
                 ExampleConfigReader.requiredValue(sampleConfig.getSampleFolder(), CONFIG_FILE, "sampleFolder"),

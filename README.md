@@ -12,8 +12,9 @@ SDK 将业务 API、HTTP 实现和 Spring Boot 集成拆分为独立模块。普
 
 | 使用场景 | 引入模块 | Java 要求 | HTTP 实现 |
 | --- | --- | --- | --- |
-| 普通 Java，默认方案 | `synology-dsm-java-sdk-http-hutool` | Java 8+ | Hutool |
-| 普通 Java，使用 OkHttp3 | `synology-dsm-java-sdk-http-okhttp3` | Java 8+ | OkHttp 3.x |
+| 普通 Java，默认方案 | `http-hutool` + `json-jackson` | Java 8+ | Hutool |
+| 普通 Java，使用 OkHttp3 | `http-okhttp3` + `json-jackson` | Java 8+ | OkHttp 3.x |
+| JSON 默认实现 | `synology-dsm-java-sdk-json-jackson` | Java 8+ | Jackson |
 | 自定义 HTTP 实现 | `synology-dsm-java-sdk-core` | Java 8+ | 用户实现 `SynologyHttpClient` |
 | Spring Boot 2 | `synology-dsm-java-sdk-spring-boot2-starter` | Java 8+ | 默认 Hutool，可选 OkHttp3 |
 | Spring Boot 3 | `synology-dsm-java-sdk-spring-boot3-starter` | Java 17+ | 默认 Hutool，可选 OkHttp3 |
@@ -25,7 +26,7 @@ SDK 将业务 API、HTTP 实现和 Spring Boot 集成拆分为独立模块。普
 
 ### 普通 Java：Hutool
 
-Hutool adapter 已传递依赖 core，只需要引入一个模块：
+Hutool adapter 已传递依赖 core，但 JSON 实现需要单独引入：
 
 ```xml
 <dependency>
@@ -33,16 +34,26 @@ Hutool adapter 已传递依赖 core，只需要引入一个模块：
     <artifactId>synology-dsm-java-sdk-http-hutool</artifactId>
     <version>0.4.0</version>
 </dependency>
+<dependency>
+    <groupId>io.github.shuzhuoi</groupId>
+    <artifactId>synology-dsm-java-sdk-json-jackson</artifactId>
+    <version>0.4.0</version>
+</dependency>
 ```
 
 ### 普通 Java：OkHttp3
 
-OkHttp3 adapter 同样已传递依赖 core，不需要同时引入 Hutool：
+OkHttp3 adapter 同样已传递依赖 core，不需要同时引入 Hutool；同时引入 JSON 实现：
 
 ```xml
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-okhttp3</artifactId>
+    <version>0.4.0</version>
+</dependency>
+<dependency>
+    <groupId>io.github.shuzhuoi</groupId>
+    <artifactId>synology-dsm-java-sdk-json-jackson</artifactId>
     <version>0.4.0</version>
 </dependency>
 ```
@@ -58,6 +69,20 @@ OkHttp3 adapter 同样已传递依赖 core，不需要同时引入 Hutool：
     <version>0.4.0</version>
 </dependency>
 ```
+
+只使用 core 时，还必须自行提供一个 `SynologyJsonCodec` 实现。SDK 不通过反射或 `ServiceLoader` 静默选择 JSON 库。
+
+### JSON 实现选择
+
+默认实现是独立的 `synology-dsm-java-sdk-json-jackson` 模块。它不会修改 Spring Boot 全局 `ObjectMapper`，也不会让 core 编译依赖 Jackson。普通 Java 项目需要显式创建 Codec：
+
+```java
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
+
+JacksonSynologyJsonCodec jsonCodec = new JacksonSynologyJsonCodec();
+```
+
+未来可以增加与 Jackson 平级的 `synology-dsm-java-sdk-json-fastjson2`。使用其他实现时，保持同一个 `SynologyJsonCodec` 接口，并在 Builder 中明确传入唯一实现。
 
 ## 环境要求
 
@@ -77,6 +102,7 @@ import io.github.shuzhuoi.synology.filestation.list.ListFilesRequest;
 import io.github.shuzhuoi.synology.filestation.list.ListFilesResponse;
 import io.github.shuzhuoi.synology.filestation.model.SynologyFile;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyDsmClientFactory;
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 
 SynologyDsmConfig config = SynologyDsmConfig.builder()
         .baseUrl("https://nas.example.com:5001")
@@ -84,8 +110,11 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
         .password("your-password")
         .build();
 
-// HutoolSynologyDsmClientFactory 内部已组装 core + hutool http 实现
-SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config);
+// JSON Codec 由调用方明确选择，避免 core 与具体 JSON 库耦合
+SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(
+        config,
+        new JacksonSynologyJsonCodec()
+);
 
 // 首次调用时自动登录，后续复用同一个 SID
 ListFilesResponse response = client.fileStation().list().files(
@@ -106,8 +135,12 @@ client.session().logout();
 
 ```java
 import io.github.shuzhuoi.synology.http.okhttp3.OkHttp3SynologyDsmClientFactory;
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 
-SynologyDsmClient client = OkHttp3SynologyDsmClientFactory.create(config);
+SynologyDsmClient client = OkHttp3SynologyDsmClientFactory.create(
+        config,
+        new JacksonSynologyJsonCodec()
+);
 ```
 
 需要配置代理、TLS 或连接池时，可以自行创建 `OkHttpClient` 并注入 `OkHttp3SynologyHttpClient`：
@@ -116,17 +149,22 @@ SynologyDsmClient client = OkHttp3SynologyDsmClientFactory.create(config);
 SynologyDsmClient client = SynologyDsmClient.builder()
         .config(config)
         .httpClient(new OkHttp3SynologyHttpClient(customOkHttpClient))
+        .jsonCodec(new JacksonSynologyJsonCodec())
         .build();
 ```
 
 更多操作示例见 [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example)，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压等完整链路。
+
+稳定参数可以使用类型安全枚举，例如 `SortDirection.ASC`、`FileTypeFilter.FILE`、`ThumbSize.SMALL` 和 `CompressFormat.ZIP`。原 String Builder 方法继续保留，用于兼容 DSM 后续增加的扩展值。
+
+`BackgroundTask.getParams()` 返回 `Map<String, Object>`，不再暴露 Jackson `JsonNode`；嵌套对象、列表、数字、布尔值和 null 会按 JDK 集合类型保留。
 
 ## Spring Boot Starter
 
 项目提供 Boot 2 和 Boot 3 两个独立 Starter。二者使用同一个 `synology.dsm` 配置协议和同一个 `SynologyDsmClient` 公共 API，但自动配置注册方式、Spring Boot 依赖和 Java 目标版本彼此隔离。
 
 > [!TIP]
-> Starter 默认已经包含 core 和 Hutool adapter。首次接入只需要引入对应 Starter，不需要重复声明这些依赖。
+> Starter 默认已经包含 core、Hutool adapter 和 Jackson JSON Codec。首次接入只需要引入对应 Starter，不需要重复声明这些依赖。
 
 > [!CAUTION]
 > 一个应用只引入与自身 Spring Boot 主版本对应的 Starter，不要同时引入 Boot 2 和 Boot 3 Starter。
@@ -416,6 +454,30 @@ public class SynologyHttpConfiguration {
 
 检测到用户提供的 `SynologyHttpClient` 后，Starter 不会再创建默认 Hutool 或 OkHttp3 adapter。
 
+### 替换 JSON Codec
+
+Starter 默认创建 `JacksonSynologyJsonCodec`。如果业务项目实现了其他 Codec，例如未来的 Fastjson2 Codec，只需要注册唯一的 `SynologyJsonCodec` Bean：
+
+```java
+import io.github.shuzhuoi.synology.json.SynologyJsonCodec;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class SynologyJsonConfiguration {
+
+    @Bean
+    public SynologyJsonCodec synologyJsonCodec() {
+        // 替换为业务项目引入的 JSON 实现。
+        return new YourSynologyJsonCodec();
+    }
+}
+```
+
+Starter 会优先使用用户提供的 Codec，不会同时静默选择多个实现，也不会注册或修改 Spring Boot 的全局 `ObjectMapper`。若业务需要自定义 Jackson 行为，可以创建 `JacksonSynologyJsonCodec(objectMapper)`；Codec 内部会复制该对象后再增加 SDK 映射规则。
+
+仓库中的 Boot 2/3 example 都提供了 `CustomJsonCodecConfiguration`。默认 profile 使用 Starter 自动创建的 Codec；激活 `custom-json-codec` profile 可以验证用户 Bean 覆盖流程。
+
 ### 自定义 SessionStore
 
 默认 `InMemorySynologySessionStore` 使用当前 JVM 内的 `ConcurrentHashMap` 缓存 SID，适合单实例应用。多实例共享、跨进程复用或持久化会话时，在业务项目中实现 [`SynologySessionStore`](synology-dsm-java-sdk-core/src/main/java/io/github/shuzhuoi/synology/auth/store/SynologySessionStore.java)，并注册为 Bean：
@@ -447,6 +509,7 @@ Starter 遵循 Spring Boot 的用户配置优先原则：
 | `SynologyDsmConfig` | 不再根据 `synology.dsm` 创建默认配置对象 |
 | `SynologyHttpClient` | 不再创建默认 HTTP adapter |
 | `SynologySessionStore` | 将用户实现注入默认客户端 |
+| `SynologyJsonCodec` | 使用用户实现，不创建默认 Jackson Codec |
 | `SynologyDsmClient` | 不再创建默认客户端 |
 
 完全不需要自动配置时：

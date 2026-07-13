@@ -1,6 +1,5 @@
 package io.github.shuzhuoi.synology.filestation.virtualfolder;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +8,6 @@ import java.util.List;
 /**
  * 虚拟目录列表响应。
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class VirtualFolderListResponse {
 
     private Integer total;

@@ -1,6 +1,5 @@
 package io.github.shuzhuoi.synology.filestation.search;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.shuzhuoi.synology.filestation.model.SynologyFile;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +15,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchListResponse {
 
     /**

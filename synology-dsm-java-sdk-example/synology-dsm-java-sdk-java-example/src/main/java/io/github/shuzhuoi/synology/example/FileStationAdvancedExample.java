@@ -10,6 +10,7 @@ import io.github.shuzhuoi.synology.example.config.FileStationAdvancedExampleConf
 import io.github.shuzhuoi.synology.filestation.backgroundtask.BackgroundTask;
 import io.github.shuzhuoi.synology.filestation.backgroundtask.BackgroundTaskListRequest;
 import io.github.shuzhuoi.synology.filestation.backgroundtask.BackgroundTaskListResponse;
+import io.github.shuzhuoi.synology.filestation.option.SortDirection;
 import io.github.shuzhuoi.synology.filestation.dirsize.DirSizeStartRequest;
 import io.github.shuzhuoi.synology.filestation.dirsize.DirSizeStatusResponse;
 import io.github.shuzhuoi.synology.filestation.file.CreateFolderRequest;
@@ -24,6 +25,7 @@ import io.github.shuzhuoi.synology.filestation.task.TaskStartResponse;
 import io.github.shuzhuoi.synology.filestation.upload.UploadFileRequest;
 import io.github.shuzhuoi.synology.filestation.upload.UploadFileResponse;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyDsmClientFactory;
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 import io.github.shuzhuoi.synology.model.Additional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,7 +77,11 @@ public class FileStationAdvancedExample {
 
         // 显式传入默认本地 Map session store；不传时 SDK 也会创建同样的默认实现。
         // 如果用户需要 Redis、Caffeine 或数据库缓存，可自行实现 SynologySessionStore 后在这里注入。
-        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config, new InMemorySynologySessionStore());
+        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(
+                config,
+                new JacksonSynologyJsonCodec(),
+                new InMemorySynologySessionStore()
+        );
         String remoteFolder = requiredConfigValue(sampleConfig.getSampleFolder(), "sampleFolder");
 
         try {
@@ -223,7 +229,7 @@ public class FileStationAdvancedExample {
         BackgroundTaskListRequest listRequest = BackgroundTaskListRequest.builder()
                 .limit(20)
                 .sortBy("crtime")
-                .sortDirection("desc")
+                .sortDirection(SortDirection.DESC)
                 .addApiFilter("SYNO.FileStation.Delete")
                 .build();
         BackgroundTaskListResponse listResponse = client.fileStation().backgroundTask().list(listRequest);

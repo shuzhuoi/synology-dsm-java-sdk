@@ -5,6 +5,7 @@ import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.example.config.FileStationBasicExampleConfig;
 import io.github.shuzhuoi.synology.example.support.ExampleConfigReader;
 import io.github.shuzhuoi.synology.http.okhttp3.OkHttp3SynologyDsmClientFactory;
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -33,7 +34,10 @@ public class FileStationOkHttp3Example {
                 .password(ExampleConfigReader.requiredValue(sampleConfig.getPassword(), CONFIG_FILE, "password"))
                 .build();
 
-        SynologyDsmClient client = OkHttp3SynologyDsmClientFactory.create(config);
+        SynologyDsmClient client = OkHttp3SynologyDsmClientFactory.create(
+                config,
+                new JacksonSynologyJsonCodec()
+        );
         try {
             client.session().currentSession();
             client.fileStation().info().get();

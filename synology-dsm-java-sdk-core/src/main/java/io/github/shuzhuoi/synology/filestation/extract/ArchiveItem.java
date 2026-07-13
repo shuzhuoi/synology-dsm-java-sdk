@@ -1,8 +1,7 @@
 package io.github.shuzhuoi.synology.filestation.extract;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.shuzhuoi.synology.json.annotation.SynologyJsonAlias;
+import io.github.shuzhuoi.synology.json.annotation.SynologyJsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,14 +14,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ArchiveItem {
 
     /**
      * 压缩包内部条目 ID，后续可传给 start 的 item_id 做部分解压。
      */
-    @JsonProperty("item_id")
-    @JsonAlias("itemid")
+    @SynologyJsonProperty("item_id")
+    @SynologyJsonAlias("itemid")
     private Integer itemId;
     /**
      * 压缩包内部文件名。
@@ -35,7 +33,7 @@ public class ArchiveItem {
     /**
      * 压缩后大小，单位字节。
      */
-    @JsonProperty("pack_size")
+    @SynologyJsonProperty("pack_size")
     private Long packSize;
     /**
      * 最后修改时间，官方以字符串形式返回。
@@ -48,6 +46,6 @@ public class ArchiveItem {
     /**
      * 是否为目录。
      */
-    @JsonProperty("is_dir")
+    @SynologyJsonProperty("is_dir")
     private Boolean dir;
 }

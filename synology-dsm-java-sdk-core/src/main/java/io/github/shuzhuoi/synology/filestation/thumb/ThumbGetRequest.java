@@ -37,6 +37,10 @@ public class ThumbGetRequest {
             return this;
         }
 
+        public Builder size(ThumbSize size) {
+            return size(size == null ? null : size.getValue());
+        }
+
         public Builder rotate(Integer rotate) {
             this.rotate = rotate;
             return this;

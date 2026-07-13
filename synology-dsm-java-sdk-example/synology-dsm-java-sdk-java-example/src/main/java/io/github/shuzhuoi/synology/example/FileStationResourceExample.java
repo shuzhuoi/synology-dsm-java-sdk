@@ -20,12 +20,15 @@ import io.github.shuzhuoi.synology.filestation.sharing.SharingLink;
 import io.github.shuzhuoi.synology.filestation.sharing.SharingListRequest;
 import io.github.shuzhuoi.synology.filestation.sharing.SharingListResponse;
 import io.github.shuzhuoi.synology.filestation.thumb.ThumbGetRequest;
+import io.github.shuzhuoi.synology.filestation.thumb.ThumbSize;
+import io.github.shuzhuoi.synology.filestation.option.SortDirection;
 import io.github.shuzhuoi.synology.filestation.thumb.ThumbGetResponse;
 import io.github.shuzhuoi.synology.filestation.upload.UploadFileRequest;
 import io.github.shuzhuoi.synology.filestation.virtualfolder.VirtualFolder;
 import io.github.shuzhuoi.synology.filestation.virtualfolder.VirtualFolderListRequest;
 import io.github.shuzhuoi.synology.filestation.virtualfolder.VirtualFolderListResponse;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyDsmClientFactory;
+import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 import io.github.shuzhuoi.synology.model.Additional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +65,7 @@ public class FileStationResourceExample {
                 .autoRefreshSession(Boolean.TRUE)
                 .build();
 
-        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config);
+        SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config, new JacksonSynologyJsonCodec());
         String remoteFolder = requiredConfigValue(sampleConfig.getSampleFolder(), "sampleFolder");
         File downloadFolder = FileUtil.mkdir(requiredConfigValue(sampleConfig.getDownloadFolder(), "downloadFolder"));
         String virtualFolderType = requiredConfigValue(sampleConfig.getVirtualFolderType(), "virtualFolderType");
@@ -180,7 +183,7 @@ public class FileStationResourceExample {
         log.info("========== Thumb 演示开始 ==========");
         ThumbGetResponse response = client.fileStation().thumb().get(
                 ThumbGetRequest.builder(remoteImagePath)
-                        .size("small")
+                            .size(ThumbSize.SMALL)
                         .rotate(0)
                         .build()
         );
@@ -212,7 +215,7 @@ public class FileStationResourceExample {
                 SharingListRequest.builder()
                         .limit(20)
                         .sortBy("name")
-                        .sortDirection("asc")
+                        .sortDirection(SortDirection.ASC)
                         .forceClean(Boolean.TRUE)
                         .build()
         );

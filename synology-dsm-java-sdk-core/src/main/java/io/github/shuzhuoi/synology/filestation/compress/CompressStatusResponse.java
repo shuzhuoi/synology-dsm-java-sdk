@@ -1,7 +1,6 @@
 package io.github.shuzhuoi.synology.filestation.compress;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.shuzhuoi.synology.json.annotation.SynologyJsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class CompressStatusResponse {
 
     /**
@@ -22,6 +20,6 @@ public class CompressStatusResponse {
     /**
      * 目标压缩包路径。
      */
-    @JsonProperty("dest_file_path")
+    @SynologyJsonProperty("dest_file_path")
     private String destFilePath;
 }

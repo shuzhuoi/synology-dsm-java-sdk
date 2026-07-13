@@ -1,6 +1,5 @@
 package io.github.shuzhuoi.synology.filestation.favorite;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +8,6 @@ import java.util.List;
 /**
  * 收藏夹列表响应。
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class FavoriteListResponse {
 
     private Integer total;

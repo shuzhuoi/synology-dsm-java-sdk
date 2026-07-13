@@ -1,5 +1,7 @@
 package io.github.shuzhuoi.synology.filestation.virtualfolder;
 
+import io.github.shuzhuoi.synology.filestation.option.SortDirection;
+
 import io.github.shuzhuoi.synology.model.Additional;
 import lombok.Getter;
 
@@ -63,6 +65,10 @@ public class VirtualFolderListRequest {
         public Builder sortDirection(String sortDirection) {
             this.sortDirection = sortDirection;
             return this;
+        }
+
+        public Builder sortDirection(SortDirection sortDirection) {
+            return sortDirection(sortDirection == null ? null : sortDirection.getValue());
         }
 
         public Builder addAdditional(Additional additional) {

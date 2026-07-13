@@ -15,6 +15,7 @@
 
     <modules>
         <module>synology-dsm-java-sdk-core</module>
+        <module>synology-dsm-java-sdk-json-jackson</module>
         <module>synology-dsm-java-sdk-http-hutool</module>
         <module>synology-dsm-java-sdk-http-okhttp3</module>
         <module>synology-dsm-java-sdk-example</module>
