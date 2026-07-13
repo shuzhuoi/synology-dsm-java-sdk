@@ -1,11 +1,10 @@
 package io.github.shuzhuoi.synology.example;
 
 import cn.hutool.core.io.FileUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.shuzhuoi.synology.client.SynologyDsmClient;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.example.config.FileStationBasicExampleConfig;
+import io.github.shuzhuoi.synology.example.support.ExampleConfigReader;
 import io.github.shuzhuoi.synology.filestation.download.DownloadFileResponse;
 import io.github.shuzhuoi.synology.filestation.file.CreateFolderRequest;
 import io.github.shuzhuoi.synology.filestation.file.CreateFolderResponse;
@@ -36,17 +35,23 @@ public class FileStationBasicExample {
     private static final String CONFIG_EXAMPLE_FILE = "filestation-basic.example.yaml";
 
     public static void main(String[] args) throws IOException {
-        FileStationBasicExampleConfig sampleConfig = readSampleConfig();
+        FileStationBasicExampleConfig sampleConfig = ExampleConfigReader.readYaml(
+                FileStationBasicExample.class,
+                CONFIG_FILE,
+                CONFIG_EXAMPLE_FILE,
+                FileStationBasicExampleConfig.class
+        );
         SynologyDsmConfig config = SynologyDsmConfig.builder()
-                .baseUrl(requiredConfigValue(sampleConfig.getDsmUrl(), "dsmUrl"))
-                .account(requiredConfigValue(sampleConfig.getAccount(), "account"))
-                .password(requiredConfigValue(sampleConfig.getPassword(), "password"))
+                .baseUrl(ExampleConfigReader.requiredValue(sampleConfig.getDsmUrl(), CONFIG_FILE, "dsmUrl"))
+                .account(ExampleConfigReader.requiredValue(sampleConfig.getAccount(), CONFIG_FILE, "account"))
+                .password(ExampleConfigReader.requiredValue(sampleConfig.getPassword(), CONFIG_FILE, "password"))
                 .build();
 
         SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(config);
-        File sampleFile = new File(requiredConfigValue(sampleConfig.getSampleFile(), "sampleFile"));
-        String remoteFolder = requiredConfigValue(sampleConfig.getSampleFolder(), "sampleFolder");
-        File downloadFolder = FileUtil.mkdir(requiredConfigValue(sampleConfig.getDownloadFolder(), "downloadFolder"));
+        File sampleFile = new File(ExampleConfigReader.requiredValue(sampleConfig.getSampleFile(), CONFIG_FILE, "sampleFile"));
+        String remoteFolder = ExampleConfigReader.requiredValue(sampleConfig.getSampleFolder(), CONFIG_FILE, "sampleFolder");
+        File downloadFolder = FileUtil.mkdir(ExampleConfigReader.requiredValue(
+                sampleConfig.getDownloadFolder(), CONFIG_FILE, "downloadFolder"));
         String uploadedPath = remoteFolder + "/" + sampleFile.getName();
         String renamedPath = remoteFolder + "/demo-renamed-" + sampleFile.getName();
         File downloadedFile = FileUtil.file(downloadFolder, "downloaded-" + sampleFile.getName());
@@ -101,25 +106,6 @@ public class FileStationBasicExample {
         log.info("删除文件：{}，成功：{}", renamedPath, delete.isSuccess());
 
         client.session().logout();
-    }
-
-    private static FileStationBasicExampleConfig readSampleConfig() throws IOException {
-        InputStream inputStream = FileStationBasicExample.class.getClassLoader().getResourceAsStream(CONFIG_FILE);
-        if (inputStream == null) {
-            throw new IllegalArgumentException("未找到示例配置文件 " + CONFIG_FILE
-                    + "，请先复制 " + CONFIG_EXAMPLE_FILE + " 为 " + CONFIG_FILE + " 后再运行。");
-        }
-        try (InputStream configInputStream = inputStream) {
-            ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-            return objectMapper.readValue(configInputStream, FileStationBasicExampleConfig.class);
-        }
-    }
-
-    private static String requiredConfigValue(String value, String fieldName) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("示例配置文件 " + CONFIG_FILE + " 缺少必填配置：" + fieldName);
-        }
-        return value;
     }
 
     private static void saveDownloadedFile(DownloadFileResponse downloadResponse, File downloadedFile) throws IOException {

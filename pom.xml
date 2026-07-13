@@ -16,6 +16,7 @@
     <modules>
         <module>synology-dsm-java-sdk-core</module>
         <module>synology-dsm-java-sdk-http-hutool</module>
+        <module>synology-dsm-java-sdk-http-okhttp3</module>
         <module>synology-dsm-java-sdk-example</module>
     </modules>
 
@@ -28,6 +29,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <jackson.version>2.17.2</jackson.version>
         <hutool.version>5.8.46</hutool.version>
+        <okhttp3.version>3.14.9</okhttp3.version>
         <lombok.version>1.18.46</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <junit.jupiter.version>5.10.3</junit.jupiter.version>
@@ -74,6 +76,17 @@
                 <version>${hutool.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- OkHttp 3.14.x 是官方最后一个支持 Java 8 的主版本。 -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>mockwebserver</artifactId>
+                <version>${okhttp3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
