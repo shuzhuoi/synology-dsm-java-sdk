@@ -1,0 +1,24 @@
+# File Station v0.3.0 示例配置。
+# 运行前请复制本文件为 filestation-v030.yaml，并填写真实 DSM 信息。
+
+# DSM 服务地址，例如：https://nas.example.com:5001
+dsmUrl: "http://192.168.210.7:5000/"
+
+# DSM 登录账号。
+account: "朱明查看文件专用"
+
+# DSM 登录密码。真实文件 filestation-v030.yaml 已被 .gitignore 忽略，请不要提交。
+password: "R?0WrE[f"
+
+# File Station 中用于演示 v0.3.0 功能的远端目录。
+# 示例会在该目录下上传临时 PNG 文件，并在结束时清理该文件，请确保指向专用测试目录。
+sampleFolder: "/商务部-TOP/omp-temp/1/sdk-v030-demo"
+
+# 缩略图保存到本地的目录。
+downloadFolder: "D:/tmp/synology-sdk-v030"
+
+# 虚拟目录类型：cifs、nfs 或 iso。若 DSM 没有对应挂载点，列表可能为空。
+virtualFolderType: "cifs"
+
+# 分享链接演示用密码，最长 16 位。
+sharingPassword: "sdk030"

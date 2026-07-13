@@ -1,0 +1,17 @@
+synology:
+  dsm:
+    base-url: ${SYNOLOGY_DSM_BASE_URL}
+    account: ${SYNOLOGY_DSM_ACCOUNT}
+    password: ${SYNOLOGY_DSM_PASSWORD}
+    session-name: FileStation
+    http-adapter: hutool
+    auto-login: true
+    auto-refresh-session: true
+
+example:
+  # 改为 true 可验证用户自定义 SynologySessionStore Bean 覆盖默认本地实现。
+  custom-session-store: false
+  file-station:
+    sample-file: ${SYNOLOGY_SAMPLE_FILE}
+    remote-folder: ${SYNOLOGY_SAMPLE_FOLDER}
+    download-folder: ${SYNOLOGY_DOWNLOAD_FOLDER}

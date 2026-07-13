@@ -1,0 +1,15 @@
+# File Station 归档能力示例配置。
+# 运行前请复制本文件为 filestation-archive.yaml，并填写真实 DSM 信息。
+
+# DSM 服务地址，例如：https://nas.example.com:5001
+dsmUrl: "http://192.168.210.7:5000"
+
+# DSM 登录账号。
+account: "朱明查看文件专用"
+
+# DSM 登录密码。真实文件 filestation-archive.yaml 已被 .gitignore 忽略，请不要提交。
+password: "R?0WrE[f"
+
+# File Station 中用于创建归档示例临时子目录的远端根目录。
+# 示例只删除每次运行创建的唯一子目录，不会删除该根目录中的其他数据。
+sampleFolder: "/商务部-TOP/omp-temp/1/sdk-archive-demo"

@@ -1,0 +1,15 @@
+# File Station v0.2.0 高级示例配置。
+# 运行前请复制本文件为 filestation-advanced.yaml，并填写真实 DSM 信息。
+
+# DSM 服务地址，例如：https://nas.example.com:5001
+dsmUrl: "http://192.168.210.7:5000/"
+
+# DSM 登录账号。
+account: "朱明查看文件专用"
+
+# DSM 登录密码。真实文件 filestation-advanced.yaml 已被 .gitignore 忽略，请不要提交。
+password: "R?0WrE[f"
+
+# File Station 中用于演示 v0.2.0 功能（Search / DirSize / BackgroundTask）的远端目录。
+# 该目录下的测试文件会在示例结束时被清理，请确保指向专用测试目录。
+sampleFolder: "/商务部-TOP/omp-temp/1/sdk-advanced-demo"

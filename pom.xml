@@ -20,8 +20,6 @@
         <module>synology-dsm-java-sdk-example</module>
         <module>synology-dsm-java-sdk-spring-boot2-starter</module>
         <module>synology-dsm-java-sdk-spring-boot3-starter</module>
-        <module>synology-dsm-java-sdk-spring-boot2-example</module>
-        <module>synology-dsm-java-sdk-spring-boot3-example</module>
     </modules>
 
     <properties>

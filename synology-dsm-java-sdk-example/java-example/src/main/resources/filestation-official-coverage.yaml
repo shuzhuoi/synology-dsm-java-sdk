@@ -1,0 +1,15 @@
+# File Station 官方契约补齐示例配置。
+# 运行前请复制本文件为 filestation-official-coverage.yaml，并填写真实 DSM 信息。
+
+# DSM 服务地址，例如：https://nas.example.com:5001
+dsmUrl: "http://192.168.210.7:5000/"
+
+# DSM 登录账号。
+account: "朱明查看文件专用"
+
+# DSM 登录密码。真实文件 filestation-basic.yaml 已被 .gitignore 忽略，请不要提交。
+password: "R?0WrE[f"
+
+# File Station 中用于演示官方补齐接口的远端目录。
+# 示例会在该目录下创建临时子目录并清理，请确保指向专用测试目录。
+sampleFolder: "/商务部-TOP/omp-temp/1/sdk-official-coverage-demo"

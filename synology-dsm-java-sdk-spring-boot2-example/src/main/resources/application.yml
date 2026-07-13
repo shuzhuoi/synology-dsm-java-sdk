@@ -1,9 +1,0 @@
-synology:
-  dsm:
-    base-url: ${SYNOLOGY_DSM_BASE_URL:http://127.0.0.1:5000}
-    account: ${SYNOLOGY_DSM_ACCOUNT:admin}
-    password: ${SYNOLOGY_DSM_PASSWORD:change-me}
-    session-name: FileStation
-    http-adapter: hutool
-    auto-login: true
-    auto-refresh-session: true
