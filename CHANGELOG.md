@@ -2,14 +2,47 @@
 
 ## Unreleased
 
-- 新增独立 `synology-dsm-java-sdk-json-jackson` 模块，core 不再依赖或公开 Jackson 类型
-- 新增可选 `synology-dsm-java-sdk-json-fastjson2` 模块，基于 Fastjson2 2.0.61 实现相同 JSON 契约
-- 新增 `SynologyJsonCodec` SPI 和中立模型映射注解，支持 Jackson、Fastjson2 等平级实现
-- Boot 2/3 Starter 默认装配 Jackson Codec，用户提供 `SynologyJsonCodec` Bean 时优先使用用户实现
-- 新增 `SortDirection`、`FileTypeFilter`、`ThumbSize`、`CompressFormat`、`CompressMode`、`CompressLevel` enum 重载，保留原 String 方法
-- **Breaking:** 普通 Java `SynologyDsmClient.Builder` 必须显式设置 `jsonCodec`
-- **Breaking:** Hutool/OkHttp3 便捷工厂创建方法增加 `SynologyJsonCodec` 参数
-- **Breaking:** `BackgroundTask.params` 从 Jackson `JsonNode` 改为 `Map<String, Object>`
+- 暂无已发布变更。
+
+## 1.0.0 (2026-07-13)
+
+这是 SDK 的首个稳定版本。公共 API、HTTP/JSON 扩展边界和 Spring Boot 集成方式从本版本开始按语义化版本规则维护。
+
+### 新增
+
+- 新增独立 `synology-dsm-java-sdk-http-okhttp3` 模块，提供 OkHttp3 HTTP 实现和对应 Java 示例。
+- 新增 `synology-dsm-java-sdk-spring-boot2-starter` 和 `synology-dsm-java-sdk-spring-boot3-starter`，分别适配 Spring Boot 2.x 和 3.x，并提供可运行示例。
+- 新增独立 `synology-dsm-java-sdk-json-jackson` 模块，提供默认 Jackson JSON Codec。
+- 新增可选 `synology-dsm-java-sdk-json-fastjson2` 模块，基于 Fastjson2 2.0.61 实现相同 JSON 契约。
+- 新增 `SynologyJsonCodec` SPI 和中立模型映射注解，支持 Jackson、Fastjson2 以及用户自定义 JSON 实现。
+- 新增可替换的 `SynologySessionStore`，默认提供本地内存 Map 实现；Redis 等外部缓存由使用者自行实现和接入。
+- 新增 `SortDirection`、`FileTypeFilter`、`ThumbSize`、`CompressFormat`、`CompressMode`、`CompressLevel` enum 重载，原 String 方法继续保留。
+
+### 架构调整
+
+- core 只保留业务 API、会话管理、HTTP/JSON SPI 和通用模型，不再依赖具体 JSON、HTTP 或 Spring 实现。
+- HTTP 实现拆分为 Hutool 和 OkHttp3 平级 adapter；JSON 实现拆分为 Jackson 和 Fastjson2 平级模块。
+- Boot 2/3 Starter 默认装配 Jackson Codec；用户提供 `SynologyJsonCodec` Bean 时优先使用用户实现。
+- 默认 Session/SID 缓存使用本地 Map，不引入 Redis、Caffeine 或 Spring Cache 依赖。
+- 所有 SDK 示例统一收拢到 `synology-dsm-java-sdk-example` 聚合模块，并区分普通 Java、Spring Boot 2 和 Spring Boot 3 示例。
+- Maven 编译改用 `release`：Java 8 模块限制为 Java 8 JDK API，Boot 3 模块限制为 Java 17；完整 Reactor 统一使用 JDK 17 构建。
+- 新增 `local-build` Maven Profile，本地验证和 IDEA 构建时可跳过 GPG 签名，正式发布时不启用。
+
+### 破坏性变更
+
+- **Breaking:** 普通 Java `SynologyDsmClient.Builder` 必须显式设置 `jsonCodec`。
+- **Breaking:** Hutool/OkHttp3 便捷工厂创建方法增加 `SynologyJsonCodec` 参数。
+- **Breaking:** `BackgroundTask.params` 从 Jackson `JsonNode` 改为 `Map<String, Object>`，core 公共 API 不再暴露 Jackson 类型。
+
+### 从 0.4.0 升级
+
+1. 普通 Java 项目在 HTTP adapter 之外增加一个 JSON 实现依赖：默认使用 `synology-dsm-java-sdk-json-jackson`，或者改用 `synology-dsm-java-sdk-json-fastjson2`。
+2. 为 `SynologyDsmClient.builder()` 增加 `.jsonCodec(new JacksonSynologyJsonCodec())` 或其他 `SynologyJsonCodec` 实现。
+3. 为 `HutoolSynologyDsmClientFactory.create(...)` 或 `OkHttp3SynologyDsmClientFactory.create(...)` 增加 JSON Codec 参数。
+4. 将 `BackgroundTask.getParams()` 的读取逻辑从 Jackson `JsonNode` 调整为 JDK `Map<String, Object>`。
+5. Spring Boot 项目只引入与自身版本对应的 Starter。Starter 默认提供 Jackson Codec；切换 Fastjson2 时排除默认 Jackson 模块并显式注册 `Fastjson2SynologyJsonCodec`。
+
+`fastjson2-extension-spring5` 和 `fastjson2-extension-spring6` 不属于 SDK 的必需依赖。只有业务应用希望把 Fastjson2 设置为 Spring MVC 全局 JSON 消息转换器时，才需要根据 Spring Boot 主版本自行引入对应扩展。
 
 ## 0.4.0 (2026-07-10)
 

@@ -12,8 +12,7 @@
     <artifactId>synology-dsm-java-sdk-spring-boot3-example</artifactId>
     <name>synology-dsm-java-sdk-spring-boot3-example</name>
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.source.skip>true</maven.source.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
