@@ -3,31 +3,25 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>io.github.shuzhuoi</groupId>
         <artifactId>synology-dsm-java-sdk-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
-
-    <artifactId>synology-dsm-java-sdk-example</artifactId>
-    <packaging>pom</packaging>
-    <name>synology-dsm-java-sdk-example</name>
-
-    <modules>
-        <module>common</module>
-        <module>java-example</module>
-        <module>spring-boot2-example</module>
-        <module>spring-boot3-example</module>
-    </modules>
-
+    <artifactId>synology-dsm-java-sdk-example-common</artifactId>
+    <name>synology-dsm-java-sdk-example-common</name>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.source.skip>true</maven.source.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <gpg.skip>true</gpg.skip>
     </properties>
-
-    <!-- 聚合模块不承载源码和依赖，各类示例由独立子模块维护。 -->
+    <dependencies>
+        <dependency>
+            <groupId>io.github.shuzhuoi</groupId>
+            <artifactId>synology-dsm-java-sdk-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
