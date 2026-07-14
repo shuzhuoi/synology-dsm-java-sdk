@@ -31,6 +31,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- 使用 JDK 17 构建 Reactor，release=8 同时约束 Java 8 语法、字节码和 JDK API。 -->
         <maven.compiler.release>8</maven.compiler.release>
+        <!-- Central 发布默认手动确认，需自动发布时激活 auto-publish profile -->
+        <central.autoPublish>false</central.autoPublish>
         <jackson.version>2.17.2</jackson.version>
         <fastjson2.version>2.0.61</fastjson2.version>
         <hutool.version>5.8.46</hutool.version>
@@ -145,13 +147,15 @@
                         autoPublish 控制 mvn deploy 上传 bundle 并通过校验后是否自动正式发布：
                         - false：bundle 校验通过后停在 validated 状态，需要登录 Central Portal 手动点 Publish 才会正式发布到 Maven Central。
                         - true ：bundle 校验通过后自动正式发布，无需再登录 Portal 操作。
-                        当前保持 false：首次发布阶段更稳妥，上传后发现问题时可在 Portal 放弃 deployment，
-                        避免污染 Maven Central（同版本号发布后不可覆盖）。流程跑顺后可改为 true。
+                        默认 false（central.autoPublish 属性）：首次发布阶段更稳妥，上传后发现问题时可在 Portal 放弃 deployment，
+                        避免污染 Maven Central（同版本号发布后不可覆盖）。
+                        切换方式：在 IDEA Maven 面板勾选 auto-publish profile，或命令行 mvn deploy -P auto-publish。
                     -->
-                    <autoPublish>false</autoPublish>
-                    <excludeArtifacts>
-                        <excludeArtifact>synology-dsm-java-sdk-example</excludeArtifact>
-                    </excludeArtifacts>
+                    <autoPublish>${central.autoPublish}</autoPublish>
+                    <!--
+                        example 模块的排除通过各 example 子模块自身的 maven.deploy.skip=true 实现，
+                        在 deploy 阶段就拦截，不会进入 bundle，无需在此重复配置 excludeArtifacts。
+                    -->
                 </configuration>
             </plugin>
             <!-- Maven Central 要求非 pom 构件必须上传源码包。 -->
@@ -238,6 +242,13 @@
             <id>local-build</id>
             <properties>
                 <gpg.skip>true</gpg.skip>
+            </properties>
+        </profile>
+        <!-- 激活后 bundle 校验通过自动正式发布，无需登录 Portal 手动点 Publish。 -->
+        <profile>
+            <id>auto-publish</id>
+            <properties>
+                <central.autoPublish>true</central.autoPublish>
             </properties>
         </profile>
     </profiles>
