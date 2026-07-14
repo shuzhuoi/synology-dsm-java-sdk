@@ -27,6 +27,8 @@
         <maven.source.skip>true</maven.source.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <gpg.skip>true</gpg.skip>
+        <!-- central-publishing-maven-plugin 的 publish 目标不受 maven.deploy.skip 控制，需用插件自己的 skipPublishing 属性 -->
+        <skipPublishing>true</skipPublishing>
     </properties>
 
     <!-- 聚合模块不承载源码和依赖，各类示例由独立子模块维护。 -->
