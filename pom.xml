@@ -112,15 +112,18 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!--  编译插件 -->
+                <!--
+                    编译插件：maven-compiler-plugin 3.13.0+ 原生支持自动读取 maven.compiler.release
+                    和 project.build.sourceEncoding 属性。此处不再显式声明 <configuration>，
+                    否则在多模块构建中 <release>${maven.compiler.release}</release> 会在 parent
+                    上下文中被提前解析为 parent 的属性值，导致子模块（如 spring-boot3-starter
+                    需要 release 17）的属性覆盖失效，最终误用 release 8 编译而无法读取 Spring 6
+                    的 61.0 字节码。保留版本声明统一插件版本，配置交给属性自动读取。
+                -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.15.0</version>
-                    <configuration>
-                        <release>${maven.compiler.release}</release>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
