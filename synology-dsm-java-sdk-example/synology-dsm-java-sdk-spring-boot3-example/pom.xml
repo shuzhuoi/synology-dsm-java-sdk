@@ -5,18 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.shuzhuoi</groupId>
-        <artifactId>synology-dsm-java-sdk-parent</artifactId>
+        <artifactId>synology-dsm-java-sdk-example</artifactId>
         <version>${revision}</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>synology-dsm-java-sdk-spring-boot3-example</artifactId>
     <name>synology-dsm-java-sdk-spring-boot3-example</name>
     <properties>
+        <!-- Spring Boot 3 要求 Java 17，覆盖 parent 的 release 8 -->
         <maven.compiler.release>17</maven.compiler.release>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.source.skip>true</maven.source.skip>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
-        <gpg.skip>true</gpg.skip>
     </properties>
     <dependencies>
         <dependency>
