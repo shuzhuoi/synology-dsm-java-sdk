@@ -7,7 +7,7 @@
 [![CI](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.shuzhuoi/synology-dsm-java-sdk-core.svg)](https://central.sonatype.com/artifact/io.github.shuzhuoi/synology-dsm-java-sdk-core)
 
-Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，完整覆盖 **File Station** 文件操作、任务型接口、写入权限预检查、分享、收藏、缩略图、虚拟目录、压缩和解压等能力，并基于 DSM 7 的 `SYNO.DownloadStation2.*` 新契约覆盖 **Download Station** 的任务管理、速度统计、BT 搜索和 RSS 订阅。
+Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，完整覆盖 **File Station** 文件操作、任务型接口、写入权限预检查、分享、收藏、缩略图、虚拟目录、压缩和解压等能力，基于 DSM 7 的 `SYNO.DownloadStation2.*` 新契约覆盖 **Download Station** 的任务管理、速度统计、BT 搜索和 RSS 订阅，并通过 `SYNO.Core.System` / `SYNO.Core.System.Utilization` 提供 **系统信息与 CPU/内存/磁盘/网络实时监控**。
 
 SDK 将业务 API、HTTP 实现和 Spring Boot 集成拆分为独立模块。普通 Java、Spring Boot 2 和 Spring Boot 3 项目可以按需选择，不需要把 Spring、Hutool 或 OkHttp3 引入 core。
 
@@ -770,6 +770,8 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
 | [`FileStationResourceExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationResourceExample.java) | 分享、收藏、缩略图、虚拟目录 |
 | [`FileStationArchiveExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationArchiveExample.java) | 压缩和解压 |
 | [`FileStationOfficialCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationOfficialCoverageExample.java) | 官方契约补齐接口 |
+| [`DownloadStationCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/DownloadStationCoverageExample.java) | Download Station 全量官方 API（任务生命周期、统计、BT 搜索、RSS） |
+| [`CoreSystemCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/CoreSystemCoverageExample.java) | 系统信息、CPU/内存/磁盘/网络实时利用率、API 版本探测（电源操作默认跳过） |
 
 本地配置文件已由根 `.gitignore` 忽略。不要在模板或 Java 源码中写入真实 DSM 密码。
 
@@ -822,14 +824,17 @@ SynologyDsmClient
 │   ├── virtualFolder()        // SYNO.FileStation.VirtualFolder
 │   ├── compress()             // SYNO.FileStation.Compress
 │   └── extract()              // SYNO.FileStation.Extract
-└── downloadStation()          // Download Station 聚合入口（SYNO.DownloadStation2.*）
-    ├── info()                 // Info：版本信息与全局配置（getConfig/setServerConfig）
-    ├── task()                 // Task：任务创建（URI/种子）、列表、详情、暂停、恢复、改目的地、删除
-    ├── taskFile()             // Task.File：任务内文件列表
-    ├── statistic()            // Statistic：实时速度与累计流量
-    ├── btSearch()             // BTSearch：搜索引擎、发起搜索、结果、分类、清理
-    ├── rssSite()              // RSS.Site：站点列表、立即刷新
-    └── rssFeed()              // RSS.Feed：订阅条目列表、转化为下载任务
+├── downloadStation()          // Download Station 聚合入口（SYNO.DownloadStation2.*）
+│   ├── info()                 // Info：版本信息与全局配置（getConfig/setServerConfig）
+│   ├── task()                 // Task：任务创建（URI/种子）、列表、详情、暂停、恢复、改目的地、删除
+│   ├── taskFile()             // Task.File：任务内文件列表
+│   ├── statistic()            // Statistic：实时速度与累计流量
+│   ├── btSearch()             // BTSearch：搜索引擎、发起搜索、结果、分类、清理
+│   ├── rssSite()              // RSS.Site：站点列表、立即刷新
+│   └── rssFeed()              // RSS.Feed：订阅条目列表、转化为下载任务
+└── coreSystem()               // Core System 聚合入口（系统监控，无需安装套件）
+    ├── info()                 // SYNO.Core.System：系统信息（机型/固件/温度/时长）、关机、重启
+    └── utilization()          // SYNO.Core.System.Utilization：CPU/内存/磁盘/网络实时利用率
 ```
 
 ## 许可证

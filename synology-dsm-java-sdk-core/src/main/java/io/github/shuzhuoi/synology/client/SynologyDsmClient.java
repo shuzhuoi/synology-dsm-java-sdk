@@ -6,6 +6,7 @@ import io.github.shuzhuoi.synology.auth.SynologySessionManager;
 import io.github.shuzhuoi.synology.auth.store.InMemorySynologySessionStore;
 import io.github.shuzhuoi.synology.auth.store.SynologySessionStore;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
+import io.github.shuzhuoi.synology.core.system.CoreSystemClient;
 import io.github.shuzhuoi.synology.downloadstation.DownloadStationClient;
 import io.github.shuzhuoi.synology.filestation.FileStationClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
@@ -16,7 +17,8 @@ import io.github.shuzhuoi.synology.json.SynologyJsonCodec;
  * Synology DSM SDK 的统一入口。
  * <p>
  * 调用方通常只需要持有这个对象，再通过 {@link #apiInfo()}、{@link #auth()}、
- * {@link #session()}、{@link #fileStation()}、{@link #downloadStation()} 进入具体能力模块。
+ * {@link #session()}、{@link #fileStation()}、{@link #downloadStation()}、
+ * {@link #coreSystem()} 进入具体能力模块。
  */
 public class SynologyDsmClient {
 
@@ -55,6 +57,11 @@ public class SynologyDsmClient {
      */
     private final DownloadStationClient downloadStationClient;
 
+    /**
+     * Core System 聚合客户端（系统信息与实时利用率）。
+     */
+    private final CoreSystemClient coreSystemClient;
+
     private SynologyDsmClient(Builder builder) {
         this.config = builder.config;
         this.executor = new SynologyApiExecutor(config, builder.httpClient, builder.jsonCodec);
@@ -69,6 +76,7 @@ public class SynologyDsmClient {
         this.apiInfoClient = new ApiInfoClient(executor);
         this.fileStationClient = new FileStationClient(executor);
         this.downloadStationClient = new DownloadStationClient(executor);
+        this.coreSystemClient = new CoreSystemClient(executor);
     }
 
     public static Builder builder() {
@@ -97,6 +105,10 @@ public class SynologyDsmClient {
 
     public DownloadStationClient downloadStation() {
         return downloadStationClient;
+    }
+
+    public CoreSystemClient coreSystem() {
+        return coreSystemClient;
     }
 
     public static class Builder {

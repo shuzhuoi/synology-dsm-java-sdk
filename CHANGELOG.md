@@ -19,6 +19,14 @@
 - 新增 `DownloadStationClientContractTest` 契约测试，校验 API 名称、版本、方法与参数编码（逗号分隔 ID、JSON 引号路径、multipart 种子上传）。
 - example 模块新增 `DownloadStationCoverageExample` 与 `downloadstation-coverage.example.yaml` 配置模板（testUri / torrentFile / btSearchKeyword 为可选段，留空自动跳过）。
 - README（中英文）与 API 入口结构图补充 Download Station 说明。
+- 新增 **Core System 模块**：基于 `SYNO.Core.System` / `SYNO.Core.System.Utilization` 提供系统信息与实时资源监控。
+  - `SYNO.Core.System` v3 `info`：机型、内存、序列号、温度、固件版本、开机时长、时区、USB 设备等系统信息（兼容 `sys_temp`/`temperature`、`firmware_ver`/`version` 等不同 DSM 版本字段形态）。
+  - `SYNO.Core.System.Utilization` v1 `get`：CPU（用户/系统/其他负载、1/5/15 分钟平均负载）、内存（占用率、总量/可用、缓存、交换分区）、磁盘（各磁盘繁忙度、读写吞吐）、网络（各网卡收发吞吐）实时利用率，等价于 DSM 资源监控器首页。
+  - `SYNO.Core.System` v1 `shutdown` / `reboot`：电源操作（高危，示例默认跳过）。
+- `SynologyDsmClient` 新增 `coreSystem()` 聚合入口，按 info / utilization 拆分子客户端。
+- 新增 `CoreSystemClientContractTest` 契约测试，校验 API 名称、版本、method 与电源操作参数（`local=true`）。
+- example 模块新增 `CoreSystemCoverageExample` 与 `coresystem-coverage.example.yaml` 配置模板（含 API 版本探测；powerAction 为可选段，留空自动跳过）。
+- README（中英文）与 API 入口结构图补充 Core System 说明。
 
 ## 1.0.1 (2026-09-06)
 
