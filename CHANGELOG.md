@@ -4,6 +4,10 @@
 
 ### 新增
 
+- 登录支持 **两步验证（2FA）**：`SYNO.API.Auth` 升级到官方推荐的 v6，新增 `otpCode`（动态验证码）、`enableDeviceToken` + `deviceName`（申请设备令牌）、`deviceId`（受信设备免 OTP 登录）配置项；`LoginResponse` 解码 `did`，`SynologySession` 携带 `deviceId` 供持久化复用。
+- Spring Boot 2 / Boot 3 Starter 配置协议新增 `synology.dsm.otp-code` / `enable-device-token` / `device-name` / `device-id`。
+- 新增 `AuthClientContractTest` 契约测试，校验登录 v6 契约与 OTP 参数按需下发。
+- README（中英文）新增"两步验证（2FA）登录"章节与配置表说明。
 - 新增 **Download Station 模块**：基于 DSM 7 新契约 `SYNO.DownloadStation2.*`（`entry.cgi` 统一入口）提供下载站全量官方 API。
   - `SYNO.DownloadStation2.Info`：getInfo / getConfig / setServerConfig。
   - `SYNO.DownloadStation2.Task`：list / getinfo / create（URL 与 .torrent 文件两种形态）/ delete / pause / resume / edit。

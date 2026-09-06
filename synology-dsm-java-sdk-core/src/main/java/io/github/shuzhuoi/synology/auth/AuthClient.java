@@ -32,11 +32,27 @@ public class AuthClient {
         parameters.put("passwd", config.getPassword());
         parameters.put("session", config.getSessionName());
         parameters.put("format", "sid");
+        // 开启两步验证的账号必须携带动态验证码，否则 DSM 返回 403/404 错误码。
+        if (!isBlank(config.getOtpCode())) {
+            parameters.put("otp_code", config.getOtpCode());
+        }
+        // 申请设备令牌：登录成功后响应返回 did，持久化后可免 OTP 登录。
+        if (config.isEnableDeviceToken()) {
+            parameters.put("enable_device_token", "yes");
+        }
+        if (!isBlank(config.getDeviceName())) {
+            parameters.put("device_name", config.getDeviceName());
+        }
+        // 携带上次登录返回的 did，DSM 跳过两步验证。
+        if (!isBlank(config.getDeviceId())) {
+            parameters.put("device_id", config.getDeviceId());
+        }
 
+        // 使用 v6：otp_code 在 v3+ 可用，enable_device_token/device_id 在 v6+ 可用。
         LoginResponse response = executor.getPublic(
                 "auth.cgi",
                 "SYNO.API.Auth",
-                3,
+                6,
                 "login",
                 parameters,
                 LoginResponse.class
@@ -44,7 +60,7 @@ public class AuthClient {
         if (response == null || isBlank(response.getSid())) {
             throw new SynologyAuthException("login succeeded but sid is blank");
         }
-        return new SynologySession(response.getSid(), config.getSessionName(), new Date());
+        return new SynologySession(response.getSid(), config.getSessionName(), new Date(), response.getDid());
     }
 
     public LogoutResponse logout(String sid) {

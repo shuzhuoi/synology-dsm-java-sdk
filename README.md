@@ -453,6 +453,10 @@ Boot 2 and Boot 3 use exactly the same properties:
 | `synology.dsm.read-timeout-millis` | No | `60000` | HTTP read timeout; increase for large uploads/downloads |
 | `synology.dsm.auto-login` | No | `true` | Log in automatically when no SID is available |
 | `synology.dsm.auto-refresh-session` | No | `true` | Re-login and retry once when the SID expires |
+| `synology.dsm.otp-code` | No | None | DSM two-factor authentication (2FA) one-time code; required when OTP is enabled on the account |
+| `synology.dsm.enable-device-token` | No | `false` | Request a device token at login; the session then carries a `deviceId` that enables OTP-free logins afterwards |
+| `synology.dsm.device-name` | No | None | Device name reported when requesting a device token |
+| `synology.dsm.device-id` | No | None | Device ID (did) returned by a previous login; skips 2FA when present |
 | `synology.dsm.http-adapter` | No | `hutool` | HTTP implementation: `hutool` or `okhttp3` |
 
 "Required" applies when the Starter is enabled and creates the default client. Setting `enabled=false` or supplying a fully custom client removes the default client creation.
@@ -471,6 +475,11 @@ synology:
     read-timeout-millis: 60000
     auto-login: true
     auto-refresh-session: true
+    # Fill in when the account has 2FA (OTP) enabled:
+    # otp-code: 123456
+    # enable-device-token: true
+    # device-name: my-app
+    # device-id: the did returned by a previous login
     http-adapter: hutool
 ```
 
@@ -699,8 +708,50 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
 | `readTimeoutMillis` | `60000` | HTTP read timeout (ms); increase for large uploads/downloads |
 | `autoLogin` | `true` | Log in automatically when no SID is available |
 | `autoRefreshSession` | `true` | On session expiry (error codes 106/107/119), re-login and retry once |
+| `otpCode` | None | DSM two-factor authentication (2FA) one-time code; required when OTP is enabled on the account |
+| `enableDeviceToken` | `false` | Request a device token at login; the session then carries a `deviceId` that enables OTP-free logins afterwards |
+| `deviceName` | None | Device name reported when requesting a device token |
+| `deviceId` | None | Device ID (did) returned by a previous login; skips 2FA when present |
 
 Trailing `/` in `baseUrl` is removed automatically. Internally the SDK builds request URLs as `baseUrl + /webapi/entry.cgi`. Sensitive information such as passwords, SIDs and cookies never appears in logs.
+
+### Two-Factor Authentication (2FA) Login
+
+When 2FA is enabled on the DSM account, login must carry the one-time code:
+
+```java
+SynologyDsmConfig config = SynologyDsmConfig.builder()
+        .baseUrl("https://nas.example.com:5001")
+        .account("your-account")
+        .password("your-password")
+        .otpCode("123456") // the 6-digit code from DSM or your email
+        .build();
+```
+
+One-time codes rotate over time, which suits interactive scenarios. For long-running services, request a device token instead: the first login returns a `deviceId` that you persist, and later logins skip the OTP step:
+
+```java
+// First login: request a device token.
+SynologyDsmConfig firstConfig = SynologyDsmConfig.builder()
+        .baseUrl("https://nas.example.com:5001")
+        .account("your-account")
+        .password("your-password")
+        .otpCode("123456")
+        .enableDeviceToken(true)
+        .deviceName("my-app")
+        .build();
+SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(firstConfig, new JacksonSynologyJsonCodec());
+// The session carries the did returned by DSM; persist it.
+String deviceId = client.session().currentSession().getDeviceId();
+
+// Later logins: pass the deviceId to skip 2FA.
+SynologyDsmConfig config = SynologyDsmConfig.builder()
+        .baseUrl("https://nas.example.com:5001")
+        .account("your-account")
+        .password("your-password")
+        .deviceId(deviceId)
+        .build();
+```
 
 ## Plain Java Examples
 

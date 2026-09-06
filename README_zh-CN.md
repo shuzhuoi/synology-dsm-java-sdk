@@ -456,6 +456,10 @@ Boot 2 和 Boot 3 使用完全相同的配置项：
 | `synology.dsm.read-timeout-millis` | 否 | `60000` | HTTP 读取超时，上传或下载大文件时可适当调大 |
 | `synology.dsm.auto-login` | 否 | `true` | 没有可用 SID 时是否自动登录 |
 | `synology.dsm.auto-refresh-session` | 否 | `true` | SID 失效时是否重新登录并重试一次 |
+| `synology.dsm.otp-code` | 否 | 无 | DSM 两步验证（2FA）动态验证码，账号开启 OTP 后登录必填 |
+| `synology.dsm.enable-device-token` | 否 | `false` | 登录时申请设备令牌，成功后日志/会话中返回 `deviceId`，之后可用其免 OTP 登录 |
+| `synology.dsm.device-name` | 否 | 无 | 申请设备令牌时上报的设备名，用于 DSM 已信任设备列表识别 |
+| `synology.dsm.device-id` | 否 | 无 | 上次登录返回的设备 ID（did），携带后跳过两步验证 |
 | `synology.dsm.http-adapter` | 否 | `hutool` | HTTP 实现，可选 `hutool` 或 `okhttp3` |
 
 表中的必填项针对 Starter 启用且由 Starter 创建默认客户端的场景。设置 `enabled=false` 或完全提供自定义客户端时，不再由该配置协议创建默认客户端。
@@ -474,6 +478,11 @@ synology:
     read-timeout-millis: 60000
     auto-login: true
     auto-refresh-session: true
+    # 账号开启了两步验证（2FA）时按需填写：
+    # otp-code: 123456
+    # enable-device-token: true
+    # device-name: my-app
+    # device-id: 上次登录返回的 did
     http-adapter: hutool
 ```
 
@@ -704,8 +713,50 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
 | `readTimeoutMillis` | `60000` | HTTP 读取超时（毫秒），大文件上传/下载可调大 |
 | `autoLogin` | `true` | 没有 SID 时是否自动登录 |
 | `autoRefreshSession` | `true` | 会话失效（错误码 106/107/119）时自动重新登录并重试一次 |
+| `otpCode` | 无 | DSM 两步验证（2FA）动态验证码，账号开启 OTP 后登录必填 |
+| `enableDeviceToken` | `false` | 登录时申请设备令牌，成功后会话携带 `deviceId`，之后可用其免 OTP 登录 |
+| `deviceName` | 无 | 申请设备令牌时上报的设备名 |
+| `deviceId` | 无 | 上次登录返回的设备 ID（did），携带后跳过两步验证 |
 
 `baseUrl` 末尾的 `/` 会被自动去除。SDK 内部通过 `baseUrl + /webapi/entry.cgi` 拼接请求地址。密码、SID、Cookie 等敏感信息不会出现在日志中。
+
+### 两步验证（2FA）登录
+
+账号在 DSM 中开启两步验证后，登录必须携带动态验证码：
+
+```java
+SynologyDsmConfig config = SynologyDsmConfig.builder()
+        .baseUrl("https://nas.example.com:5001")
+        .account("your-account")
+        .password("your-password")
+        .otpCode("123456") // DSM 或邮箱中的 6 位动态验证码
+        .build();
+```
+
+动态验证码随时间轮换，适合交互式场景。长期运行的服务推荐申请设备令牌，首次登录返回 `deviceId` 后持久化保存，之后免 OTP 登录：
+
+```java
+// 首次登录：申请设备令牌。
+SynologyDsmConfig firstConfig = SynologyDsmConfig.builder()
+        .baseUrl("https://nas.example.com:5001")
+        .account("your-account")
+        .password("your-password")
+        .otpCode("123456")
+        .enableDeviceToken(true)
+        .deviceName("my-app")
+        .build();
+SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(firstConfig, new JacksonSynologyJsonCodec());
+// 会话携带 DSM 返回的 did，持久化保存。
+String deviceId = client.session().currentSession().getDeviceId();
+
+// 后续登录：携带 deviceId 跳过两步验证。
+SynologyDsmConfig config = SynologyDsmConfig.builder()
+        .baseUrl("https://nas.example.com:5001")
+        .account("your-account")
+        .password("your-password")
+        .deviceId(deviceId)
+        .build();
+```
 
 ## 普通 Java 完整示例
 

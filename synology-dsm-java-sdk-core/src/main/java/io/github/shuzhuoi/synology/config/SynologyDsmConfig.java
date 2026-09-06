@@ -37,6 +37,22 @@ public class SynologyDsmConfig {
      * 会话失效时是否允许后续扩展为自动刷新 SID。
      */
     private final boolean autoRefreshSession;
+    /**
+     * DSM 两步验证（2FA）动态验证码。账号开启 OTP 后登录必填。
+     */
+    private final String otpCode;
+    /**
+     * 是否在登录时申请设备令牌。开启后登录响应会返回 deviceId，之后携带 deviceId 可免 OTP 登录。
+     */
+    private final boolean enableDeviceToken;
+    /**
+     * 申请设备令牌时上报的设备名，用于在 DSM 已信任设备列表中识别本设备。
+     */
+    private final String deviceName;
+    /**
+     * 上次登录返回的设备 ID（did）。携带后 DSM 跳过两步验证。
+     */
+    private final String deviceId;
 
     private SynologyDsmConfig(Builder builder) {
         this.baseUrl = normalizeBaseUrl(builder.baseUrl);
@@ -47,6 +63,10 @@ public class SynologyDsmConfig {
         this.readTimeoutMillis = builder.readTimeoutMillis;
         this.autoLogin = builder.autoLogin;
         this.autoRefreshSession = builder.autoRefreshSession;
+        this.otpCode = builder.otpCode;
+        this.enableDeviceToken = builder.enableDeviceToken;
+        this.deviceName = builder.deviceName;
+        this.deviceId = builder.deviceId;
     }
 
     public static Builder builder() {
@@ -85,6 +105,22 @@ public class SynologyDsmConfig {
         return autoRefreshSession;
     }
 
+    public String getOtpCode() {
+        return otpCode;
+    }
+
+    public boolean isEnableDeviceToken() {
+        return enableDeviceToken;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
     public String resolveWebApiUrl(String apiPath) {
         String path = apiPath == null || apiPath.length() == 0 ? "entry.cgi" : apiPath;
         if (path.startsWith("/")) {
@@ -120,6 +156,10 @@ public class SynologyDsmConfig {
         private int readTimeoutMillis = 60000;
         private boolean autoLogin = true;
         private boolean autoRefreshSession = true;
+        private String otpCode;
+        private boolean enableDeviceToken = false;
+        private String deviceName;
+        private String deviceId;
 
         public Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
@@ -158,6 +198,38 @@ public class SynologyDsmConfig {
 
         public Builder autoRefreshSession(boolean autoRefreshSession) {
             this.autoRefreshSession = autoRefreshSession;
+            return this;
+        }
+
+        /**
+         * DSM 两步验证动态验证码。账号开启 OTP 后每次登录必填，验证码随时间轮换。
+         */
+        public Builder otpCode(String otpCode) {
+            this.otpCode = otpCode;
+            return this;
+        }
+
+        /**
+         * 申请设备令牌，登录响应返回 deviceId 后，后续登录可用 deviceId 免 OTP。
+         */
+        public Builder enableDeviceToken(boolean enableDeviceToken) {
+            this.enableDeviceToken = enableDeviceToken;
+            return this;
+        }
+
+        /**
+         * 申请设备令牌时上报的设备名，例如 sdk-server、ci-runner。
+         */
+        public Builder deviceName(String deviceName) {
+            this.deviceName = deviceName;
+            return this;
+        }
+
+        /**
+         * 上次登录返回的设备 ID（did），携带后 DSM 跳过两步验证。
+         */
+        public Builder deviceId(String deviceId) {
+            this.deviceId = deviceId;
             return this;
         }
 
