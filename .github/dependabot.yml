@@ -1,0 +1,11 @@
+# Dependabot：每周检查 Maven 依赖与 GitHub Actions 版本更新并自动提 PR。
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

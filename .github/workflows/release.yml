@@ -1,0 +1,47 @@
+# 发布工作流：推送 v* 标签时，从 CHANGELOG.md 提取对应版本章节，
+# 自动创建 GitHub Release，避免仓库代码已发版但 Releases 页面为空的情况。
+# 也支持手动触发（workflow_dispatch），用于为已存在但缺少 Release 的历史标签补建。
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要补建 Release 的标签，例如 v1.0.0'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 创建 GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 从 CHANGELOG.md 提取版本说明
+        env:
+          # 手动触发时使用输入的标签；标签推送时使用触发本次运行的标签名
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          VERSION="${RELEASE_TAG#v}"
+          awk -v ver="$VERSION" '
+            $0 ~ "^## "ver"([ (]|$)" { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "未能在 CHANGELOG.md 中找到 ${VERSION} 的章节，使用默认说明。"
+            echo "Synology DSM Java SDK ${RELEASE_TAG}。" > release-notes.md
+          fi
+          cat release-notes.md
+
+      - name: 创建 Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          body_path: release-notes.md

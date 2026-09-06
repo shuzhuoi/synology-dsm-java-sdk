@@ -1,0 +1,60 @@
+name: Bug 报告
+description: 报告 SDK 的缺陷或异常行为
+labels: [ 'bug' ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请先确认使用的是最新版本，并搜索过现有 issue。
+        **注意：日志和配置中请务必抹去 DSM 地址、账号、密码和 SID，避免凭证泄漏。**
+  - type: dropdown
+    id: module
+    attributes:
+      label: 涉及模块
+      options:
+        - synology-dsm-java-sdk-core
+        - http-hutool
+        - http-okhttp3
+        - json-jackson
+        - json-fastjson2
+        - spring-boot2-starter
+        - spring-boot3-starter
+        - 其他 / 不确定
+    validations:
+      required: true
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK 版本
+      placeholder: 例如 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: dsm-version
+    attributes:
+      label: DSM 版本
+      placeholder: 例如 DSM 7.2.1-69057
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 最好附上最小复现代码（去掉真实凭证）。
+      placeholder: |
+        1. 使用 xxx 构建 client
+        2. 调用 xxx
+        3. 出现 xxx
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为与实际行为
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志或异常堆栈（已脱敏）
+      render: shell

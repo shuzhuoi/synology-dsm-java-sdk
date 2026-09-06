@@ -1,0 +1,22 @@
+name: 功能建议
+description: 提出新功能或 API 改进建议
+labels: [ 'enhancement' ]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解决的问题或场景
+      description: 描述你希望通过 SDK 完成什么，例如某个尚未覆盖的 WebAPI、更便捷的分页方式等。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望的 API 形态（可选）
+      description: 可以给出你理想中的方法签名或伪代码。
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 是否愿意提交 PR
+      options:
+        - label: 愿意，接受按 CONTRIBUTING.md 的流程协作
