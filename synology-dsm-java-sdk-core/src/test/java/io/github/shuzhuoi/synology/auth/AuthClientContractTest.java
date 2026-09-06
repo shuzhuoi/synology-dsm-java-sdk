@@ -42,7 +42,7 @@ class AuthClientContractTest {
         @Override
         public SynologyHttpResponse execute(SynologyHttpRequest request) {
             requests.add(request);
-            // did 只有携带 enable_device_token=yes 时 DSM 才返回，这里统一返回用于断言会话携带设备 ID。
+            // 响应体固定带 sid/did 仅便于阅读，实际解析结果由 LoginJsonCodec 按场景注入的 did 决定。
             return new SynologyHttpResponse(
                     200,
                     null,
@@ -58,15 +58,25 @@ class AuthClientContractTest {
 
     /**
      * 登录契约测试用最小 JSON fake：直接返回固定的 LoginResponse。
+     * <p>
+     * did 按官方契约模拟：只有申请/复用设备令牌的登录，DSM 才会在响应中返回 did；
+     * 普通登录与纯 OTP 登录的响应没有 did，因此由测试按场景注入
+     * （涉及设备令牌的用例传 DID，其余传 null）。
      */
     private static class LoginJsonCodec implements SynologyJsonCodec {
+
+        private final String did;
+
+        LoginJsonCodec(String did) {
+            this.did = did;
+        }
 
         @Override
         @SuppressWarnings("unchecked")
         public <T> SynologyJsonResponse<T> decode(String body, Class<T> dataType) {
             LoginResponse data = new LoginResponse();
             data.setSid(SID);
-            data.setDid(DID);
+            data.setDid(did);
             return new SynologyJsonResponse<T>(Boolean.TRUE, (T) data, null);
         }
 
@@ -79,11 +89,13 @@ class AuthClientContractTest {
     @Test
     void plainLoginUsesAuthApiV6WithoutOtpParameters() {
         RecordingLoginHttpClient httpClient = new RecordingLoginHttpClient();
-        AuthClient authClient = newAuthClient(httpClient, SynologyDsmConfig.builder()
+        SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
                 .account("demo")
                 .password("secret")
-                .build());
+                .build();
+        // 普通登录没有申请设备令牌，DSM 响应不含 did，fake 同样注入 null。
+        AuthClient authClient = newAuthClient(httpClient, config, null);
 
         SynologySession session = authClient.login();
 
@@ -111,12 +123,14 @@ class AuthClientContractTest {
     @Test
     void loginWithOtpCodeSendsOtpParameter() {
         RecordingLoginHttpClient httpClient = new RecordingLoginHttpClient();
-        AuthClient authClient = newAuthClient(httpClient, SynologyDsmConfig.builder()
+        SynologyDsmConfig config = SynologyDsmConfig.builder()
                 .baseUrl("http://nas:5000")
                 .account("demo")
                 .password("secret")
                 .otpCode("123456")
-                .build());
+                .build();
+        // 纯 OTP 登录未申请设备令牌，DSM 响应同样不含 did。
+        AuthClient authClient = newAuthClient(httpClient, config, null);
 
         authClient.login();
 
@@ -167,7 +181,12 @@ class AuthClientContractTest {
     }
 
     private AuthClient newAuthClient(RecordingLoginHttpClient httpClient, SynologyDsmConfig config) {
-        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient, new LoginJsonCodec());
+        // 默认模拟 DSM 返回 did 的场景（申请或复用设备令牌的登录）。
+        return newAuthClient(httpClient, config, DID);
+    }
+
+    private AuthClient newAuthClient(RecordingLoginHttpClient httpClient, SynologyDsmConfig config, String did) {
+        SynologyApiExecutor executor = new SynologyApiExecutor(config, httpClient, new LoginJsonCodec(did));
         return new AuthClient(config, executor);
     }
 }

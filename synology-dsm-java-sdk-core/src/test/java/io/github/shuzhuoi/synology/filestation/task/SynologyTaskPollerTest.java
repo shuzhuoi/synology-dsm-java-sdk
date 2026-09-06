@@ -23,7 +23,8 @@ class SynologyTaskPollerTest {
 
         String result = SynologyTaskPoller.wait(
                 () -> "finished-" + queryCount.incrementAndGet(),
-                "finished-"::equals,
+                // 状态值带序号（finished-1、finished-2...），完成谓词需按前缀判断而非全等。
+                status -> status.startsWith("finished-"),
                 options
         );
 
