@@ -68,4 +68,11 @@ public class DockerCoverageExampleConfig {
      * 留空（默认）不执行任何项目生命周期操作；填写后示例会真实操作目标项目（需同时配置 projectName）。
      */
     private String projectAction;
+
+    /**
+     * 可选：注册表镜像搜索关键词，例如 caddy。
+     * 留空（默认）跳过注册表搜索段演示；填写后示例会在当前使用的注册表中搜索镜像
+     * 并用第一条结果演示标签查询（均为只读操作）。
+     */
+    private String registrySearchKeyword;
 }

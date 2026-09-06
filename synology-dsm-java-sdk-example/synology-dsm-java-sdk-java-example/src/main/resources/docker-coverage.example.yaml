@@ -40,3 +40,8 @@ projectName: ""
 # 危险操作：clean 会停止并移除项目容器（compose down），delete 会删除整个项目！
 # 填写后示例会真实操作目标项目（需同时配置 projectName），默认留空。
 projectAction: ""
+
+# 可选：注册表镜像搜索关键词，例如 caddy。
+# 填写后示例会在当前使用的注册表中搜索镜像并用第一条结果演示标签查询（均为只读操作）。
+# 默认留空，跳过注册表搜索段演示。
+registrySearchKeyword: ""

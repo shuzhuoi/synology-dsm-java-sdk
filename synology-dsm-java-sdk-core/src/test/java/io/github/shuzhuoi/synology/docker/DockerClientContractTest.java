@@ -8,6 +8,9 @@ import io.github.shuzhuoi.synology.docker.container.DockerContainerListRequest;
 import io.github.shuzhuoi.synology.docker.container.DockerContainerType;
 import io.github.shuzhuoi.synology.docker.image.DockerImageListRequest;
 import io.github.shuzhuoi.synology.docker.log.DockerContainerLogRequest;
+import io.github.shuzhuoi.synology.docker.model.DockerNetwork;
+import io.github.shuzhuoi.synology.docker.network.DockerNetworkCreateRequest;
+import io.github.shuzhuoi.synology.docker.registry.DockerRegistryUpsertRequest;
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
 import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
@@ -30,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * <p>
  * 通过记录型 HTTP fake 捕获最终发出的请求，逐个断言各客户端使用的
  * SYNO.Docker.Container / SYNO.Docker.Container.Resource / SYNO.Docker.Container.Log /
- * SYNO.Docker.Image / SYNO.Docker.Project
+ * SYNO.Docker.Image / SYNO.Docker.Project / SYNO.Docker.Network / SYNO.Docker.Registry
  * API 名称、版本、method 和关键参数（含 JSON 引号编码规则），
  * 防止重构时悄悄破坏 DSM Container Manager 契约。
  * 注意：版本号推定自社区文档与真机 SYNO.API.Info 抓取，真机验证由 DockerCoverageExample 负责。
@@ -278,10 +281,132 @@ class DockerClientContractTest {
         assertEquals("true", request.getParameters().get("preserve_content"));
     }
 
+    @Test
+    void networkListUsesNetworkApiWithoutBusinessParameters() {
+        docker.network().list();
+
+        SynologyHttpRequest request = httpClient.getLastRequest();
+        assertApi(request, "SYNO.Docker.Network", "list");
+        // list 无业务参数。
+        assertNull(request.getParameters().get("name"));
+    }
+
+    @Test
+    void networkCreateSendsQuotedStringsAndPlainBoolean() {
+        docker.network().create(DockerNetworkCreateRequest.builder("app_net")
+                .driver("bridge")
+                .enableIpv6(Boolean.FALSE)
+                .subnet("172.28.0.0/16")
+                .gateway("172.28.0.1")
+                .iprange("172.28.0.0/24")
+                .build());
+
+        SynologyHttpRequest request = httpClient.getLastRequest();
+        assertApi(request, "SYNO.Docker.Network", "create");
+        // 字符串参数以 JSON 字符串形式传输（带引号），enable_ipv6 为普通小写布尔字符串。
+        assertEquals("\"app_net\"", request.getParameters().get("name"));
+        assertEquals("\"bridge\"", request.getParameters().get("driver"));
+        assertEquals("false", request.getParameters().get("enable_ipv6"));
+        assertEquals("\"172.28.0.0/16\"", request.getParameters().get("subnet"));
+        assertEquals("\"172.28.0.1\"", request.getParameters().get("gateway"));
+        // 注意参数名 iprange 无下划线。
+        assertEquals("\"172.28.0.0/24\"", request.getParameters().get("iprange"));
+    }
+
+    @Test
+    void networkRemoveSendsNetworksJsonArrayParameter() {
+        DockerNetwork network = new DockerNetwork();
+        network.setId("b741915823aac");
+        network.setName("vault_default");
+        network.setDriver("bridge");
+        network.setEnableIpv6(Boolean.FALSE);
+        network.setGateway("172.22.0.1");
+        network.setIprange("");
+        network.setSubnet("172.22.0.0/16");
+        network.setContainers(java.util.Collections.singletonList("vault"));
+
+        docker.network().remove(network);
+
+        SynologyHttpRequest request = httpClient.getLastRequest();
+        assertApi(request, "SYNO.Docker.Network", "remove");
+        // networks 参数为 JSON 数组字符串，元素是完整网络对象（字段顺序与 list 响应一致）。
+        assertEquals("[{\"containers\":[\"vault\"],\"driver\":\"bridge\",\"enable_ipv6\":false,"
+                        + "\"gateway\":\"172.22.0.1\",\"id\":\"b741915823aac\",\"iprange\":\"\","
+                        + "\"name\":\"vault_default\",\"subnet\":\"172.22.0.0/16\"}]",
+                request.getParameters().get("networks"));
+    }
+
+    @Test
+    void registryGetUsesRegistryApiV1WithoutBusinessParameters() {
+        docker.registry().get();
+
+        SynologyHttpRequest request = httpClient.getLastRequest();
+        assertApi(request, "SYNO.Docker.Registry", "get");
+        // get 无业务参数。
+        assertNull(request.getParameters().get("name"));
+    }
+
+    @Test
+    void registrySearchSendsQuotedKeywordAndPagination() {
+        docker.registry().search("caddy", 0, 50);
+
+        SynologyHttpRequest request = httpClient.getLastRequest();
+        assertApi(request, "SYNO.Docker.Registry", "search");
+        // q 为搜索关键词（带引号）；offset / limit 为普通整数字符串。
+        assertEquals("\"caddy\"", request.getParameters().get("q"));
+        assertEquals("0", request.getParameters().get("offset"));
+        assertEquals("50", request.getParameters().get("limit"));
+    }
+
+    @Test
+    void registryTagsUsesRegistryApiV2WithQuotedRepository() {
+        docker.registry().tags("postgres", 0, 20);
+
+        SynologyHttpRequest request = httpClient.getLastRequest();
+        // 注意 tags 使用 Registry v2 版本（分页增强版），与同 API 其他方法的 v1 不同。
+        assertApi(request, "SYNO.Docker.Registry", "2", "tags");
+        assertEquals("\"postgres\"", request.getParameters().get("repository"));
+        assertEquals("0", request.getParameters().get("offset"));
+        assertEquals("20", request.getParameters().get("limit"));
+    }
+
+    @Test
+    void registryCreateSendsUpsertParameters() {
+        docker.registry().create(DockerRegistryUpsertRequest.builder("ghcr", "https://ghcr.io")
+                .enableTrustSsc(Boolean.TRUE)
+                .username("user")
+                .password("pass")
+                .build());
+
+        SynologyHttpRequest request = httpClient.getLastRequest();
+        assertApi(request, "SYNO.Docker.Registry", "create");
+        // 字符串参数带引号；enable_trust_SSC（注意大写 SSC）为普通小写布尔字符串。
+        assertEquals("\"ghcr\"", request.getParameters().get("name"));
+        assertEquals("\"https://ghcr.io\"", request.getParameters().get("url"));
+        assertEquals("true", request.getParameters().get("enable_trust_SSC"));
+        assertEquals("\"user\"", request.getParameters().get("username"));
+        assertEquals("\"pass\"", request.getParameters().get("password"));
+    }
+
+    @Test
+    void registryUsingAndDeleteSendQuotedName() {
+        docker.registry().using("ghcr");
+        assertApi(httpClient.getLastRequest(), "SYNO.Docker.Registry", "using");
+        assertEquals("\"ghcr\"", httpClient.getLastRequest().getParameters().get("name"));
+
+        docker.registry().delete("ghcr");
+        assertApi(httpClient.getLastRequest(), "SYNO.Docker.Registry", "delete");
+        assertEquals("\"ghcr\"", httpClient.getLastRequest().getParameters().get("name"));
+    }
+
     private void assertApi(SynologyHttpRequest request, String expectedApi, String expectedMethod) {
+        assertApi(request, expectedApi, "1", expectedMethod);
+    }
+
+    private void assertApi(SynologyHttpRequest request, String expectedApi, String expectedVersion, String expectedMethod) {
         assertEquals("http://nas:5000/webapi/entry.cgi", request.getUrl());
         assertEquals(expectedApi, request.getParameters().get("api"));
-        assertEquals("1", request.getParameters().get("version"));
+        assertEquals(expectedVersion, request.getParameters().get("version"));
         assertEquals(expectedMethod, request.getParameters().get("method"));
         assertEquals(SID, request.getParameters().get("_sid"));
     }

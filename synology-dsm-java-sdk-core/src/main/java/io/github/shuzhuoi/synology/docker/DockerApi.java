@@ -64,6 +64,36 @@ public final class DockerApi {
      */
     public static final int PROJECT_VERSION = 1;
 
+    /**
+     * Docker 网络管理 API：list / create / remove 等。
+     * <p>
+     * 注意 connect / disconnect / list_container / set 四个方法暂无公开
+     * 第三方实现佐证，待真机抓包确认契约后再补充。
+     */
+    public static final String NETWORK_API = "SYNO.Docker.Network";
+    /**
+     * Network API 版本。
+     */
+    public static final int NETWORK_VERSION = 1;
+
+    /**
+     * 注册表配置与镜像搜索 API：get / search / create / set / using / delete。
+     * <p>
+     * 对应 DSM 容器管理器「注册表 → 设置」页面（Docker Hub / 自定义 registry、
+     * 认证账号、信任自签名证书、切换当前使用的注册表）。
+     */
+    public static final String REGISTRY_API = "SYNO.Docker.Registry";
+    /**
+     * Registry API 版本（get / search / create / set / using / delete）。
+     */
+    public static final int REGISTRY_VERSION = 1;
+    /**
+     * Registry tags 方法的版本。
+     * <p>
+     * 注意 tags 是 v2 的分页增强版，与同 API 其他方法的 v1 版本不同。
+     */
+    public static final int REGISTRY_TAGS_VERSION = 2;
+
     private DockerApi() {
     }
 }

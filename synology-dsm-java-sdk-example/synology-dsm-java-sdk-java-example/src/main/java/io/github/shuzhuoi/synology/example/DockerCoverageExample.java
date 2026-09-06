@@ -21,9 +21,16 @@ import io.github.shuzhuoi.synology.docker.model.DockerImageDetail;
 import io.github.shuzhuoi.synology.docker.model.DockerImageListResponse;
 import io.github.shuzhuoi.synology.docker.model.DockerImagePullStartResponse;
 import io.github.shuzhuoi.synology.docker.model.DockerImagePullStatusResponse;
+import io.github.shuzhuoi.synology.docker.model.DockerNetwork;
+import io.github.shuzhuoi.synology.docker.model.DockerNetworkListResponse;
 import io.github.shuzhuoi.synology.docker.model.DockerPortBinding;
 import io.github.shuzhuoi.synology.docker.model.DockerProject;
 import io.github.shuzhuoi.synology.docker.model.DockerProjectDetail;
+import io.github.shuzhuoi.synology.docker.model.DockerRegistry;
+import io.github.shuzhuoi.synology.docker.model.DockerRegistryListResponse;
+import io.github.shuzhuoi.synology.docker.model.DockerRegistrySearchResponse;
+import io.github.shuzhuoi.synology.docker.model.DockerRegistrySearchResult;
+import io.github.shuzhuoi.synology.docker.model.DockerRegistryTagListResponse;
 import io.github.shuzhuoi.synology.example.config.DockerCoverageExampleConfig;
 import io.github.shuzhuoi.synology.http.hutool.HutoolSynologyDsmClientFactory;
 import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
@@ -38,10 +45,11 @@ import java.util.Map;
  * Docker 官方契约覆盖示例。
  * <p>
  * 演示 SYNO.Docker.Container / SYNO.Docker.Container.Resource / SYNO.Docker.Container.Log /
- * SYNO.Docker.Image / SYNO.Docker.Project 的能力：
+ * SYNO.Docker.Image / SYNO.Docker.Project / SYNO.Docker.Network / SYNO.Docker.Registry 的能力：
  * 容器列表（含运行状态过滤）、容器详情（inspect，含端口映射）、实时资源占用（CPU / 内存）、
  * 容器日志查询、镜像列表与详情、镜像拉取（pull_start + pull_status 两步异步流程）、
- * Compose 项目列表与详情，以及可选的生命周期演练（默认跳过）。
+ * Compose 项目列表与详情、Docker 网络列表、注册表配置与镜像搜索，
+ * 以及可选的生命周期演练（默认跳过；网络与注册表的写操作不在示例演示范围）。
  * <p>
  * 运行前请复制 classpath 下的 docker-coverage.example.yaml 为
  * docker-coverage.yaml，并填写真实 DSM 地址、账号和密码。
@@ -92,6 +100,9 @@ public class DockerCoverageExample {
             showProjectList(client);
             showProjectDetailIfConfigured(client, sampleConfig.getProjectName());
             runProjectActionIfConfigured(client, sampleConfig.getProjectName(), sampleConfig.getProjectAction());
+            showNetworkList(client);
+            showRegistryConfig(client);
+            searchRegistryIfConfigured(client, sampleConfig.getRegistrySearchKeyword());
             log.info("Docker 官方覆盖示例执行完成");
         } finally {
             client.session().logout();
@@ -389,6 +400,66 @@ public class DockerCoverageExample {
     }
 
     /**
+     * 演示 Docker 网络列表查询（只读）。
+     */
+    private static void showNetworkList(SynologyDsmClient client) {
+        DockerNetworkListResponse response = client.docker().network().list();
+        List<DockerNetwork> networks = response.getNetwork();
+        log.info("网络列表：共 {} 项", networks == null ? 0 : networks.size());
+        if (networks != null) {
+            for (DockerNetwork network : networks) {
+                log.info("网络：{}（驱动={}），子网={}，网关={}，IPv6={}，容器={}",
+                        network.getName(), network.getDriver(), network.getSubnet(),
+                        network.getGateway(), network.getEnableIpv6(), network.getContainers());
+            }
+        }
+    }
+
+    /**
+     * 演示注册表配置查询（只读，对应 DSM「注册表 → 设置」页面）。
+     */
+    private static void showRegistryConfig(SynologyDsmClient client) {
+        DockerRegistryListResponse response = client.docker().registry().get();
+        log.info("注册表配置：当前使用={}，共 {} 项", response.getUsing(), response.getTotal());
+        List<DockerRegistry> registries = response.getRegistries();
+        if (registries != null) {
+            for (DockerRegistry registry : registries) {
+                log.info("注册表：{}（{}），内置={}，镜像加速={}（{}），信任自签名证书={}",
+                        registry.getName(), registry.getUrl(), registry.getSyno(),
+                        registry.getEnableRegistryMirror(), registry.getMirrorUrls(),
+                        registry.getEnableTrustSsc());
+            }
+        }
+    }
+
+    /**
+     * 演示注册表镜像搜索与标签查询（只读）。registrySearchKeyword 为空时跳过。
+     * 搜索取前 5 条结果，并用第一条结果演示 tags 查询（Registry v2）。
+     */
+    private static void searchRegistryIfConfigured(SynologyDsmClient client, String registrySearchKeyword) {
+        if (!isConfigured(registrySearchKeyword)) {
+            log.info("registrySearchKeyword 未配置，跳过注册表搜索段演示");
+            return;
+        }
+        String keyword = registrySearchKeyword.trim();
+        DockerRegistrySearchResponse response = client.docker().registry().search(keyword, 0, 5);
+        List<DockerRegistrySearchResult> results = response.getData();
+        log.info("镜像搜索：关键词={}，总数={}（前 5 条）", keyword, response.getTotal());
+        if (results == null || results.isEmpty()) {
+            return;
+        }
+        for (DockerRegistrySearchResult result : results) {
+            log.info("搜索结果：{}（官方={}），下载={}，收藏={}，描述={}",
+                    result.getName(), result.getIsOfficial(), result.getDownloads(),
+                    result.getStarCount(), result.getDescription());
+        }
+        // 用第一条结果演示 tags 查询（注意 tags 走 Registry v2 版本）。
+        String repository = results.get(0).getName();
+        DockerRegistryTagListResponse tags = client.docker().registry().tags(repository, 0, 10);
+        log.info("镜像标签：{}（前 10 个）={}", repository, tags.getTags());
+    }
+
+    /**
      * 启动时探测 Docker API 的真实版本范围，
      * 与 DockerApi 中使用的版本对比，便于确认契约常量是否需要修正。
      */
@@ -399,6 +470,8 @@ public class DockerCoverageExample {
         printApiVersion(apiInfo, "SYNO.Docker.Container.Log");
         printApiVersion(apiInfo, "SYNO.Docker.Image");
         printApiVersion(apiInfo, "SYNO.Docker.Project");
+        printApiVersion(apiInfo, "SYNO.Docker.Network");
+        printApiVersion(apiInfo, "SYNO.Docker.Registry");
     }
 
     private static void printApiVersion(ApiInfoResponse apiInfo, String apiName) {

@@ -3,7 +3,9 @@ package io.github.shuzhuoi.synology.docker;
 import io.github.shuzhuoi.synology.docker.container.DockerContainerClient;
 import io.github.shuzhuoi.synology.docker.image.DockerImageClient;
 import io.github.shuzhuoi.synology.docker.log.DockerContainerLogClient;
+import io.github.shuzhuoi.synology.docker.network.DockerNetworkClient;
 import io.github.shuzhuoi.synology.docker.project.DockerProjectClient;
+import io.github.shuzhuoi.synology.docker.registry.DockerRegistryClient;
 import io.github.shuzhuoi.synology.docker.resource.DockerContainerResourceClient;
 import io.github.shuzhuoi.synology.internal.SynologyApiExecutor;
 
@@ -34,6 +36,14 @@ public class DockerClient {
      * Compose 项目查询与生命周期接口。
      */
     private final DockerProjectClient projectClient;
+    /**
+     * Docker 网络查询、创建与删除接口。
+     */
+    private final DockerNetworkClient networkClient;
+    /**
+     * 注册表配置、镜像搜索与标签查询接口。
+     */
+    private final DockerRegistryClient registryClient;
 
     public DockerClient(SynologyApiExecutor executor) {
         this.containerClient = new DockerContainerClient(executor);
@@ -41,6 +51,8 @@ public class DockerClient {
         this.logClient = new DockerContainerLogClient(executor);
         this.imageClient = new DockerImageClient(executor);
         this.projectClient = new DockerProjectClient(executor);
+        this.networkClient = new DockerNetworkClient(executor);
+        this.registryClient = new DockerRegistryClient(executor);
     }
 
     public DockerContainerClient container() {
@@ -61,5 +73,13 @@ public class DockerClient {
 
     public DockerProjectClient project() {
         return projectClient;
+    }
+
+    public DockerNetworkClient network() {
+        return networkClient;
+    }
+
+    public DockerRegistryClient registry() {
+        return registryClient;
     }
 }

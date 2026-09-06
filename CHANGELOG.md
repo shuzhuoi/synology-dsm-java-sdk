@@ -51,6 +51,18 @@
 - `DockerClientContractTest` 扩展镜像与项目契约测试（JSON 引号 id、image 组合参数、show_dsm / preserve_content 布尔编码、pull 两步流程参数）。
 - example 模块 `DockerCoverageExample` 扩展镜像列表/详情/拉取（轮询演示）与项目列表/详情/生命周期段；`docker-coverage.example.yaml` 新增 imageName / pullRepository / pullTag / projectName / projectAction 可选段（高危操作留空自动跳过）。
 - README（中英文）与 API 入口结构图补充镜像与 Compose 项目管理说明。
+- 新增 **Docker 模块（第三批：网络 + 注册表）**：基于 DSM 7.2+ Container Manager 的 `SYNO.Docker.Network` / `SYNO.Docker.Registry` 契约扩展网络与注册表能力。
+  - `SYNO.Docker.Network` v1 list：Docker 网络列表（注意响应字段名为 network 单数，含 driver/subnet/gateway/enable_ipv6/containers 等字段）；findByName 按名称本地筛选。
+  - `SYNO.Docker.Network` v1 create：创建网络（name/driver/subnet/gateway/iprange 引号编码，enable_ipv6 裸布尔；注意 iprange 参数名无下划线）。
+  - `SYNO.Docker.Network` v1 remove：删除网络（networks 参数为完整网络对象的 JSON 数组字符串，core 手工序列化避免引入 JSON 库依赖；按名称删除时自动 list 定位再删除）。
+  - `SYNO.Docker.Registry` v1 get：注册表配置列表（对应 DSM「注册表 → 设置」页面，含当前使用的注册表、镜像加速、信任自签名证书等）。
+  - `SYNO.Docker.Registry` v1 search：镜像搜索（q 关键词 + 分页，注意响应 data 内再嵌 data 数组）。
+  - `SYNO.Docker.Registry` **v2** tags：镜像标签分页查询（注意 tags 与同 API 其他方法的 v1 版本不同）。
+  - `SYNO.Docker.Registry` v1 create/set/using/delete：注册表配置的增改与切换（using 切换会影响后续镜像拉取来源；内置 Docker Hub 条目不可删除）。
+  - 说明：DSM 未提供 Docker 卷（Volume）WebAPI，卷由 Compose 项目隐式管理；Network 的 connect/disconnect/list_container/set 四个方法暂无公开契约佐证，待真机抓包确认后再补充。
+- `DockerClient` 聚合入口扩展 network() / registry() 子客户端。
+- `DockerClientContractTest` 扩展网络与注册表契约测试（含 tags 的 v2 版本断言、remove 的 networks JSON 数组断言）。
+- example 模块 `DockerCoverageExample` 扩展网络列表、注册表配置与搜索段（均为只读；网络与注册表的写操作不在示例演示范围）；`docker-coverage.example.yaml` 新增 registrySearchKeyword 可选段。
 
 ## 1.0.1 (2026-09-06)
 
