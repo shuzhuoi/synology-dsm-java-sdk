@@ -7,7 +7,7 @@
 [![CI](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.shuzhuoi/synology-dsm-java-sdk-core.svg)](https://central.sonatype.com/artifact/io.github.shuzhuoi/synology-dsm-java-sdk-core)
 
-Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，完整覆盖 **File Station** 文件操作、任务型接口、分享、收藏、缩略图、虚拟目录、压缩和解压等能力。
+Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，完整覆盖 **File Station** 文件操作、任务型接口、写入权限预检查、分享、收藏、缩略图、虚拟目录、压缩和解压等能力，并基于 DSM 7 的 `SYNO.DownloadStation2.*` 新契约覆盖 **Download Station** 的任务管理、速度统计、BT 搜索和 RSS 订阅。
 
 SDK 将业务 API、HTTP 实现和 Spring Boot 集成拆分为独立模块。普通 Java、Spring Boot 2 和 Spring Boot 3 项目可以按需选择，不需要把 Spring、Hutool 或 OkHttp3 引入 core。
 
@@ -220,7 +220,7 @@ SynologyDsmClient client = SynologyDsmClient.builder()
         .build();
 ```
 
-更多操作示例见 [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example)，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压等完整链路。
+更多操作示例见 [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example)，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压，以及 Download Station 任务管理、统计、BT 搜索和 RSS 订阅等完整链路。
 
 稳定参数可以使用类型安全枚举，例如 `SortDirection.ASC`、`FileTypeFilter.FILE`、`ThumbSize.SMALL` 和 `CompressFormat.ZIP`。原 String Builder 方法继续保留，用于兼容 DSM 后续增加的扩展值。
 
@@ -754,22 +754,31 @@ SynologyDsmClient
 ├── apiInfo()                  // SYNO.API.Info
 ├── auth()                     // SYNO.API.Auth（显式登录/登出）
 ├── session()                  // 会话管理（自动登录、复用 SID、登出）
-└── fileStation()              // File Station 聚合入口
-    ├── info()                 // SYNO.FileStation.Info
-    ├── list()                 // SYNO.FileStation.List
-    ├── upload()               // SYNO.FileStation.Upload
-    ├── download()             // SYNO.FileStation.Download
-    ├── file()                 // 创建/重命名/删除/复制/移动
-    ├── task()                 // 任务型接口（MD5 等）
-    ├── search()               // SYNO.FileStation.Search
-    ├── dirSize()              // SYNO.FileStation.DirSize
-    ├── backgroundTask()       // SYNO.FileStation.BackgroundTask
-    ├── sharing()              // SYNO.FileStation.Sharing
-    ├── favorite()             // SYNO.FileStation.Favorite
-    ├── thumb()                // SYNO.FileStation.Thumb
-    ├── virtualFolder()        // SYNO.FileStation.VirtualFolder
-    ├── compress()             // SYNO.FileStation.Compress
-    └── extract()              // SYNO.FileStation.Extract
+├── fileStation()              // File Station 聚合入口
+│   ├── info()                 // SYNO.FileStation.Info
+│   ├── list()                 // SYNO.FileStation.List
+│   ├── upload()               // SYNO.FileStation.Upload
+│   ├── download()             // SYNO.FileStation.Download
+│   ├── file()                 // 创建/重命名/删除/复制/移动
+│   ├── task()                 // 任务型接口（MD5 等）
+│   ├── search()               // SYNO.FileStation.Search
+│   ├── permission()           // SYNO.FileStation.CheckPermission（写入权限预检查）
+│   ├── dirSize()              // SYNO.FileStation.DirSize
+│   ├── backgroundTask()       // SYNO.FileStation.BackgroundTask
+│   ├── sharing()              // SYNO.FileStation.Sharing
+│   ├── favorite()             // SYNO.FileStation.Favorite
+│   ├── thumb()                // SYNO.FileStation.Thumb
+│   ├── virtualFolder()        // SYNO.FileStation.VirtualFolder
+│   ├── compress()             // SYNO.FileStation.Compress
+│   └── extract()              // SYNO.FileStation.Extract
+└── downloadStation()          // Download Station 聚合入口（SYNO.DownloadStation2.*）
+    ├── info()                 // Info：版本信息与全局配置（getConfig/setServerConfig）
+    ├── task()                 // Task：任务创建（URI/种子）、列表、详情、暂停、恢复、改目的地、删除
+    ├── taskFile()             // Task.File：任务内文件列表
+    ├── statistic()            // Statistic：实时速度与累计流量
+    ├── btSearch()             // BTSearch：搜索引擎、发起搜索、结果、分类、清理
+    ├── rssSite()              // RSS.Site：站点列表、立即刷新
+    └── rssFeed()              // RSS.Feed：订阅条目列表、转化为下载任务
 ```
 
 ## 许可证

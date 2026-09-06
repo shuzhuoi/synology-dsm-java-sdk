@@ -2,7 +2,19 @@
 
 ## Unreleased
 
-- 暂无已发布变更。
+### 新增
+
+- 新增 **Download Station 模块**：基于 DSM 7 新契约 `SYNO.DownloadStation2.*`（`entry.cgi` 统一入口）提供下载站全量官方 API。
+  - `SYNO.DownloadStation2.Info`：getInfo / getConfig / setServerConfig。
+  - `SYNO.DownloadStation2.Task`：list / getinfo / create（URL 与 .torrent 文件两种形态）/ delete / pause / resume / edit。
+  - `SYNO.DownloadStation2.Task.File`：get（任务内文件列表）。
+  - `SYNO.DownloadStation2.Statistic`：getInfo（实时速度）/ getStatistic（累计流量）。
+  - `SYNO.DownloadStation2.Task.BTSearch`：start / list / getCategory / getModule / clean。
+  - `SYNO.DownloadStation2.RSS.Site`：list / refresh；`SYNO.DownloadStation2.RSS.Feed`：list / download。
+- `SynologyDsmClient` 新增 `downloadStation()` 聚合入口，按 info / task / taskFile / statistic / btSearch / rssSite / rssFeed 拆分子客户端。
+- 新增 `DownloadStationClientContractTest` 契约测试，校验 API 名称、版本、方法与参数编码（逗号分隔 ID、JSON 引号路径、multipart 种子上传）。
+- example 模块新增 `DownloadStationCoverageExample` 与 `downloadstation-coverage.example.yaml` 配置模板（testUri / torrentFile / btSearchKeyword 为可选段，留空自动跳过）。
+- README（中英文）与 API 入口结构图补充 Download Station 说明。
 
 ## 1.0.1 (2026-09-06)
 
@@ -30,6 +42,7 @@
 
 ### 新增
 
+- 新增 `SYNO.FileStation.CheckPermission`：上传/写入前预检查目标目录与文件名的写入权限（`permission().write(...)`）。
 - 新增独立 `synology-dsm-java-sdk-http-okhttp3` 模块，提供 OkHttp3 HTTP 实现和对应 Java 示例。
 - 新增 `synology-dsm-java-sdk-spring-boot2-starter` 和 `synology-dsm-java-sdk-spring-boot3-starter`，分别适配 Spring Boot 2.x 和 3.x，并提供可运行示例。
 - 新增独立 `synology-dsm-java-sdk-json-jackson` 模块，提供默认 Jackson JSON Codec。

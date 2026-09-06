@@ -1,0 +1,23 @@
+# Download Station 官方覆盖示例配置。
+# 运行前请复制本文件为 downloadstation-coverage.yaml，并填写真实 DSM 信息。
+
+# DSM 服务地址，例如：https://nas.example.com:5001
+dsmUrl: "https://your-nas-host:5001"
+
+# DSM 登录账号。
+account: "your-account"
+
+# DSM 登录密码。真实文件 downloadstation-coverage.yaml 已被 .gitignore 忽略，请不要提交。
+password: "your-password"
+
+# 下载任务的目的地共享目录，例如 /downloads。
+destination: "/downloads"
+
+# 可选：用于创建下载任务的测试 URL（http/ftp 等），留空时跳过任务创建段演示。
+testUri: ""
+
+# 可选：本地 .torrent 文件路径，用于演示种子上传创建，留空时跳过该段演示。
+torrentFile: ""
+
+# 可选：BT 搜索关键字，需要在 DSM 的 Download Station 设置中启用搜索引擎，留空时跳过该段演示。
+btSearchKeyword: ""

@@ -7,7 +7,7 @@ English | [中文](README_zh-CN.md)
 [![CI](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.shuzhuoi/synology-dsm-java-sdk-core.svg)](https://central.sonatype.com/artifact/io.github.shuzhuoi/synology-dsm-java-sdk-core)
 
-Synology DSM Java SDK provides Java bindings for the [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf), with full coverage of **File Station** file operations, task-based APIs, sharing, favorites, thumbnails, virtual folders, compression and extraction.
+Synology DSM Java SDK provides Java bindings for the [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf), with full coverage of **File Station** file operations, task-based APIs, write permission pre-checks, sharing, favorites, thumbnails, virtual folders, compression and extraction, plus **Download Station** task management, statistics, BT search and RSS feeds via the DSM 7 `SYNO.DownloadStation2.*` APIs.
 
 The SDK splits business APIs, HTTP implementations and Spring Boot integration into independent modules. Plain Java, Spring Boot 2 and Spring Boot 3 projects can pick only what they need, without pulling Spring, Hutool or OkHttp3 into core.
 
@@ -217,7 +217,7 @@ SynologyDsmClient client = SynologyDsmClient.builder()
         .build();
 ```
 
-More samples live in [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example), covering info, listing, folder creation, upload, download, rename, delete, search, folder size, background tasks, sharing, favorites, thumbnails, virtual folders, compression and extraction.
+More samples live in [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-example), covering info, listing, folder creation, upload, download, rename, delete, search, folder size, background tasks, sharing, favorites, thumbnails, virtual folders, compression, extraction, and Download Station task management, statistics, BT search and RSS feeds.
 
 Stable parameters have type-safe enums such as `SortDirection.ASC`, `FileTypeFilter.FILE`, `ThumbSize.SMALL` and `CompressFormat.ZIP`. The original String builder methods are kept for forward compatibility with values DSM may add later.
 
@@ -749,22 +749,31 @@ SynologyDsmClient
 ├── apiInfo()                  // SYNO.API.Info
 ├── auth()                     // SYNO.API.Auth (explicit login/logout)
 ├── session()                  // Session management (auto login, SID reuse, logout)
-└── fileStation()              // File Station aggregate entry
-    ├── info()                 // SYNO.FileStation.Info
-    ├── list()                 // SYNO.FileStation.List
-    ├── upload()               // SYNO.FileStation.Upload
-    ├── download()             // SYNO.FileStation.Download
-    ├── file()                 // create/rename/delete/copy/move
-    ├── task()                 // Task-based APIs (MD5 etc.)
-    ├── search()               // SYNO.FileStation.Search
-    ├── dirSize()              // SYNO.FileStation.DirSize
-    ├── backgroundTask()       // SYNO.FileStation.BackgroundTask
-    ├── sharing()              // SYNO.FileStation.Sharing
-    ├── favorite()             // SYNO.FileStation.Favorite
-    ├── thumb()                // SYNO.FileStation.Thumb
-    ├── virtualFolder()        // SYNO.FileStation.VirtualFolder
-    ├── compress()             // SYNO.FileStation.Compress
-    └── extract()              // SYNO.FileStation.Extract
+├── fileStation()              // File Station aggregate entry
+│   ├── info()                 // SYNO.FileStation.Info
+│   ├── list()                 // SYNO.FileStation.List
+│   ├── upload()               // SYNO.FileStation.Upload
+│   ├── download()             // SYNO.FileStation.Download
+│   ├── file()                 // create/rename/delete/copy/move
+│   ├── task()                 // Task-based APIs (MD5 etc.)
+│   ├── search()               // SYNO.FileStation.Search
+│   ├── permission()           // SYNO.FileStation.CheckPermission (write permission pre-check)
+│   ├── dirSize()              // SYNO.FileStation.DirSize
+│   ├── backgroundTask()       // SYNO.FileStation.BackgroundTask
+│   ├── sharing()              // SYNO.FileStation.Sharing
+│   ├── favorite()             // SYNO.FileStation.Favorite
+│   ├── thumb()                // SYNO.FileStation.Thumb
+│   ├── virtualFolder()        // SYNO.FileStation.VirtualFolder
+│   ├── compress()             // SYNO.FileStation.Compress
+│   └── extract()              // SYNO.FileStation.Extract
+└── downloadStation()          // Download Station aggregate entry (SYNO.DownloadStation2.*)
+    ├── info()                 // Info: version, global config (get/setServerConfig)
+    ├── task()                 // Task: create (URI/torrent), list, getinfo, pause, resume, edit, delete
+    ├── taskFile()             // Task.File: files inside a task
+    ├── statistic()            // Statistic: current speed and accumulated traffic
+    ├── btSearch()             // BTSearch: modules, start, list, categories, clean
+    ├── rssSite()              // RSS.Site: list, refresh
+    └── rssFeed()              // RSS.Feed: list entries, download as task
 ```
 
 ## License
