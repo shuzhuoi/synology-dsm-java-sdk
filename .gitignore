@@ -45,3 +45,6 @@ build/
 !/synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example/src/main/resources/application.example.yaml
 
 *.flattened-pom.xml
+
+### 本地资料（按 AGENTS.md 约定不提交）###
+/docs/
