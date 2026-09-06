@@ -10,6 +10,9 @@ import io.github.shuzhuoi.synology.http.SynologyHttpRequest;
 import io.github.shuzhuoi.synology.http.SynologyHttpResponse;
 import io.github.shuzhuoi.synology.http.SynologyMultipartPart;
 
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,10 +27,13 @@ public class HutoolSynologyHttpClient implements SynologyHttpClient {
             HttpRequest hutoolRequest = createRequest(request);
             hutoolRequest.timeout(request.getReadTimeoutMillis());
             appendParameters(hutoolRequest, request);
-            HttpResponse response = hutoolRequest.execute();
             if (request.getResponseBodyMode() == ResponseBodyMode.STREAM) {
-                return new SynologyHttpResponse(response.getStatus(), response.headers(), null, response.bodyStream());
+                // 流式响应必须用 executeAsync：同步 execute 会把响应体全量读入内存，
+                // 下载大文件或缩略图时会造成内存暴涨；异步模式保留底层连接流。
+                HttpResponse response = hutoolRequest.executeAsync();
+                return new SynologyHttpResponse(response.getStatus(), response.headers(), null, wrapStream(response));
             }
+            HttpResponse response = hutoolRequest.execute();
             return new SynologyHttpResponse(response.getStatus(), response.headers(), response.body(), null);
         } catch (RuntimeException e) {
             throw new SynologyHttpException("failed to execute Synology HTTP request", e);
@@ -50,6 +56,41 @@ public class HutoolSynologyHttpClient implements SynologyHttpClient {
         }
         if (!form.isEmpty()) {
             hutoolRequest.form(form);
+        }
+    }
+
+    /**
+     * 包装底层响应流：无响应体（204/205 或内容长度为 0）时返回 null 流并释放连接，
+     * 与 OkHttp3 适配层行为保持一致。
+     */
+    private InputStream wrapStream(HttpResponse response) {
+        int status = response.getStatus();
+        if (status == 204 || status == 205 || response.contentLength() == 0) {
+            response.close();
+            return null;
+        }
+        return new HttpResponseInputStream(response);
+    }
+
+    /**
+     * 在调用方关闭流的同时关闭底层 HttpResponse，连接才能及时归还连接池。
+     */
+    private static class HttpResponseInputStream extends FilterInputStream {
+
+        private final HttpResponse response;
+
+        HttpResponseInputStream(HttpResponse response) {
+            super(response.bodyStream());
+            this.response = response;
+        }
+
+        @Override
+        public void close() throws IOException {
+            try {
+                super.close();
+            } finally {
+                response.close();
+            }
         }
     }
 }

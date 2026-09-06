@@ -7,6 +7,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * SYNO.FileStation.Download 的下载响应。
+ * <p>
+ * {@code inputStream} 是底层 HTTP 连接的原始流，使用完毕必须由调用方关闭，
+ * 否则连接无法归还连接池，高频下载时可能耗尽连接。推荐使用 try-with-resources。
+ */
 @Getter
 public class DownloadFileResponse {
 

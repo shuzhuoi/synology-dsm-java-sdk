@@ -149,7 +149,9 @@ public class OkHttp3SynologyHttpClient implements SynologyHttpClient {
 
     private SynologyHttpResponse convertStreamResponse(Response response) {
         ResponseBody responseBody = response.body();
-        if (responseBody == null) {
+        // OkHttp 3 对 204/205 等无响应体的响应仍返回非 null 的空 ResponseBody，
+        // 因此空响应体也要视为无响应体，与 Hutool 适配层返回 null 流的行为保持一致。
+        if (responseBody == null || responseBody.contentLength() == 0) {
             response.close();
             return new SynologyHttpResponse(response.code(), response.headers().toMultimap(), null, null);
         }
