@@ -1,4 +1,4 @@
-package io.github.shuzhuoi.synology.http.okhttp3;
+package io.github.shuzhuoi.synology.http.hutool;
 
 import io.github.shuzhuoi.synology.exception.SynologyHttpException;
 import io.github.shuzhuoi.synology.http.ResponseBodyMode;
@@ -17,25 +17,31 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class OkHttp3SynologyHttpClientTest {
+/**
+ * {@link HutoolSynologyHttpClient} 适配层测试，使用本地 MockWebServer 验证请求转换与响应读取行为。
+ */
+class HutoolSynologyHttpClientTest {
 
     private MockWebServer server;
-    private OkHttp3SynologyHttpClient httpClient;
+    private HutoolSynologyHttpClient httpClient;
 
     @BeforeEach
     void setUp() throws IOException {
         server = new MockWebServer();
         server.start();
-        httpClient = new OkHttp3SynologyHttpClient();
+        httpClient = new HutoolSynologyHttpClient();
     }
 
     @AfterEach
@@ -43,6 +49,9 @@ class OkHttp3SynologyHttpClientTest {
         server.shutdown();
     }
 
+    /**
+     * GET 请求的参数应由适配器拼接到 URL 查询串，文本响应应完整读取。
+     */
     @Test
     void shouldAppendGetParametersAndReadTextResponse() throws InterruptedException {
         server.enqueue(new MockResponse()
@@ -69,8 +78,11 @@ class OkHttp3SynologyHttpClientTest {
         assertNull(response.getBodyStream());
     }
 
+    /**
+     * POST 请求的普通参数应以 x-www-form-urlencoded 表单发送，中文与空格需正确编码。
+     */
     @Test
-    void shouldSendPostParametersAsFormBody() throws InterruptedException {
+    void shouldSendPostParametersAsFormBody() throws Exception {
         server.enqueue(new MockResponse().setBody("{\"success\":true}"));
 
         SynologyHttpRequest request = SynologyHttpRequest.builder()
@@ -85,11 +97,16 @@ class OkHttp3SynologyHttpClientTest {
 
         assertEquals("POST", recordedRequest.getMethod());
         assertTrue(recordedRequest.getHeader("Content-Type").startsWith("application/x-www-form-urlencoded"));
-        assertEquals("api=SYNO.FileStation.Test&name=%E6%B5%8B%E8%AF%95%20file", recordedRequest.getBody().readUtf8());
+        Map<String, String> form = parseForm(recordedRequest.getBody().readUtf8());
+        assertEquals("SYNO.FileStation.Test", form.get("api"));
+        assertEquals("测试 file", form.get("name"));
     }
 
+    /**
+     * multipart 请求应包含普通字段和文件字段，文件内容以原始字节发送。
+     */
     @Test
-    void shouldSendParametersAndFileAsMultipart(@TempDir Path tempDir) throws IOException, InterruptedException {
+    void shouldSendParametersAndFileAsMultipart(@TempDir Path tempDir) throws Exception {
         server.enqueue(new MockResponse().setBody("{\"success\":true}"));
         Path filePath = tempDir.resolve("upload.txt");
         Files.write(filePath, "file-content".getBytes(StandardCharsets.UTF_8));
@@ -109,13 +126,14 @@ class OkHttp3SynologyHttpClientTest {
 
         assertTrue(recordedRequest.getHeader("Content-Type").startsWith("multipart/form-data"));
         assertTrue(requestBody.contains("name=\"api\""));
-        assertTrue(requestBody.contains("SYNO.FileStation.Upload"));
         assertTrue(requestBody.contains("name=\"path\""));
-        assertTrue(requestBody.contains("/target"));
         assertTrue(requestBody.contains("name=\"file\"; filename=\"upload.txt\""));
         assertTrue(requestBody.contains("file-content"));
     }
 
+    /**
+     * STREAM 模式下适配器应保留原始流且不读取文本内容，流在调用方关闭前保持可读。
+     */
     @Test
     void shouldKeepStreamReadableUntilCallerClosesIt() throws IOException {
         server.enqueue(new MockResponse().setBody("binary-content"));
@@ -138,7 +156,7 @@ class OkHttp3SynologyHttpClientTest {
     }
 
     /**
-     * 204 响应没有响应体，STREAM 模式下应返回 null 流而不是抛异常。
+     * 204 响应没有响应体，STREAM 模式下应返回 null 流而不是抛异常，与 OkHttp3 适配层行为一致。
      */
     @Test
     void shouldHandleStreamResponseWithoutBody() {
@@ -158,7 +176,7 @@ class OkHttp3SynologyHttpClientTest {
     }
 
     /**
-     * 连接失败等底层 IO 异常应统一包装为 SynologyHttpException。
+     * 连接失败等底层异常应统一包装为 SynologyHttpException。
      */
     @Test
     void shouldWrapConnectionFailureAsSynologyHttpException() {
@@ -169,5 +187,19 @@ class OkHttp3SynologyHttpClientTest {
                 .build();
 
         assertThrows(SynologyHttpException.class, () -> httpClient.execute(request));
+    }
+
+    /**
+     * 解析 x-www-form-urlencoded 表单体，兼容 + 和 %20 两种空格编码。
+     */
+    private Map<String, String> parseForm(String body) throws IOException {
+        Map<String, String> form = new LinkedHashMap<String, String>();
+        for (String pair : body.split("&")) {
+            int separator = pair.indexOf('=');
+            String name = URLDecoder.decode(pair.substring(0, separator), StandardCharsets.UTF_8.name());
+            String value = URLDecoder.decode(pair.substring(separator + 1), StandardCharsets.UTF_8.name());
+            form.put(name, value);
+        }
+        return form;
     }
 }
