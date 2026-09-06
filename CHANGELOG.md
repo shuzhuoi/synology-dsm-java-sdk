@@ -2,7 +2,23 @@
 
 ## Unreleased
 
-- 暂无已发布变更。
+### 新增
+
+- 新增 `synology-dsm-java-sdk-http-hutool`、`synology-dsm-java-sdk-http-okhttp3` 适配层测试（基于 MockWebServer 覆盖 GET / POST / multipart / 流式 / 204 / 连接异常场景）。
+- 新增 Boot 2 / Boot 3 Starter 自动装配测试（`ApplicationContextRunner` 验证默认装配、条件回退与属性绑定）。
+- README 新增"下载与缩略图流处理"与"安全建议"章节。
+- 新增英文版 README（`README.md`）与中文版 `README_zh-CN.md`。
+
+### 修复
+
+- **修复:** Hutool 适配层 STREAM 模式原先通过同步 `execute()` 把响应体全量读入内存，现改用 `executeAsync()` 保留底层连接流，并在调用方关闭流时释放连接，避免大文件下载内存暴涨。
+- **修复:** OkHttp3 适配层对 204 等无响应体响应的 STREAM 模式统一返回 `null` 流（OkHttp 3 会把空响应体包装成非 null 的空流），两个 HTTP 适配层行为保持一致。
+- `DownloadFileResponse` Javadoc 明确流由调用方关闭。
+
+### 工程化
+
+- 新增 GitHub Actions CI（JDK 17 构建 + 全量单元测试）、Release 工作流（推送 `v*` 标签自动从 CHANGELOG 创建 Release）与 Dependabot 配置（忽略会破坏 Java 8 / Boot 2 约束的主版本）。
+- 新增 `CONTRIBUTING.md` 与 bug / feature issue 模板。
 
 ## 1.0.0 (2026-07-13)
 

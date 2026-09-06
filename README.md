@@ -720,6 +720,29 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
 
 本地配置文件已由根 `.gitignore` 忽略。不要在模板或 Java 源码中写入真实 DSM 密码。
 
+## 下载与缩略图流处理
+
+`download().file(...)` 和 `thumb().get(...)` 返回的是底层 HTTP 连接的原始流，SDK 不会把文件内容读入内存。流使用完毕必须关闭，否则连接无法归还连接池，高频调用时会耗尽连接。推荐使用 try-with-resources：
+
+```java
+try (InputStream in = client.fileStation().download().file("/video/backup.zip").getInputStream()) {
+    Files.copy(in, Paths.get("/local/backup.zip"), StandardCopyOption.REPLACE_EXISTING);
+}
+```
+
+注意事项：
+
+- 流是 lazily 读取的，关闭流即释放连接，读取过程中不要持有流引用长时间不消费。
+- 当响应没有响应体时（例如 HTTP 204），`getInputStream()` 返回 `null`，调用方需判空。
+- 上传走 `multipart` 表单，不存在流关闭问题；下载大文件时可适当调大 `readTimeoutMillis`。
+
+## 安全建议
+
+- **生产环境必须使用 HTTPS**。DSM 登录接口的账号密码以表单参数明文提交，HTTP 下可被网络嗅探；自签名证书请在 HTTP 客户端中正确配置信任，不要关闭证书校验。
+- 为 SDK 使用**专用的最小权限 DSM 账号**，并优先使用环境变量注入密码，避免把密码写进代码或配置文件仓库。
+- **SID 等同于登录态**，不要把它写入日志或监控埋点；SDK 也不会在日志中输出账号、密码或 SID。
+- 定期在 DSM 控制台检查登录设备与自动封禁（Auto Block）配置，并为管理账号开启两步验证。
+
 ## API 入口
 
 SDK 采用三层入口：
