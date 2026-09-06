@@ -5,7 +5,18 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # OkHttp 3.14.x 是官方最后一个支持 Java 8 的主版本，升到 4.x/5.x 会破坏 Java 8 目标
+      - dependency-name: com.squareup.okhttp3:okhttp
+        versions: [ ">=4" ]
+      # JUnit 6 要求 Java 17，core 等模块仍以 Java 8 为目标
+      - dependency-name: org.junit.jupiter:*
+        versions: [ ">=6" ]
+      # Boot 2 Starter 锁定 Spring Boot 2.x 线，3.x/4.x 属于 spring-boot3-starter 的范畴
+      - dependency-name: spring-boot2.version
+        versions: [ ">=3" ]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+
