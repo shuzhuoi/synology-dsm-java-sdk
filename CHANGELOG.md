@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- 暂无已发布变更。
+
+## 1.0.1 (2026-09-06)
+
 ### 新增
 
 - 新增 `synology-dsm-java-sdk-http-hutool`、`synology-dsm-java-sdk-http-okhttp3` 适配层测试（基于 MockWebServer 覆盖 GET / POST / multipart / 流式 / 204 / 连接异常场景）。

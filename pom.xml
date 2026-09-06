@@ -26,7 +26,7 @@
 
     <properties>
         <!-- v1.0.0：核心 API、HTTP/JSON 扩展边界和 Boot Starter 已形成稳定发布基线。 -->
-        <revision>1.0.0</revision>
+        <revision>1.0.1</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- 使用 JDK 17 构建 Reactor，release=8 同时约束 Java 8 语法、字节码和 JDK API。 -->

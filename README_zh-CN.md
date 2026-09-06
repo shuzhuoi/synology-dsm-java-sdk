@@ -13,7 +13,7 @@ SDK 将业务 API、HTTP 实现和 Spring Boot 集成拆分为独立模块。普
 
 ## 版本与兼容性
 
-当前文档对应 SDK `1.0.0`。这是首个稳定版本，后续版本将遵循语义化版本规则维护公共 API：同一主版本内尽量保持兼容，破坏性调整进入下一个主版本。
+当前文档对应 SDK `1.0.1`。SDK 从 `1.0.0` 起遵循语义化版本规则维护公共 API：同一主版本内尽量保持兼容，破坏性调整进入下一个主版本。
 
 从 `0.4.0` 升级时，重点检查 `SynologyDsmClient.Builder`、HTTP 工厂方法和 `BackgroundTask.getParams()` 的变化，具体迁移方式见 [`CHANGELOG.md`](CHANGELOG.md) 的 `1.0.0` 章节。
 
@@ -44,12 +44,12 @@ Hutool adapter 已传递依赖 core，但 JSON 实现需要单独引入：
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-hutool</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-json-jackson</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -61,12 +61,12 @@ OkHttp3 adapter 同样已传递依赖 core，不需要同时引入 Hutool；同�
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-okhttp3</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-json-jackson</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -78,7 +78,7 @@ OkHttp3 adapter 同样已传递依赖 core，不需要同时引入 Hutool；同�
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -104,7 +104,7 @@ JacksonSynologyJsonCodec jsonCodec = new JacksonSynologyJsonCodec();
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-json-fastjson2</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -248,7 +248,7 @@ SynologyDsmClient client = SynologyDsmClient.builder()
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-spring-boot2-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -350,7 +350,7 @@ mvn spring-boot:run
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-spring-boot3-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -485,7 +485,7 @@ Starter 中的 OkHttp3 adapter 是可选依赖。使用时先增加：
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-okhttp3</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -531,7 +531,7 @@ artifactId 改为 `synology-dsm-java-sdk-spring-boot3-starter`：
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-spring-boot2-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <exclusions>
         <exclusion>
             <groupId>io.github.shuzhuoi</groupId>
@@ -542,7 +542,7 @@ artifactId 改为 `synology-dsm-java-sdk-spring-boot3-starter`：
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-json-fastjson2</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 

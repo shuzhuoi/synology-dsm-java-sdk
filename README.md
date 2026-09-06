@@ -13,7 +13,7 @@ The SDK splits business APIs, HTTP implementations and Spring Boot integration i
 
 ## Version and Compatibility
 
-This documentation matches SDK `1.0.0`, the first stable release. The public API is maintained under semantic versioning from this release onward: compatibility is preserved within the same major version, and breaking changes move to the next major version.
+This documentation matches SDK `1.0.1`. The public API has been maintained under semantic versioning since `1.0.0`: compatibility is preserved within the same major version, and breaking changes move to the next major version.
 
 When upgrading from `0.4.0`, focus on the changes to `SynologyDsmClient.Builder`, the HTTP factory methods and `BackgroundTask.getParams()`. See the `1.0.0` section in [`CHANGELOG.md`](CHANGELOG.md) for migration details.
 
@@ -44,12 +44,12 @@ The Hutool adapter brings core in transitively, but the JSON implementation must
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-hutool</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-json-jackson</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -61,12 +61,12 @@ The OkHttp3 adapter also brings core in transitively; do not add Hutool at the s
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-okhttp3</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-json-jackson</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -78,7 +78,7 @@ If you only need the business models and the API execution machinery, depend on 
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -102,7 +102,7 @@ For Fastjson2, add the dependency instead:
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-json-fastjson2</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -245,7 +245,7 @@ Add to the `pom.xml` of your Spring Boot 2 project:
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-spring-boot2-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -347,7 +347,7 @@ Add to the `pom.xml` of your Spring Boot 3 project:
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-spring-boot3-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -482,7 +482,7 @@ The OkHttp3 adapter is an optional dependency of the Starters. First add:
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-http-okhttp3</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -526,7 +526,7 @@ The Starter creates `JacksonSynologyJsonCodec` by default. To switch to Fastjson
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-spring-boot2-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <exclusions>
         <exclusion>
             <groupId>io.github.shuzhuoi</groupId>
@@ -537,7 +537,7 @@ The Starter creates `JacksonSynologyJsonCodec` by default. To switch to Fastjson
 <dependency>
     <groupId>io.github.shuzhuoi</groupId>
     <artifactId>synology-dsm-java-sdk-json-fastjson2</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
