@@ -7,7 +7,7 @@
 [![CI](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.shuzhuoi/synology-dsm-java-sdk-core.svg)](https://central.sonatype.com/artifact/io.github.shuzhuoi/synology-dsm-java-sdk-core)
 
-Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，完整覆盖 **File Station** 文件操作、任务型接口、写入权限预检查、分享、收藏、缩略图、虚拟目录、压缩和解压等能力，基于 DSM 7 的 `SYNO.DownloadStation2.*` 新契约覆盖 **Download Station** 的任务管理、速度统计、BT 搜索和 RSS 订阅，通过 `SYNO.Core.System` / `SYNO.Core.System.Utilization` 提供 **系统信息与 CPU/内存/磁盘/网络实时监控**，并通过 `SYNO.Docker.*` 提供 **Docker 容器管理**（列表/详情/生命周期/资源占用/日志）。
+Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，完整覆盖 **File Station** 文件操作、任务型接口、写入权限预检查、分享、收藏、缩略图、虚拟目录、压缩和解压等能力，基于 DSM 7 的 `SYNO.DownloadStation2.*` 新契约覆盖 **Download Station** 的任务管理、速度统计、BT 搜索和 RSS 订阅，通过 `SYNO.Core.System` / `SYNO.Core.System.Utilization` 提供 **系统信息与 CPU/内存/磁盘/网络实时监控**，并通过 `SYNO.Docker.*` 提供 **Docker 容器管理**（列表/详情/生命周期/资源占用/日志）与 **镜像 / Compose 项目管理**（镜像列表/详情/删除/清理/拉取，项目列表/详情/生命周期）。
 
 SDK 将业务 API、HTTP 实现和 Spring Boot 集成拆分为独立模块。普通 Java、Spring Boot 2 和 Spring Boot 3 项目可以按需选择，不需要把 Spring、Hutool 或 OkHttp3 引入 core。
 
@@ -772,7 +772,7 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
 | [`FileStationOfficialCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationOfficialCoverageExample.java) | 官方契约补齐接口 |
 | [`DownloadStationCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/DownloadStationCoverageExample.java) | Download Station 全量官方 API（任务生命周期、统计、BT 搜索、RSS） |
 | [`CoreSystemCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/CoreSystemCoverageExample.java) | 系统信息、CPU/内存/磁盘/网络实时利用率、API 版本探测（电源操作默认跳过） |
-| [`DockerCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/DockerCoverageExample.java) | 容器列表/详情（端口映射）、实时资源占用、容器日志、API 版本探测（生命周期操作默认跳过） |
+| [`DockerCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/DockerCoverageExample.java) | 容器列表/详情（端口映射）、实时资源占用、容器日志、镜像列表/详情/拉取、Compose 项目列表/详情、API 版本探测（生命周期操作默认跳过） |
 
 本地配置文件已由根 `.gitignore` 忽略。不要在模板或 Java 源码中写入真实 DSM 密码。
 
@@ -845,7 +845,9 @@ SynologyDsmClient
 └── docker()                   // Docker 聚合入口（SYNO.Docker.*，DSM 7.2+）
     ├── container()            // SYNO.Docker.Container：容器列表/详情（inspect）/启动/停止/重启/删除
     ├── resource()             // SYNO.Docker.Container.Resource：各容器实时 CPU/内存占用
-    └── log()                  // SYNO.Docker.Container.Log：容器日志查询（时间/关键字/级别过滤）
+    ├── log()                  // SYNO.Docker.Container.Log：容器日志查询（时间/关键字/级别过滤）
+    ├── image()                // SYNO.Docker.Image：镜像列表/详情/删除/清理/拉取（pull_start + pull_status 轮询）
+    └── project()              // SYNO.Docker.Project：Compose 项目列表/详情/启动/停止/重启/清理/删除
 ```
 
 ## 许可证

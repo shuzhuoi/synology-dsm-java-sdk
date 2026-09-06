@@ -84,6 +84,18 @@ public class SynologyApiExecutor {
         });
     }
 
+    public <T> Map<String, T> getAuthenticatedMap(String path, String apiName, int version, String method, Map<String, String> parameters, Class<T> valueType) {
+        // 部分认证接口（如 SYNO.Docker.Project list）的 data 节点是以动态键组织的 map，
+        // 需要与会话重试联动的 map 版本执行入口。
+        return executeWithSessionRetry(new AuthenticatedOperation<Map<String, T>>() {
+            @Override
+            public Map<String, T> execute() {
+                String body = executeForBody(path, apiName, version, method, parameters, true);
+                return responseParser.parseMap(apiName, method, body, valueType);
+            }
+        });
+    }
+
     public SynologyHttpResponse downloadAuthenticated(String path, String apiName, int version, String method, Map<String, String> parameters) {
         SynologyApiRequest request = SynologyApiRequest.builder()
                 .path(path)

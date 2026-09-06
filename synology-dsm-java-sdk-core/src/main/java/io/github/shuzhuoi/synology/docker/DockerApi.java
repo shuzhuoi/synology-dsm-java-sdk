@@ -41,6 +41,29 @@ public final class DockerApi {
      */
     public static final int CONTAINER_LOG_VERSION = 1;
 
+    /**
+     * 镜像管理 API：list / get / delete / prune / pull_start / pull_status 等。
+     * <p>
+     * 镜像以「仓库名:标签」定位，list 响应的 tags 是数组（一个镜像可挂多个标签）。
+     */
+    public static final String IMAGE_API = "SYNO.Docker.Image";
+    /**
+     * Image API 版本。
+     */
+    public static final int IMAGE_VERSION = 1;
+
+    /**
+     * Compose 项目管理 API：list / get / start / stop / restart / clean / delete 等。
+     * <p>
+     * 项目对应 Container Manager UI 中的「项目」（docker compose 技术栈），
+     * 以 UUID（id）定位；list 响应的 data 是以项目 UUID 为键的 map。
+     */
+    public static final String PROJECT_API = "SYNO.Docker.Project";
+    /**
+     * Project API 版本。
+     */
+    public static final int PROJECT_VERSION = 1;
+
     private DockerApi() {
     }
 }

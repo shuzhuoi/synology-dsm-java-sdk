@@ -1,7 +1,9 @@
 package io.github.shuzhuoi.synology.docker;
 
 import io.github.shuzhuoi.synology.docker.container.DockerContainerClient;
+import io.github.shuzhuoi.synology.docker.image.DockerImageClient;
 import io.github.shuzhuoi.synology.docker.log.DockerContainerLogClient;
+import io.github.shuzhuoi.synology.docker.project.DockerProjectClient;
 import io.github.shuzhuoi.synology.docker.resource.DockerContainerResourceClient;
 import io.github.shuzhuoi.synology.internal.SynologyApiExecutor;
 
@@ -24,11 +26,21 @@ public class DockerClient {
      * 容器日志查询接口。
      */
     private final DockerContainerLogClient logClient;
+    /**
+     * 镜像列表、详情、删除、清理与拉取接口。
+     */
+    private final DockerImageClient imageClient;
+    /**
+     * Compose 项目查询与生命周期接口。
+     */
+    private final DockerProjectClient projectClient;
 
     public DockerClient(SynologyApiExecutor executor) {
         this.containerClient = new DockerContainerClient(executor);
         this.resourceClient = new DockerContainerResourceClient(executor);
         this.logClient = new DockerContainerLogClient(executor);
+        this.imageClient = new DockerImageClient(executor);
+        this.projectClient = new DockerProjectClient(executor);
     }
 
     public DockerContainerClient container() {
@@ -41,5 +53,13 @@ public class DockerClient {
 
     public DockerContainerLogClient log() {
         return logClient;
+    }
+
+    public DockerImageClient image() {
+        return imageClient;
+    }
+
+    public DockerProjectClient project() {
+        return projectClient;
     }
 }

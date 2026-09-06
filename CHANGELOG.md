@@ -38,6 +38,19 @@
 - 新增 `DockerClientContractTest` 契约测试，校验 API 名称、版本、method 与参数编码（JSON 引号、类型过滤、生命周期参数）。
 - example 模块新增 `DockerCoverageExample` 与 `docker-coverage.example.yaml` 配置模板（含 API 版本探测；containerName / lifecycleAction 为可选段，留空自动跳过）。
 - README（中英文）与 API 入口结构图补充 Docker 说明（并补齐英文版此前缺失的 Core System 入口树）。
+- 新增 **Docker 模块（第二批：镜像管理 + Compose 项目管理）**：基于 DSM 7.2+ Container Manager 的 `SYNO.Docker.Image` / `SYNO.Docker.Project` 契约扩展镜像与项目管理能力。
+  - `SYNO.Docker.Image` v1 list：本地镜像列表（分页，可选包含 DSM 系统镜像 show_dsm；响应为 images 数组，含 repository / tags / size / created / upgradable 等字段）。
+  - `SYNO.Docker.Image` v1 get：单个镜像详情（image 参数为「仓库:标签」组合，JSON 引号编码）。
+  - `SYNO.Docker.Image` v1 delete：删除镜像（name + tag 定位）；prune：清理悬空镜像（无业务参数）。
+  - `SYNO.Docker.Image` v1 pull_start / pull_status：镜像拉取两步异步流程（pull_start 携带 repository / tag 返回 task_id，pull_status 以 task_id 轮询直到任务结束）。
+  - `SYNO.Docker.Project` v1 list：Compose 项目列表（响应 data 为以项目 UUID 为键的 map，值含 name / path / status / containerIds / created_at / updated_at / is_package / 服务门户配置等字段）。
+  - `SYNO.Docker.Project` v1 get：项目详情（继承摘要字段，额外含容器 inspect 结构列表与 compose 文件内容）；findByName：按名称本地筛选项目。
+  - `SYNO.Docker.Project` v1 start / stop / restart / clean：项目生命周期操作（id 定位）；delete：删除项目（id + preserve_content，可选保留 compose 文件）。
+  - `SynologyApiExecutor` 新增 `getAuthenticatedMap`，支持与会话重试联动的 map 形态 data 解析（Project.list 使用）。
+- `DockerClient` 聚合入口扩展 image() / project() 子客户端。
+- `DockerClientContractTest` 扩展镜像与项目契约测试（JSON 引号 id、image 组合参数、show_dsm / preserve_content 布尔编码、pull 两步流程参数）。
+- example 模块 `DockerCoverageExample` 扩展镜像列表/详情/拉取（轮询演示）与项目列表/详情/生命周期段；`docker-coverage.example.yaml` 新增 imageName / pullRepository / pullTag / projectName / projectAction 可选段（高危操作留空自动跳过）。
+- README（中英文）与 API 入口结构图补充镜像与 Compose 项目管理说明。
 
 ## 1.0.1 (2026-09-06)
 

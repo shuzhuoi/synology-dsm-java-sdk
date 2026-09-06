@@ -64,7 +64,7 @@ public class SynologyDsmClient {
     private final CoreSystemClient coreSystemClient;
 
     /**
-     * Docker / Container Manager 聚合客户端（容器管理、资源监控与日志）。
+     * Docker / Container Manager 聚合客户端（容器、镜像、Compose 项目管理，资源监控与日志）。
      */
     private final DockerClient dockerClient;
 

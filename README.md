@@ -7,7 +7,7 @@ English | [中文](README_zh-CN.md)
 [![CI](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.shuzhuoi/synology-dsm-java-sdk-core.svg)](https://central.sonatype.com/artifact/io.github.shuzhuoi/synology-dsm-java-sdk-core)
 
-Synology DSM Java SDK provides Java bindings for the [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf), with full coverage of **File Station** file operations, task-based APIs, write permission pre-checks, sharing, favorites, thumbnails, virtual folders, compression and extraction, **Download Station** task management, statistics, BT search and RSS feeds via the DSM 7 `SYNO.DownloadStation2.*` APIs, **system information and real-time CPU/memory/disk/network monitoring** via `SYNO.Core.System` / `SYNO.Core.System.Utilization`, plus **Docker container management** (list/detail/lifecycle/resource usage/logs) via `SYNO.Docker.*`.
+Synology DSM Java SDK provides Java bindings for the [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf), with full coverage of **File Station** file operations, task-based APIs, write permission pre-checks, sharing, favorites, thumbnails, virtual folders, compression and extraction, **Download Station** task management, statistics, BT search and RSS feeds via the DSM 7 `SYNO.DownloadStation2.*` APIs, **system information and real-time CPU/memory/disk/network monitoring** via `SYNO.Core.System` / `SYNO.Core.System.Utilization`, plus **Docker container management** (list/detail/lifecycle/resource usage/logs) and **image / Compose project management** (image list/detail/delete/prune/pull, project list/detail/lifecycle) via `SYNO.Docker.*`.
 
 The SDK splits business APIs, HTTP implementations and Spring Boot integration into independent modules. Plain Java, Spring Boot 2 and Spring Boot 3 projects can pick only what they need, without pulling Spring, Hutool or OkHttp3 into core.
 
@@ -846,7 +846,9 @@ SynologyDsmClient
 └── docker()                   // Docker aggregate entry (SYNO.Docker.*, DSM 7.2+)
     ├── container()            // SYNO.Docker.Container: list/detail (inspect)/start/stop/restart/delete
     ├── resource()             // SYNO.Docker.Container.Resource: real-time CPU/memory usage per container
-    └── log()                  // SYNO.Docker.Container.Log: container logs (time/keyword/level filters)
+    ├── log()                  // SYNO.Docker.Container.Log: container logs (time/keyword/level filters)
+    ├── image()                // SYNO.Docker.Image: list/detail/delete/prune/pull (pull_start + pull_status polling)
+    └── project()              // SYNO.Docker.Project: Compose projects list/detail/start/stop/restart/clean/delete
 ```
 
 ## License
