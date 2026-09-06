@@ -42,6 +42,9 @@ build/
 /synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/resources/coresystem-*.yaml
 !/synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/resources/coresystem-*.example.yaml
 
+/synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/resources/docker-*.yaml
+!/synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/resources/docker-*.example.yaml
+
 /synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example/src/main/resources/application.yaml
 /synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example/src/main/resources/application.yml
 !/synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example/src/main/resources/application.example.yaml

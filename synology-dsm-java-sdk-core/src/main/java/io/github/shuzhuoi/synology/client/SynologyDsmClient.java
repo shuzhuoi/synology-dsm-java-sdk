@@ -7,6 +7,7 @@ import io.github.shuzhuoi.synology.auth.store.InMemorySynologySessionStore;
 import io.github.shuzhuoi.synology.auth.store.SynologySessionStore;
 import io.github.shuzhuoi.synology.config.SynologyDsmConfig;
 import io.github.shuzhuoi.synology.core.system.CoreSystemClient;
+import io.github.shuzhuoi.synology.docker.DockerClient;
 import io.github.shuzhuoi.synology.downloadstation.DownloadStationClient;
 import io.github.shuzhuoi.synology.filestation.FileStationClient;
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
@@ -18,7 +19,7 @@ import io.github.shuzhuoi.synology.json.SynologyJsonCodec;
  * <p>
  * 调用方通常只需要持有这个对象，再通过 {@link #apiInfo()}、{@link #auth()}、
  * {@link #session()}、{@link #fileStation()}、{@link #downloadStation()}、
- * {@link #coreSystem()} 进入具体能力模块。
+ * {@link #coreSystem()}、{@link #docker()} 进入具体能力模块。
  */
 public class SynologyDsmClient {
 
@@ -62,6 +63,11 @@ public class SynologyDsmClient {
      */
     private final CoreSystemClient coreSystemClient;
 
+    /**
+     * Docker / Container Manager 聚合客户端（容器管理、资源监控与日志）。
+     */
+    private final DockerClient dockerClient;
+
     private SynologyDsmClient(Builder builder) {
         this.config = builder.config;
         this.executor = new SynologyApiExecutor(config, builder.httpClient, builder.jsonCodec);
@@ -77,6 +83,7 @@ public class SynologyDsmClient {
         this.fileStationClient = new FileStationClient(executor);
         this.downloadStationClient = new DownloadStationClient(executor);
         this.coreSystemClient = new CoreSystemClient(executor);
+        this.dockerClient = new DockerClient(executor);
     }
 
     public static Builder builder() {
@@ -109,6 +116,10 @@ public class SynologyDsmClient {
 
     public CoreSystemClient coreSystem() {
         return coreSystemClient;
+    }
+
+    public DockerClient docker() {
+        return dockerClient;
     }
 
     public static class Builder {

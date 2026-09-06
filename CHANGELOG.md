@@ -27,6 +27,17 @@
 - 新增 `CoreSystemClientContractTest` 契约测试，校验 API 名称、版本、method 与电源操作参数（`local=true`）。
 - example 模块新增 `CoreSystemCoverageExample` 与 `coresystem-coverage.example.yaml` 配置模板（含 API 版本探测；powerAction 为可选段，留空自动跳过）。
 - README（中英文）与 API 入口结构图补充 Core System 说明。
+- 新增 **Docker 模块（第一批：容器管理）**：基于 DSM 7.2+ Container Manager 的 `SYNO.Docker.*` 契约提供容器管理能力。
+  - `SYNO.Docker.Container` v1 list：容器列表（分页，支持 all/running/stopped 类型过滤）。
+  - `SYNO.Docker.Container` v1 get：容器详情（Docker inspect 结构，含端口映射、环境变量、数据卷绑定、重启策略）。
+  - `SYNO.Docker.Container` v1 start / stop / restart / delete：容器生命周期操作（delete 支持 force 与 preserve_profile 选项）。
+  - `SYNO.Docker.Container.Resource` v1 get：各容器实时 CPU / 内存占用，等价于 DSM 容器总览页。
+  - `SYNO.Docker.Container.Log` v1 get：容器日志分页查询（时间范围 / 关键字 / 级别过滤，ASC/DESC 排序）。
+  - 注意：字符串类业务参数按 Container Manager 的 requestFormat=JSON 契约以 JSON 字符串形式传输（带引号）。
+- `SynologyDsmClient` 新增 `docker()` 聚合入口，按 container / resource / log 拆分子客户端。
+- 新增 `DockerClientContractTest` 契约测试，校验 API 名称、版本、method 与参数编码（JSON 引号、类型过滤、生命周期参数）。
+- example 模块新增 `DockerCoverageExample` 与 `docker-coverage.example.yaml` 配置模板（含 API 版本探测；containerName / lifecycleAction 为可选段，留空自动跳过）。
+- README（中英文）与 API 入口结构图补充 Docker 说明（并补齐英文版此前缺失的 Core System 入口树）。
 
 ## 1.0.1 (2026-09-06)
 

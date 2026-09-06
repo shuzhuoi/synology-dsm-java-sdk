@@ -1,0 +1,21 @@
+# Docker 官方契约覆盖示例配置。
+# 运行前请复制本文件为 docker-coverage.yaml，并填写真实 DSM 信息。
+# 注意：SYNO.Docker.* 通常需要管理员或具有 Container Manager 权限的账户。
+
+# DSM 服务地址，例如：https://nas.example.com:5001
+dsmUrl: "https://your-nas-host:5001"
+
+# DSM 登录账号。
+account: "your-account"
+
+# DSM 登录密码。真实文件 docker-coverage.yaml 已被 .gitignore 忽略，请不要提交。
+password: "your-password"
+
+# 可选：详情与日志演练的目标容器名称，例如 jellyfin。
+# 留空（默认）跳过详情和日志段演示。
+containerName: ""
+
+# 可选：生命周期演练项，支持 start / stop / restart。
+# 危险操作：填写后示例会真实启停目标容器（需同时配置 containerName）！
+# 默认留空，只演示只读接口。
+lifecycleAction: ""

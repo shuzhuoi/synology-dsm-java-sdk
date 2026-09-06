@@ -7,7 +7,7 @@ English | [中文](README_zh-CN.md)
 [![CI](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.shuzhuoi/synology-dsm-java-sdk-core.svg)](https://central.sonatype.com/artifact/io.github.shuzhuoi/synology-dsm-java-sdk-core)
 
-Synology DSM Java SDK provides Java bindings for the [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf), with full coverage of **File Station** file operations, task-based APIs, write permission pre-checks, sharing, favorites, thumbnails, virtual folders, compression and extraction, **Download Station** task management, statistics, BT search and RSS feeds via the DSM 7 `SYNO.DownloadStation2.*` APIs, plus **system information and real-time CPU/memory/disk/network monitoring** via `SYNO.Core.System` / `SYNO.Core.System.Utilization`.
+Synology DSM Java SDK provides Java bindings for the [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf), with full coverage of **File Station** file operations, task-based APIs, write permission pre-checks, sharing, favorites, thumbnails, virtual folders, compression and extraction, **Download Station** task management, statistics, BT search and RSS feeds via the DSM 7 `SYNO.DownloadStation2.*` APIs, **system information and real-time CPU/memory/disk/network monitoring** via `SYNO.Core.System` / `SYNO.Core.System.Utilization`, plus **Docker container management** (list/detail/lifecycle/resource usage/logs) via `SYNO.Docker.*`.
 
 The SDK splits business APIs, HTTP implementations and Spring Boot integration into independent modules. Plain Java, Spring Boot 2 and Spring Boot 3 projects can pick only what they need, without pulling Spring, Hutool or OkHttp3 into core.
 
@@ -767,6 +767,7 @@ The plain Java examples live in [`synology-dsm-java-sdk-java-example`](synology-
 | [`FileStationOfficialCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationOfficialCoverageExample.java) | Remaining official API contracts |
 | [`DownloadStationCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/DownloadStationCoverageExample.java) | Full Download Station official APIs (task lifecycle, statistics, BT search, RSS) |
 | [`CoreSystemCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/CoreSystemCoverageExample.java) | System info, real-time CPU/memory/disk/network utilization, API version probing (power actions skipped by default) |
+| [`DockerCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/DockerCoverageExample.java) | Container list/detail (port bindings), real-time resource usage, container logs, API version probing (lifecycle actions skipped by default) |
 
 The local configuration files are ignored by the root `.gitignore`. Never put real DSM passwords in templates or Java sources.
 
@@ -827,6 +828,25 @@ SynologyDsmClient
     ├── btSearch()             // BTSearch: modules, start, list, categories, clean
     ├── rssSite()              // RSS.Site: list, refresh
     └── rssFeed()              // RSS.Feed: list entries, download as task
+```
+
+Core System aggregate entry (preinstalled on DSM, no package required):
+
+```
+SynologyDsmClient
+└── coreSystem()               // Core System aggregate entry (system monitoring)
+    ├── info()                 // SYNO.Core.System: system info (model/firmware/temp/uptime), shutdown, reboot
+    └── utilization()          // SYNO.Core.System.Utilization: real-time CPU/memory/disk/network utilization
+```
+
+Docker / Container Manager aggregate entry (requires the Container Manager package and an account with container privileges):
+
+```
+SynologyDsmClient
+└── docker()                   // Docker aggregate entry (SYNO.Docker.*, DSM 7.2+)
+    ├── container()            // SYNO.Docker.Container: list/detail (inspect)/start/stop/restart/delete
+    ├── resource()             // SYNO.Docker.Container.Resource: real-time CPU/memory usage per container
+    └── log()                  // SYNO.Docker.Container.Log: container logs (time/keyword/level filters)
 ```
 
 ## License
