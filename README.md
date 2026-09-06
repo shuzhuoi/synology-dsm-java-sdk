@@ -1,42 +1,44 @@
 # Synology DSM Java SDK
 
+English | [中文](README_zh-CN.md)
+
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Java: 8 / 17](https://img.shields.io/badge/java-8%20%2F%2017-orange.svg)](https://www.java.com/)
 [![CI](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/shuzhuoi/synology-dsm-java-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.shuzhuoi/synology-dsm-java-sdk-core.svg)](https://central.sonatype.com/artifact/io.github.shuzhuoi/synology-dsm-java-sdk-core)
 
-Synology DSM Java SDK 提供对 [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf) 的 Java 调用能力，完整覆盖 **File Station** 文件操作、任务型接口、分享、收藏、缩略图、虚拟目录、压缩和解压等能力。
+Synology DSM Java SDK provides Java bindings for the [Synology DSM WebAPI](https://global.download.synology.com/download/Document/Software/DeveloperGuide/OS/Dynamicsite/All/enu/Synology_DiskStation_Administration_Web_API_Guide.pdf), with full coverage of **File Station** file operations, task-based APIs, sharing, favorites, thumbnails, virtual folders, compression and extraction.
 
-SDK 将业务 API、HTTP 实现和 Spring Boot 集成拆分为独立模块。普通 Java、Spring Boot 2 和 Spring Boot 3 项目可以按需选择，不需要把 Spring、Hutool 或 OkHttp3 引入 core。
+The SDK splits business APIs, HTTP implementations and Spring Boot integration into independent modules. Plain Java, Spring Boot 2 and Spring Boot 3 projects can pick only what they need, without pulling Spring, Hutool or OkHttp3 into core.
 
-## 版本与兼容性
+## Version and Compatibility
 
-当前文档对应 SDK `1.0.0`。这是首个稳定版本，后续版本将遵循语义化版本规则维护公共 API：同一主版本内尽量保持兼容，破坏性调整进入下一个主版本。
+This documentation matches SDK `1.0.0`, the first stable release. The public API is maintained under semantic versioning from this release onward: compatibility is preserved within the same major version, and breaking changes move to the next major version.
 
-从 `0.4.0` 升级时，重点检查 `SynologyDsmClient.Builder`、HTTP 工厂方法和 `BackgroundTask.getParams()` 的变化，具体迁移方式见 [`CHANGELOG.md`](CHANGELOG.md) 的 `1.0.0` 章节。
+When upgrading from `0.4.0`, focus on the changes to `SynologyDsmClient.Builder`, the HTTP factory methods and `BackgroundTask.getParams()`. See the `1.0.0` section in [`CHANGELOG.md`](CHANGELOG.md) for migration details.
 
-SDK 的默认 Starter 使用 Jackson，但 Jackson 仅位于独立 JSON 模块，不会进入 core。Fastjson2 是平级可选实现；`fastjson2-extension-spring5/6` 只在业务应用希望替换 Spring MVC 全局 JSON 消息转换器时需要，不是 SDK Codec 或 Starter 的必需依赖。
+The default Starter uses Jackson, but Jackson lives only in a separate JSON module and never enters core. Fastjson2 is an equal alternative; `fastjson2-extension-spring5/6` is only needed when the application wants to replace the global Spring MVC JSON message converters, and is never required by the SDK Codec or the Starter.
 
-## 选择模块
+## Choosing Modules
 
-| 使用场景 | 引入模块 | Java 要求 | HTTP 实现 |
+| Scenario | Modules | Java | HTTP implementation |
 | --- | --- | --- | --- |
-| 普通 Java，默认方案 | `http-hutool` + `json-jackson` | Java 8+ | Hutool |
-| 普通 Java，使用 OkHttp3 | `http-okhttp3` + `json-jackson` | Java 8+ | OkHttp 3.x |
-| JSON 默认实现 | `synology-dsm-java-sdk-json-jackson` | Java 8+ | Jackson |
-| JSON 可选实现 | `synology-dsm-java-sdk-json-fastjson2` | Java 8+ | Fastjson2 |
-| 自定义 HTTP 实现 | `synology-dsm-java-sdk-core` | Java 8+ | 用户实现 `SynologyHttpClient` |
-| Spring Boot 2 | `synology-dsm-java-sdk-spring-boot2-starter` | Java 8+ | 默认 Hutool，可选 OkHttp3 |
-| Spring Boot 3 | `synology-dsm-java-sdk-spring-boot3-starter` | Java 17+ | 默认 Hutool，可选 OkHttp3 |
+| Plain Java, default | `http-hutool` + `json-jackson` | Java 8+ | Hutool |
+| Plain Java with OkHttp3 | `http-okhttp3` + `json-jackson` | Java 8+ | OkHttp 3.x |
+| Default JSON implementation | `synology-dsm-java-sdk-json-jackson` | Java 8+ | Jackson |
+| Alternative JSON implementation | `synology-dsm-java-sdk-json-fastjson2` | Java 8+ | Fastjson2 |
+| Custom HTTP implementation | `synology-dsm-java-sdk-core` | Java 8+ | Implement `SynologyHttpClient` yourself |
+| Spring Boot 2 | `synology-dsm-java-sdk-spring-boot2-starter` | Java 8+ | Hutool by default, OkHttp3 optional |
+| Spring Boot 3 | `synology-dsm-java-sdk-spring-boot3-starter` | Java 17+ | Hutool by default, OkHttp3 optional |
 
 > [!NOTE]
-> core、两个 JSON 实现、两个 HTTP adapter 和 Boot 2 Starter 以 Java 8 为目标；Boot 3 Starter 以 Java 17 为目标。完整 Reactor 统一使用 JDK 17 构建，并通过 `--release 8/17` 分别约束各模块可使用的 JDK API 和产物字节码。
+> core, both JSON implementations, both HTTP adapters and the Boot 2 Starter target Java 8; the Boot 3 Starter targets Java 17. The whole reactor is built with JDK 17, and `--release 8/17` constrains the JDK APIs each module may use as well as the produced bytecode.
 
-## 安装
+## Installation
 
-### 普通 Java：Hutool
+### Plain Java: Hutool
 
-Hutool adapter 已传递依赖 core，但 JSON 实现需要单独引入：
+The Hutool adapter brings core in transitively, but the JSON implementation must be added separately:
 
 ```xml
 <dependency>
@@ -51,9 +53,9 @@ Hutool adapter 已传递依赖 core，但 JSON 实现需要单独引入：
 </dependency>
 ```
 
-### 普通 Java：OkHttp3
+### Plain Java: OkHttp3
 
-OkHttp3 adapter 同样已传递依赖 core，不需要同时引入 Hutool；同时引入 JSON 实现：
+The OkHttp3 adapter also brings core in transitively; do not add Hutool at the same time. Add the JSON implementation as well:
 
 ```xml
 <dependency>
@@ -68,9 +70,9 @@ OkHttp3 adapter 同样已传递依赖 core，不需要同时引入 Hutool；同�
 </dependency>
 ```
 
-### 自定义 HTTP 实现
+### Custom HTTP Implementation
 
-只使用业务模型和 API 执行能力时，可以仅引入 core，并实现 `SynologyHttpClient`：
+If you only need the business models and the API execution machinery, depend on core alone and implement `SynologyHttpClient`:
 
 ```xml
 <dependency>
@@ -80,15 +82,13 @@ OkHttp3 adapter 同样已传递依赖 core，不需要同时引入 Hutool；同�
 </dependency>
 ```
 
-只使用 core 时，还必须自行提供一个 `SynologyJsonCodec` 实现。SDK 不通过反射或 `ServiceLoader` 静默选择 JSON 库。
+With core only, you must also supply a `SynologyJsonCodec` implementation. The SDK never picks a JSON library silently through reflection or `ServiceLoader`.
 
-### JSON 实现选择
+### Choosing the JSON Implementation
 
-SDK 提供 Jackson 和 Fastjson2 两个平级 JSON 实现。默认文档和 Starter 使用
-`synology-dsm-java-sdk-json-jackson`；希望避免引入 Jackson 的普通 Java 项目可以选择
-`synology-dsm-java-sdk-json-fastjson2`。两个模块都不会让 core 编译依赖具体 JSON 库。
+The SDK ships Jackson and Fastjson2 as equal alternatives. The documentation and the Starters use `synology-dsm-java-sdk-json-jackson` by default; plain Java projects that want to avoid Jackson can use `synology-dsm-java-sdk-json-fastjson2`. Neither module makes core compile against a concrete JSON library.
 
-使用 Jackson：
+With Jackson:
 
 ```java
 import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
@@ -96,7 +96,7 @@ import io.github.shuzhuoi.synology.json.jackson.JacksonSynologyJsonCodec;
 JacksonSynologyJsonCodec jsonCodec = new JacksonSynologyJsonCodec();
 ```
 
-使用 Fastjson2 时改为引入：
+For Fastjson2, add the dependency instead:
 
 ```xml
 <dependency>
@@ -106,7 +106,7 @@ JacksonSynologyJsonCodec jsonCodec = new JacksonSynologyJsonCodec();
 </dependency>
 ```
 
-然后显式创建 Codec：
+Then create the codec explicitly:
 
 ```java
 import io.github.shuzhuoi.synology.json.fastjson2.Fastjson2SynologyJsonCodec;
@@ -114,51 +114,50 @@ import io.github.shuzhuoi.synology.json.fastjson2.Fastjson2SynologyJsonCodec;
 Fastjson2SynologyJsonCodec jsonCodec = new Fastjson2SynologyJsonCodec();
 ```
 
-HTTP adapter 与 JSON 实现相互独立。Hutool 和 OkHttp3 都可以搭配任一 Codec，但同一个
-`SynologyDsmClient` 只传入一个明确实现。
+HTTP adapters and JSON implementations are independent. Hutool and OkHttp3 both work with either codec, but a single `SynologyDsmClient` takes exactly one explicit implementation.
 
-## 环境要求
+## Requirements
 
-- 普通 Java、core、HTTP adapter、Spring Boot 2 Starter：Java 8 及以上
-- Spring Boot 3 Starter：Java 17 及以上
-- Spring Boot 2：面向 Spring Boot 2.7.x，当前基线为 2.7.18
-- Spring Boot 3：面向 Spring Boot 3.x，当前基线为 3.3.13
-- Maven 3.6.3 及以上
-- 一台可访问的 Synology NAS（已开启 WebAPI，DSM 6.x / 7.x 均可）
+- Plain Java, core, HTTP adapters and the Spring Boot 2 Starter: Java 8 or later
+- Spring Boot 3 Starter: Java 17 or later
+- Spring Boot 2: targets Spring Boot 2.7.x, currently baseline 2.7.18
+- Spring Boot 3: targets Spring Boot 3.x, currently baseline 3.3.13
+- Maven 3.6.3 or later
+- A reachable Synology NAS with the WebAPI enabled (DSM 6.x / 7.x both work)
 
-## 源码构建
+## Building from Source
 
-完整仓库同时包含 Java 8 和 Java 17 目标模块，因此统一使用 JDK 17 运行 Maven。先确认 Maven 实际使用的 JDK，而不只是 IDE Project SDK：
+The repository contains both Java 8 and Java 17 target modules, so always run Maven with JDK 17. Verify the JDK Maven actually uses, not just the IDE project SDK:
 
 ```bash
 mvn -version
 ```
 
-输出中的 `Java version` 应为 `17`。父 POM 默认设置 `maven.compiler.release=8`，Boot 3 Starter 和 Boot 3 示例覆盖为 `17`；这可以防止 Java 8 模块在 JDK 17 上编译时误用 `List.of` 等 Java 9 以上 API。
+The `Java version` in the output should be `17`. The parent POM sets `maven.compiler.release=8` by default, while the Boot 3 Starter and the Boot 3 example override it to `17`; this prevents Java 8 modules compiled on JDK 17 from accidentally using Java 9+ APIs such as `List.of`.
 
-本地完整验证使用 `local-build` Profile 跳过 GPG 签名：
+For a full local verification, use the `local-build` profile to skip GPG signing:
 
 ```bash
 mvn clean verify -Plocal-build
 ```
 
-`clean` 会删除旧的 `target` 构建结果；`verify` 会依次完成编译、测试、打包和项目配置的附加校验。`local-build` 只设置 `gpg.skip=true`，不会跳过测试、JAR、源码包或 Javadoc 包。
+`clean` removes previous `target` output; `verify` runs compilation, tests, packaging and the extra validations configured in the project. `local-build` only sets `gpg.skip=true` — it does not skip tests, JARs, sources or Javadoc.
 
-在 IDEA 中重新加载 Maven 项目后，可在 Maven 工具窗口的 **Profiles** 列表勾选 `local-build`，并确保 Maven Runner JRE 为 JDK 17。正式执行 Maven Central 发布时不要启用该 Profile，否则发布构件不会执行 GPG 签名。
+After reloading the Maven project in IDEA, tick `local-build` under **Profiles** in the Maven tool window and make sure the Maven Runner JRE is JDK 17. Do not enable this profile for a real Maven Central release, or the artifacts will not be GPG-signed.
 
-只验证 Boot 3 Starter 及其项目内依赖时执行：
+To verify only the Boot 3 Starter and its in-project dependencies:
 
 ```bash
 mvn -pl synology-dsm-java-sdk-spring-boot3-starter -am clean verify -Plocal-build
 ```
 
-只验证 Boot 3 示例及其项目内依赖时执行：
+To verify only the Boot 3 example and its in-project dependencies:
 
 ```bash
 mvn -pl synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example -am clean verify -Plocal-build
 ```
 
-## 普通 Java 快速开始
+## Plain Java Quick Start
 
 ```java
 import io.github.shuzhuoi.synology.client.SynologyDsmClient;
@@ -175,13 +174,13 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
         .password("your-password")
         .build();
 
-// JSON Codec 由调用方明确选择，避免 core 与具体 JSON 库耦合
+// The JSON codec is chosen explicitly by the caller, keeping core decoupled from any concrete JSON library
 SynologyDsmClient client = HutoolSynologyDsmClientFactory.create(
         config,
         new JacksonSynologyJsonCodec()
 );
 
-// 首次调用时自动登录，后续复用同一个 SID
+// The first call logs in automatically; later calls reuse the same SID
 ListFilesResponse response = client.fileStation().list().files(
         ListFilesRequest.builder("/home")
                 .limit(50)
@@ -192,11 +191,11 @@ for (SynologyFile file : response.getFiles()) {
     System.out.println(file.getPath());
 }
 
-// 结束时主动登出，释放 DSM 会话
+// Log out explicitly when finished to release the DSM session
 client.session().logout();
 ```
 
-使用 OkHttp3 时，core 的公开调用方式不变，只需要替换客户端工厂：
+With OkHttp3, the core API stays the same — only the client factory changes:
 
 ```java
 import io.github.shuzhuoi.synology.http.okhttp3.OkHttp3SynologyDsmClientFactory;
@@ -208,7 +207,7 @@ SynologyDsmClient client = OkHttp3SynologyDsmClientFactory.create(
 );
 ```
 
-需要配置代理、TLS 或连接池时，可以自行创建 `OkHttpClient` 并注入 `OkHttp3SynologyHttpClient`：
+To configure a proxy, TLS or the connection pool, build your own `OkHttpClient` and inject it into `OkHttp3SynologyHttpClient`:
 
 ```java
 SynologyDsmClient client = SynologyDsmClient.builder()
@@ -218,29 +217,29 @@ SynologyDsmClient client = SynologyDsmClient.builder()
         .build();
 ```
 
-更多操作示例见 [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example)，覆盖信息查询、列表、创建目录、上传、下载、重命名、删除、搜索、目录大小、后台任务、分享、收藏、缩略图、虚拟目录、压缩和解压等完整链路。
+More samples live in [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example), covering info, listing, folder creation, upload, download, rename, delete, search, folder size, background tasks, sharing, favorites, thumbnails, virtual folders, compression and extraction.
 
-稳定参数可以使用类型安全枚举，例如 `SortDirection.ASC`、`FileTypeFilter.FILE`、`ThumbSize.SMALL` 和 `CompressFormat.ZIP`。原 String Builder 方法继续保留，用于兼容 DSM 后续增加的扩展值。
+Stable parameters have type-safe enums such as `SortDirection.ASC`, `FileTypeFilter.FILE`, `ThumbSize.SMALL` and `CompressFormat.ZIP`. The original String builder methods are kept for forward compatibility with values DSM may add later.
 
-`BackgroundTask.getParams()` 返回 `Map<String, Object>`，不再暴露 Jackson `JsonNode`；嵌套对象、列表、数字、布尔值和 null 会按 JDK 集合类型保留。
+`BackgroundTask.getParams()` returns `Map<String, Object>` instead of exposing Jackson `JsonNode`; nested objects, lists, numbers, booleans and nulls are preserved as JDK collection types.
 
 ## Spring Boot Starter
 
-项目提供 Boot 2 和 Boot 3 两个独立 Starter。二者使用同一个 `synology.dsm` 配置协议和同一个 `SynologyDsmClient` 公共 API，但自动配置注册方式、Spring Boot 依赖和 Java 目标版本彼此隔离。
+The project ships two independent Starters for Boot 2 and Boot 3. Both share the same `synology.dsm` configuration protocol and the same `SynologyDsmClient` public API, but their auto-configuration registration, Spring Boot dependencies and Java targets are fully isolated.
 
 > [!TIP]
-> Starter 默认已经包含 core、Hutool adapter 和 Jackson JSON Codec。首次接入只需要引入对应 Starter，不需要重复声明这些依赖。
+> Each Starter already includes core, the Hutool adapter and the Jackson JSON codec. To get started you only need the Starter itself — no need to redeclare those dependencies.
 
 > [!CAUTION]
-> 一个应用只引入与自身 Spring Boot 主版本对应的 Starter，不要同时引入 Boot 2 和 Boot 3 Starter。
+> Add only the Starter matching your Spring Boot major version; never add the Boot 2 and Boot 3 Starters to the same application.
 
-### Spring Boot 2 完整教程
+### Spring Boot 2 Tutorial
 
-适用于 Spring Boot 2.7.x，最低使用 Java 8。项目当前以 Spring Boot 2.7.18 作为构建和验证基线。
+For Spring Boot 2.7.x on Java 8 or later. The project currently builds and verifies against Spring Boot 2.7.18.
 
-#### 第一步：引入 Starter
+#### Step 1: Add the Starter
 
-在 Spring Boot 2 项目的 `pom.xml` 中加入：
+Add to the `pom.xml` of your Spring Boot 2 project:
 
 ```xml
 <dependency>
@@ -250,11 +249,11 @@ SynologyDsmClient client = SynologyDsmClient.builder()
 </dependency>
 ```
 
-默认场景不需要额外引入 `synology-dsm-java-sdk-core` 或 `synology-dsm-java-sdk-http-hutool`。
+In the default setup you do not need `synology-dsm-java-sdk-core` or `synology-dsm-java-sdk-http-hutool` on top.
 
-#### 第二步：配置 DSM 连接
+#### Step 2: Configure the DSM Connection
 
-在 `src/main/resources/application.yaml` 中加入：
+Add to `src/main/resources/application.yaml`:
 
 ```yaml
 synology:
@@ -268,11 +267,11 @@ synology:
     auto-refresh-session: true
 ```
 
-`base-url` 只填写 DSM 地址和端口，不要附加 `/webapi`。建议通过环境变量提供账号和密码，不要把真实凭据提交到仓库。
+`base-url` takes only the DSM host and port — do not append `/webapi`. Provide the account and password through environment variables; never commit real credentials to the repository.
 
-#### 第三步：设置环境变量
+#### Step 3: Set Environment Variables
 
-PowerShell：
+PowerShell:
 
 ```powershell
 $env:SYNOLOGY_DSM_BASE_URL = "https://nas.example.com:5001"
@@ -280,7 +279,7 @@ $env:SYNOLOGY_DSM_ACCOUNT = "your-account"
 $env:SYNOLOGY_DSM_PASSWORD = "your-password"
 ```
 
-Linux 或 macOS：
+Linux or macOS:
 
 ```bash
 export SYNOLOGY_DSM_BASE_URL="https://nas.example.com:5001"
@@ -288,9 +287,9 @@ export SYNOLOGY_DSM_ACCOUNT="your-account"
 export SYNOLOGY_DSM_PASSWORD="your-password"
 ```
 
-#### 第四步：注入并调用客户端
+#### Step 4: Inject and Use the Client
 
-Starter 会创建单例 `SynologyDsmClient` Bean。业务类通过构造器注入后即可调用 File Station API：
+The Starter registers a singleton `SynologyDsmClient` bean. Constructor-inject it into your business classes and call the File Station API:
 
 ```java
 import io.github.shuzhuoi.synology.client.SynologyDsmClient;
@@ -324,25 +323,25 @@ public class FileStationRunner implements ApplicationRunner {
 }
 ```
 
-第一次调用需要认证的 API 时，客户端自动登录；后续调用复用缓存的 SID。
+The first authenticated call logs in automatically; later calls reuse the cached SID.
 
-#### 第五步：启动应用
+#### Step 5: Start the Application
 
-在你的 Spring Boot 应用根目录执行：
+From the root of your Spring Boot application:
 
 ```bash
 mvn spring-boot:run
 ```
 
-应用启动后会执行 `FileStationRunner`。如果 `/home` 不是当前 DSM 账号可访问的目录，请替换为该账号具有读取权限的共享目录。
+Once the application starts, `FileStationRunner` runs. If `/home` is not accessible to the DSM account, replace it with a shared folder the account can read.
 
-### Spring Boot 3 完整教程
+### Spring Boot 3 Tutorial
 
-适用于 Spring Boot 3.x，必须使用 Java 17 或更高版本。项目当前以 Spring Boot 3.3.13 作为构建和验证基线。
+For Spring Boot 3.x on Java 17 or later. The project currently builds and verifies against Spring Boot 3.3.13.
 
-#### 第一步：引入 Starter
+#### Step 1: Add the Starter
 
-在 Spring Boot 3 项目的 `pom.xml` 中加入：
+Add to the `pom.xml` of your Spring Boot 3 project:
 
 ```xml
 <dependency>
@@ -352,11 +351,11 @@ mvn spring-boot:run
 </dependency>
 ```
 
-默认场景不需要额外引入 `synology-dsm-java-sdk-core` 或 `synology-dsm-java-sdk-http-hutool`。
+In the default setup you do not need `synology-dsm-java-sdk-core` or `synology-dsm-java-sdk-http-hutool` on top.
 
-#### 第二步：配置 DSM 连接
+#### Step 2: Configure the DSM Connection
 
-在 `src/main/resources/application.yaml` 中加入：
+Add to `src/main/resources/application.yaml`:
 
 ```yaml
 synology:
@@ -370,11 +369,11 @@ synology:
     auto-refresh-session: true
 ```
 
-`base-url` 只填写 DSM 地址和端口，不要附加 `/webapi`。建议通过环境变量提供账号和密码，不要把真实凭据提交到仓库。
+`base-url` takes only the DSM host and port — do not append `/webapi`. Provide the account and password through environment variables; never commit real credentials to the repository.
 
-#### 第三步：设置环境变量
+#### Step 3: Set Environment Variables
 
-PowerShell：
+PowerShell:
 
 ```powershell
 $env:SYNOLOGY_DSM_BASE_URL = "https://nas.example.com:5001"
@@ -382,7 +381,7 @@ $env:SYNOLOGY_DSM_ACCOUNT = "your-account"
 $env:SYNOLOGY_DSM_PASSWORD = "your-password"
 ```
 
-Linux 或 macOS：
+Linux or macOS:
 
 ```bash
 export SYNOLOGY_DSM_BASE_URL="https://nas.example.com:5001"
@@ -390,9 +389,9 @@ export SYNOLOGY_DSM_ACCOUNT="your-account"
 export SYNOLOGY_DSM_PASSWORD="your-password"
 ```
 
-#### 第四步：注入并调用客户端
+#### Step 4: Inject and Use the Client
 
-Boot 3 Starter 暴露的业务客户端仍然是 core 的 `SynologyDsmClient`，使用方式与 Boot 2 一致：
+The Boot 3 Starter exposes the same core `SynologyDsmClient`, so usage is identical to Boot 2:
 
 ```java
 import io.github.shuzhuoi.synology.client.SynologyDsmClient;
@@ -426,39 +425,39 @@ public class FileStationRunner implements ApplicationRunner {
 }
 ```
 
-第一次调用需要认证的 API 时，客户端自动登录；后续调用复用缓存的 SID。
+The first authenticated call logs in automatically; later calls reuse the cached SID.
 
-#### 第五步：启动应用
+#### Step 5: Start the Application
 
-确认当前终端使用 JDK 17 或更高版本，然后在应用根目录执行：
+Make sure the current terminal uses JDK 17 or later, then run from the application root:
 
 ```bash
 java -version
 mvn spring-boot:run
 ```
 
-应用启动后会执行 `FileStationRunner`。如果 `/home` 不可访问，请替换为当前 DSM 账号具有读取权限的共享目录。
+Once the application starts, `FileStationRunner` runs. If `/home` is not accessible, replace it with a shared folder the DSM account can read.
 
-### Starter 配置参考
+### Starter Configuration Reference
 
-Boot 2 和 Boot 3 使用完全相同的配置项：
+Boot 2 and Boot 3 use exactly the same properties:
 
-| 配置项 | 是否必填 | 默认值 | 说明 |
+| Property | Required | Default | Description |
 | --- | --- | --- | --- |
-| `synology.dsm.enabled` | 否 | `true` | 是否启用 Starter 自动配置 |
-| `synology.dsm.base-url` | 是 | 无 | DSM 地址，例如 `https://nas.example.com:5001`，不要包含 `/webapi` |
-| `synology.dsm.account` | 是 | 无 | DSM 登录账号，建议使用最小权限账号 |
-| `synology.dsm.password` | 是 | 无 | DSM 登录密码，不会由 SDK 输出到日志 |
-| `synology.dsm.session-name` | 否 | `FileStation` | DSM WebAPI 会话名称 |
-| `synology.dsm.connect-timeout-millis` | 否 | `10000` | HTTP 连接超时，单位毫秒 |
-| `synology.dsm.read-timeout-millis` | 否 | `60000` | HTTP 读取超时，上传或下载大文件时可适当调大 |
-| `synology.dsm.auto-login` | 否 | `true` | 没有可用 SID 时是否自动登录 |
-| `synology.dsm.auto-refresh-session` | 否 | `true` | SID 失效时是否重新登录并重试一次 |
-| `synology.dsm.http-adapter` | 否 | `hutool` | HTTP 实现，可选 `hutool` 或 `okhttp3` |
+| `synology.dsm.enabled` | No | `true` | Enables the Starter auto-configuration |
+| `synology.dsm.base-url` | Yes | — | DSM address, e.g. `https://nas.example.com:5001`, without `/webapi` |
+| `synology.dsm.account` | Yes | — | DSM account; a least-privilege account is recommended |
+| `synology.dsm.password` | Yes | — | DSM password; never printed to logs by the SDK |
+| `synology.dsm.session-name` | No | `FileStation` | DSM WebAPI session name |
+| `synology.dsm.connect-timeout-millis` | No | `10000` | HTTP connect timeout in milliseconds |
+| `synology.dsm.read-timeout-millis` | No | `60000` | HTTP read timeout; increase for large uploads/downloads |
+| `synology.dsm.auto-login` | No | `true` | Log in automatically when no SID is available |
+| `synology.dsm.auto-refresh-session` | No | `true` | Re-login and retry once when the SID expires |
+| `synology.dsm.http-adapter` | No | `hutool` | HTTP implementation: `hutool` or `okhttp3` |
 
-表中的必填项针对 Starter 启用且由 Starter 创建默认客户端的场景。设置 `enabled=false` 或完全提供自定义客户端时，不再由该配置协议创建默认客户端。
+"Required" applies when the Starter is enabled and creates the default client. Setting `enabled=false` or supplying a fully custom client removes the default client creation.
 
-完整配置示例：
+Full configuration example:
 
 ```yaml
 synology:
@@ -475,9 +474,9 @@ synology:
     http-adapter: hutool
 ```
 
-### 切换到 OkHttp3
+### Switching to OkHttp3
 
-Starter 中的 OkHttp3 adapter 是可选依赖。使用时先增加：
+The OkHttp3 adapter is an optional dependency of the Starters. First add:
 
 ```xml
 <dependency>
@@ -487,7 +486,7 @@ Starter 中的 OkHttp3 adapter 是可选依赖。使用时先增加：
 </dependency>
 ```
 
-然后修改配置：
+Then change the configuration:
 
 ```yaml
 synology:
@@ -495,7 +494,7 @@ synology:
     http-adapter: okhttp3
 ```
 
-需要配置代理、TLS、拦截器或连接池时，可以提供自己的 `SynologyHttpClient` Bean：
+To configure a proxy, TLS, interceptors or the connection pool, provide your own `SynologyHttpClient` bean:
 
 ```java
 import io.github.shuzhuoi.synology.http.SynologyHttpClient;
@@ -510,20 +509,18 @@ public class SynologyHttpConfiguration {
     @Bean
     public SynologyHttpClient synologyHttpClient() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                // 在这里配置代理、TLS、拦截器或连接池。
+                // Configure proxy, TLS, interceptors or connection pool here.
                 .build();
         return new OkHttp3SynologyHttpClient(okHttpClient);
     }
 }
 ```
 
-检测到用户提供的 `SynologyHttpClient` 后，Starter 不会再创建默认 Hutool 或 OkHttp3 adapter。
+When a user-provided `SynologyHttpClient` is present, the Starter no longer creates the default Hutool or OkHttp3 adapter.
 
-### 替换 JSON Codec
+### Replacing the JSON Codec
 
-Starter 默认创建 `JacksonSynologyJsonCodec`。需要改用 Fastjson2 时，先从 Starter 排除默认
-Jackson 模块，再引入 Fastjson2 模块。以下以 Boot 2 Starter 为例，Boot 3 只需把 Starter
-artifactId 改为 `synology-dsm-java-sdk-spring-boot3-starter`：
+The Starter creates `JacksonSynologyJsonCodec` by default. To switch to Fastjson2, exclude the default Jackson module from the Starter and add the Fastjson2 module. The example below uses the Boot 2 Starter; for Boot 3 just change the Starter artifactId to `synology-dsm-java-sdk-spring-boot3-starter`:
 
 ```xml
 <dependency>
@@ -544,7 +541,7 @@ artifactId 改为 `synology-dsm-java-sdk-spring-boot3-starter`：
 </dependency>
 ```
 
-然后注册唯一的 `SynologyJsonCodec` Bean：
+Then register the single `SynologyJsonCodec` bean:
 
 ```java
 import io.github.shuzhuoi.synology.json.SynologyJsonCodec;
@@ -562,13 +559,13 @@ public class SynologyJsonConfiguration {
 }
 ```
 
-Starter 会优先使用用户提供的 Codec，不会同时静默选择多个实现，也不会注册或修改 Spring Boot 的全局 `ObjectMapper`。只注册 Fastjson2 Bean 但不排除 Jackson 模块也可以运行，但 Jackson 依赖仍会留在 classpath；希望彻底移除 Jackson 依赖时必须按上面的 Maven 配置排除。若业务需要自定义 Jackson 行为，可以创建 `JacksonSynologyJsonCodec(objectMapper)`；Codec 内部会复制该对象后再增加 SDK 映射规则。
+The Starter prefers the user-provided codec, never picks multiple implementations silently, and never registers or modifies Spring Boot's global `ObjectMapper`. Registering only the Fastjson2 bean without excluding the Jackson module also runs, but Jackson stays on the classpath; exclude it via the Maven configuration above if you want it fully gone. For custom Jackson behavior, create `JacksonSynologyJsonCodec(objectMapper)`; the codec copies the mapper before adding the SDK mapping rules.
 
-仓库中的 Boot 2/3 example 都提供了 `CustomJsonCodecConfiguration`。默认 profile 使用 Starter 自动创建的 Codec；激活 `custom-json-codec` profile 可以验证用户 Bean 覆盖流程。
+The Boot 2/3 examples in the repository both ship a `CustomJsonCodecConfiguration`. The default profile uses the codec created by the Starter; activating the `custom-json-codec` profile exercises the user-bean override path.
 
-### 自定义 SessionStore
+### Custom SessionStore
 
-默认 `InMemorySynologySessionStore` 使用当前 JVM 内的 `ConcurrentHashMap` 缓存 SID，适合单实例应用。多实例共享、跨进程复用或持久化会话时，在业务项目中实现 [`SynologySessionStore`](synology-dsm-java-sdk-core/src/main/java/io/github/shuzhuoi/synology/auth/store/SynologySessionStore.java)，并注册为 Bean：
+The default `InMemorySynologySessionStore` caches SIDs in a JVM-local `ConcurrentHashMap`, which suits single-instance applications. To share sessions across instances, processes or restarts, implement [`SynologySessionStore`](synology-dsm-java-sdk-core/src/main/java/io/github/shuzhuoi/synology/auth/store/SynologySessionStore.java) in your project and register it as a bean:
 
 ```java
 import io.github.shuzhuoi.synology.auth.store.SynologySessionStore;
@@ -580,27 +577,27 @@ public class SynologySessionStoreConfiguration {
 
     @Bean
     public SynologySessionStore synologySessionStore() {
-        // YourSynologySessionStore 由业务项目实现，可接入 Redis、数据库或其他缓存。
+        // YourSynologySessionStore is implemented by your project and can be backed by Redis, a database or any other cache.
         return new YourSynologySessionStore();
     }
 }
 ```
 
-实现类需要处理 `get`、`put`、`remove` 和 `clear`。仓库中的 [`ExampleSessionStore`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-example-common/src/main/java/io/github/shuzhuoi/synology/example/common/ExampleSessionStore.java) 展示了最小实现方式。SDK 不提供或强制引入 Redis 模块。
+The implementation must handle `get`, `put`, `remove` and `clear`. The [`ExampleSessionStore`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-example-common/src/main/java/io/github/shuzhuoi/synology/example/common/ExampleSessionStore.java) in the repository shows the minimal implementation. The SDK does not ship or force a Redis module.
 
-### 覆盖或禁用自动配置
+### Overriding or Disabling Auto-Configuration
 
-Starter 遵循 Spring Boot 的用户配置优先原则：
+The Starters follow the Spring Boot user-configuration-first principle:
 
-| 用户提供的 Bean | Starter 行为 |
+| User-provided bean | Starter behavior |
 | --- | --- |
-| `SynologyDsmConfig` | 不再根据 `synology.dsm` 创建默认配置对象 |
-| `SynologyHttpClient` | 不再创建默认 HTTP adapter |
-| `SynologySessionStore` | 将用户实现注入默认客户端 |
-| `SynologyJsonCodec` | 使用用户实现，不创建默认 Jackson Codec |
-| `SynologyDsmClient` | 不再创建默认客户端 |
+| `SynologyDsmConfig` | No default config object is created from `synology.dsm` |
+| `SynologyHttpClient` | No default HTTP adapter is created |
+| `SynologySessionStore` | The user implementation is injected into the default client |
+| `SynologyJsonCodec` | The user implementation is used; no default Jackson codec is created |
+| `SynologyDsmClient` | No default client is created |
 
-完全不需要自动配置时：
+To disable auto-configuration entirely:
 
 ```yaml
 synology:
@@ -608,79 +605,79 @@ synology:
     enabled: false
 ```
 
-### Session 生命周期
+### Session Lifecycle
 
-默认客户端的 Session 行为如下：
+The default client behaves as follows:
 
-1. 第一次调用需要认证的 API 时自动登录。
-2. 登录成功后将 SID 写入 `SynologySessionStore`。
-3. 后续请求复用同一个 SID，不会每次重新登录。
-4. DSM 返回会话失效错误码 106、107 或 119 时，自动重新登录并重试当前请求一次。
-5. 需要主动结束 DSM 会话时调用 `client.session().logout()`，该操作同时移除缓存 SID。
+1. The first authenticated API call logs in automatically.
+2. After a successful login the SID is stored in `SynologySessionStore`.
+3. Subsequent requests reuse the same SID instead of logging in again.
+4. When DSM returns session-expired error codes 106, 107 or 119, the client re-logs in and retries the current request once.
+5. Call `client.session().logout()` to end the DSM session explicitly; this also removes the cached SID.
 
-将 `auto-login` 设为 `false` 后，如果 SessionStore 中没有 SID，调用认证接口会抛出认证异常。将 `auto-refresh-session` 设为 `false` 后，会话失效时不会自动重试。
+With `auto-login=false`, calling an authenticated API without a SID in the SessionStore throws an authentication exception. With `auto-refresh-session=false`, expired sessions are not retried automatically.
 
-### 运行仓库中的完整示例
+### Running the Bundled Examples
 
-两个示例都会执行完整基础工作流：查询信息、列出共享目录和文件、创建目录、上传、下载、重命名、删除，并在结束时登出。
+Both examples run the full basic workflow: query info, list shares and files, create a folder, upload, download, rename, delete, then log out.
 
-- [Spring Boot 2 示例](synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example)
-- [Spring Boot 3 示例](synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example)
+- [Spring Boot 2 example](synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example)
+- [Spring Boot 3 example](synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example)
 
-以 Boot 2 为例，先进入资源目录并复制模板：
+Taking Boot 2 as an example, enter the resources directory and copy the template:
 
 ```powershell
 Copy-Item application.example.yaml application.yaml
 ```
 
-Boot 3 使用相同操作。`application.yaml` 已被根 `.gitignore` 忽略，不会提交真实凭据。
+Boot 3 works the same way. `application.yaml` is ignored by the root `.gitignore`, so real credentials are never committed.
 
-除 DSM 连接变量外，完整工作流还需要：
+Besides the DSM connection variables, the full workflow needs:
 
-| 环境变量 | 说明 |
+| Environment variable | Description |
 | --- | --- |
-| `SYNOLOGY_SAMPLE_FILE` | 本地待上传文件的绝对路径，文件必须存在 |
-| `SYNOLOGY_SAMPLE_FOLDER` | DSM 中用于测试的远端目录，建议使用专用测试目录 |
-| `SYNOLOGY_DOWNLOAD_FOLDER` | 下载文件保存到本地的目录 |
+| `SYNOLOGY_SAMPLE_FILE` | Absolute path of a local file to upload; the file must exist |
+| `SYNOLOGY_SAMPLE_FOLDER` | Remote folder on DSM used for testing; a dedicated test folder is recommended |
+| `SYNOLOGY_DOWNLOAD_FOLDER` | Local folder where downloaded files are saved |
 
-在 IDE 中分别运行：
+Run in the IDE:
 
-- Boot 2：[`SpringBoot2StarterExampleApplication`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example/src/main/java/io/github/shuzhuoi/synology/spring/boot2/example/SpringBoot2StarterExampleApplication.java)
-- Boot 3：[`SpringBoot3StarterExampleApplication`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example/src/main/java/io/github/shuzhuoi/synology/spring/boot3/example/SpringBoot3StarterExampleApplication.java)
+- Boot 2: [`SpringBoot2StarterExampleApplication`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot2-example/src/main/java/io/github/shuzhuoi/synology/spring/boot2/example/SpringBoot2StarterExampleApplication.java)
+- Boot 3: [`SpringBoot3StarterExampleApplication`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-spring-boot3-example/src/main/java/io/github/shuzhuoi/synology/spring/boot3/example/SpringBoot3StarterExampleApplication.java)
 
-### 常见问题
+### FAQ
 
-#### 启动时报环境变量占位符无法解析
+#### The application fails to start because an environment variable placeholder cannot be resolved
 
-确认 `SYNOLOGY_DSM_BASE_URL`、`SYNOLOGY_DSM_ACCOUNT` 和 `SYNOLOGY_DSM_PASSWORD` 已设置在启动应用的同一个终端或 IDE Run Configuration 中。
+Make sure `SYNOLOGY_DSM_BASE_URL`, `SYNOLOGY_DSM_ACCOUNT` and `SYNOLOGY_DSM_PASSWORD` are set in the same terminal or IDE run configuration that starts the application.
 
-#### 提示没有可用的 SynologyHttpClient
+#### The Starter reports no SynologyHttpClient available
 
-检查 `synology.dsm.http-adapter`。使用 `okhttp3` 时必须额外引入 OkHttp3 adapter；填写其他值时 Starter 不会创建默认 HTTP 客户端。
+Check `synology.dsm.http-adapter`. Using `okhttp3` requires the OkHttp3 adapter dependency; with any other value the Starter will not create a default HTTP client.
 
-#### Boot 3 出现 class file version 错误
+#### Boot 3 fails with a class file version error
 
-Boot 3 Starter 和示例使用 Java 17。检查 IDE Project SDK、Maven Runner JDK 和终端中的 `java -version` 是否一致。
+The Boot 3 Starter and example use Java 17. Align the IDE project SDK, the Maven Runner JDK and the terminal `java -version`.
 
-#### DSM 地址可以访问，但 SDK 请求失败
+#### The DSM address is reachable but SDK requests fail
 
-`base-url` 应为 `http://host:port` 或 `https://host:port`，不要包含 `/webapi`。使用 HTTPS 自签名证书时，需要在选定的 HTTP 客户端中正确配置证书信任，不建议在生产环境关闭证书校验。
+`base-url` should be `http://host:port` or `https://host:port` without `/webapi`. With an HTTPS self-signed certificate, configure trust correctly in the chosen HTTP client; disabling certificate verification in production is not recommended.
 
-#### 不希望应用启动后立即访问 DSM
+#### I do not want the application to touch DSM at startup
 
-Starter 创建客户端时不会登录。只有业务代码第一次调用需要认证的 API 时才会登录；不要注册启动即执行的 `ApplicationRunner`，改为在实际业务请求中注入并使用 `SynologyDsmClient`。
+Creating the client does not log in. Login happens on the first authenticated API call from business code; do not register an `ApplicationRunner` that runs at startup — inject and use `SynologyDsmClient` in real business requests instead.
 
-#### Starter 会覆盖 Spring Boot 的 ObjectMapper 吗
+#### Does the Starter override Spring Boot's ObjectMapper?
 
-不会。两个 Starter 都不注册 `ObjectMapper` Bean，也不修改 Spring Boot 的 Jackson 配置。若业务项目统一管理 Jackson 版本，可以通过 `mvn dependency:tree` 检查最终生效的依赖版本；希望完全避开 Jackson 版本仲裁时，可以按“替换 JSON Codec”章节排除默认 Jackson 模块并使用 Fastjson2 实现。
+No. Neither Starter registers an `ObjectMapper` bean or touches Spring Boot's Jackson configuration. If your project manages the Jackson version centrally, inspect the effective version with `mvn dependency:tree`; to fully avoid Jackson version arbitration, exclude the default Jackson module as described in "Replacing the JSON Codec" and switch to the Fastjson2 implementation.
 
-#### 使用 Fastjson2 是否必须引入 `fastjson2-extension-spring5/6`
+#### Does using Fastjson2 require `fastjson2-extension-spring5/6`?
 
-不需要。`synology-dsm-java-sdk-json-fastjson2` 只负责 SDK 内部的 JSON Codec，直接依赖 `fastjson2` 即可。只有业务项目还希望把 Fastjson2 用作 Spring MVC 全局 JSON 消息转换器时，才根据 Spring Boot 版本自行引入 `fastjson2-extension-spring5` 或 `fastjson2-extension-spring6`；SDK Starter 不会自动修改应用的全局 `ObjectMapper` 或消息转换器。
+No. `synology-dsm-java-sdk-json-fastjson2` only provides the JSON codec used inside the SDK — depending on `fastjson2` directly is enough. Only introduce `fastjson2-extension-spring5` or `fastjson2-extension-spring6` (matching your Spring Boot version) if the application itself wants Fastjson2 as the global Spring MVC message converter; the SDK Starter never modifies the application's global `ObjectMapper` or converters.
 
-## 普通 Java 客户端配置
+## Plain Java Client Configuration
 
-通过 `SynologyDsmConfig.builder()` 配置：
+Configure via `SynologyDsmConfig.builder()`:
 
 ```java
 SynologyDsmConfig config = SynologyDsmConfig.builder()
@@ -692,37 +689,37 @@ SynologyDsmConfig config = SynologyDsmConfig.builder()
         .build();
 ```
 
-| 配置项 | 默认值 | 说明 |
+| Option | Default | Description |
 | --- | --- | --- |
-| `baseUrl` | 必填 | DSM 基础地址，例如 `https://nas.example.com:5001`，不要包含 `/webapi` |
-| `account` | 必填 | DSM 登录账号 |
-| `password` | 必填 | DSM 登录密码，不会输出到日志 |
-| `sessionName` | `FileStation` | WebAPI 会话名，File Station 固定为 `FileStation` |
-| `connectTimeoutMillis` | `10000` | HTTP 连接超时（毫秒） |
-| `readTimeoutMillis` | `60000` | HTTP 读取超时（毫秒），大文件上传/下载可调大 |
-| `autoLogin` | `true` | 没有 SID 时是否自动登录 |
-| `autoRefreshSession` | `true` | 会话失效（错误码 106/107/119）时自动重新登录并重试一次 |
+| `baseUrl` | Required | DSM base address, e.g. `https://nas.example.com:5001`, without `/webapi` |
+| `account` | Required | DSM account |
+| `password` | Required | DSM password; never printed to logs |
+| `sessionName` | `FileStation` | WebAPI session name; fixed to `FileStation` for File Station |
+| `connectTimeoutMillis` | `10000` | HTTP connect timeout (ms) |
+| `readTimeoutMillis` | `60000` | HTTP read timeout (ms); increase for large uploads/downloads |
+| `autoLogin` | `true` | Log in automatically when no SID is available |
+| `autoRefreshSession` | `true` | On session expiry (error codes 106/107/119), re-login and retry once |
 
-`baseUrl` 末尾的 `/` 会被自动去除。SDK 内部通过 `baseUrl + /webapi/entry.cgi` 拼接请求地址。密码、SID、Cookie 等敏感信息不会出现在日志中。
+Trailing `/` in `baseUrl` is removed automatically. Internally the SDK builds request URLs as `baseUrl + /webapi/entry.cgi`. Sensitive information such as passwords, SIDs and cookies never appears in logs.
 
-## 普通 Java 完整示例
+## Plain Java Examples
 
-普通 Java 示例位于 [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example)。每个示例从 classpath 读取对应的本地 YAML；首次运行时，先复制同目录的 `*.example.yaml` 模板为不带 `.example` 的文件，再填写测试环境信息。
+The plain Java examples live in [`synology-dsm-java-sdk-java-example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example). Each example reads a local YAML file from the classpath; on first run, copy the matching `*.example.yaml` template to a file without `.example` and fill in your test environment details.
 
-| 示例 | 覆盖能力 |
+| Example | Coverage |
 | --- | --- |
-| [`FileStationBasicExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationBasicExample.java) | 查询、列表、创建目录、上传、下载、重命名、删除 |
-| [`FileStationOkHttp3Example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationOkHttp3Example.java) | 使用 OkHttp3 执行基础工作流 |
-| [`FileStationAdvancedExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationAdvancedExample.java) | 搜索、目录大小、后台任务 |
-| [`FileStationResourceExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationResourceExample.java) | 分享、收藏、缩略图、虚拟目录 |
-| [`FileStationArchiveExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationArchiveExample.java) | 压缩和解压 |
-| [`FileStationOfficialCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationOfficialCoverageExample.java) | 官方契约补齐接口 |
+| [`FileStationBasicExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationBasicExample.java) | Info, listing, folder creation, upload, download, rename, delete |
+| [`FileStationOkHttp3Example`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationOkHttp3Example.java) | Basic workflow over OkHttp3 |
+| [`FileStationAdvancedExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationAdvancedExample.java) | Search, folder size, background tasks |
+| [`FileStationResourceExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationResourceExample.java) | Sharing, favorites, thumbnails, virtual folders |
+| [`FileStationArchiveExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationArchiveExample.java) | Compression and extraction |
+| [`FileStationOfficialCoverageExample`](synology-dsm-java-sdk-example/synology-dsm-java-sdk-java-example/src/main/java/io/github/shuzhuoi/synology/example/FileStationOfficialCoverageExample.java) | Remaining official API contracts |
 
-本地配置文件已由根 `.gitignore` 忽略。不要在模板或 Java 源码中写入真实 DSM 密码。
+The local configuration files are ignored by the root `.gitignore`. Never put real DSM passwords in templates or Java sources.
 
-## 下载与缩略图流处理
+## Download and Thumbnail Streams
 
-`download().file(...)` 和 `thumb().get(...)` 返回的是底层 HTTP 连接的原始流，SDK 不会把文件内容读入内存。流使用完毕必须关闭，否则连接无法归还连接池，高频调用时会耗尽连接。推荐使用 try-with-resources：
+`download().file(...)` and `thumb().get(...)` return the raw stream of the underlying HTTP connection; the SDK never loads file content into memory. Always close the stream when finished, otherwise connections cannot return to the pool and high-frequency calls will exhaust it. Try-with-resources is recommended:
 
 ```java
 try (InputStream in = client.fileStation().download().file("/video/backup.zip").getInputStream()) {
@@ -730,35 +727,35 @@ try (InputStream in = client.fileStation().download().file("/video/backup.zip").
 }
 ```
 
-注意事项：
+Notes:
 
-- 流是 lazily 读取的，关闭流即释放连接，读取过程中不要持有流引用长时间不消费。
-- 当响应没有响应体时（例如 HTTP 204），`getInputStream()` 返回 `null`，调用方需判空。
-- 上传走 `multipart` 表单，不存在流关闭问题；下载大文件时可适当调大 `readTimeoutMillis`。
+- The stream is read lazily; closing it releases the connection. Do not hold an unconsumed stream reference for a long time.
+- When the response has no body (for example HTTP 204), `getInputStream()` returns `null` — callers must null-check.
+- Uploads use `multipart` forms and have no stream to close; increase `readTimeoutMillis` for large downloads.
 
-## 安全建议
+## Security Recommendations
 
-- **生产环境必须使用 HTTPS**。DSM 登录接口的账号密码以表单参数明文提交，HTTP 下可被网络嗅探；自签名证书请在 HTTP 客户端中正确配置信任，不要关闭证书校验。
-- 为 SDK 使用**专用的最小权限 DSM 账号**，并优先使用环境变量注入密码，避免把密码写进代码或配置文件仓库。
-- **SID 等同于登录态**，不要把它写入日志或监控埋点；SDK 也不会在日志中输出账号、密码或 SID。
-- 定期在 DSM 控制台检查登录设备与自动封禁（Auto Block）配置，并为管理账号开启两步验证。
+- **Always use HTTPS in production.** The DSM login endpoint submits the account and password as plain form parameters, which is sniffable over HTTP; trust self-signed certificates properly in the HTTP client instead of disabling certificate verification.
+- Use a **dedicated least-privilege DSM account** for the SDK and inject the password through environment variables rather than code or configuration files in the repository.
+- **Treat the SID as a logged-in session**: never log it or attach it to monitoring tags. The SDK never prints the account, password or SID.
+- Review logged-in devices and Auto Block settings in the DSM console regularly, and enable two-factor authentication for administrator accounts.
 
-## API 入口
+## API Entry Points
 
-SDK 采用三层入口：
+The SDK exposes three layers of entry points:
 
 ```
 SynologyDsmClient
 ├── apiInfo()                  // SYNO.API.Info
-├── auth()                     // SYNO.API.Auth（显式登录/登出）
-├── session()                  // 会话管理（自动登录、复用 SID、登出）
-└── fileStation()              // File Station 聚合入口
+├── auth()                     // SYNO.API.Auth (explicit login/logout)
+├── session()                  // Session management (auto login, SID reuse, logout)
+└── fileStation()              // File Station aggregate entry
     ├── info()                 // SYNO.FileStation.Info
     ├── list()                 // SYNO.FileStation.List
     ├── upload()               // SYNO.FileStation.Upload
     ├── download()             // SYNO.FileStation.Download
-    ├── file()                 // 创建/重命名/删除/复制/移动
-    ├── task()                 // 任务型接口（MD5 等）
+    ├── file()                 // create/rename/delete/copy/move
+    ├── task()                 // Task-based APIs (MD5 etc.)
     ├── search()               // SYNO.FileStation.Search
     ├── dirSize()              // SYNO.FileStation.DirSize
     ├── backgroundTask()       // SYNO.FileStation.BackgroundTask
@@ -770,6 +767,6 @@ SynologyDsmClient
     └── extract()              // SYNO.FileStation.Extract
 ```
 
-## 许可证
+## License
 
 [Apache License 2.0](LICENSE)
