@@ -116,16 +116,30 @@
             <plugins>
                 <!--
                     编译插件：maven-compiler-plugin 3.13.0+ 原生支持自动读取 maven.compiler.release
-                    和 project.build.sourceEncoding 属性。此处不再显式声明 <configuration>，
+                    和 project.build.sourceEncoding 属性。configuration 中不要写 <release>，
                     否则在多模块构建中 <release>${maven.compiler.release}</release> 会在 parent
                     上下文中被提前解析为 parent 的属性值，导致子模块（如 spring-boot3-starter
                     需要 release 17）的属性覆盖失效，最终误用 release 8 编译而无法读取 Spring 6
-                    的 61.0 字节码。保留版本声明统一插件版本，配置交给属性自动读取。
+                    的 61.0 字节码。
+                    显式声明 annotationProcessorPaths：JDK 23+ 的 javac 默认禁用 classpath 隐式
+                    注解处理（-proc:none 语义），IDEA 委托构建同样依赖显式声明；缺省时 Lombok
+                    可能不生效并报"找不到符号 getXxx()"。子模块需要额外处理器（如 Starter 的
+                    spring-boot-configuration-processor）时，在各自 pom 中追加 path，与这里的
+                    Lombok 按 Maven 配置合并规则叠加生效。
                 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.15.0</version>
+                    <configuration>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
