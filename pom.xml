@@ -34,7 +34,7 @@
         <!-- Central 发布默认手动确认，需自动发布时激活 auto-publish profile -->
         <central.autoPublish>false</central.autoPublish>
         <jackson.version>2.17.2</jackson.version>
-        <fastjson2.version>2.0.61</fastjson2.version>
+        <fastjson2.version>2.0.65</fastjson2.version>
         <hutool.version>5.8.46</hutool.version>
         <okhttp3.version>3.14.9</okhttp3.version>
         <spring-boot2.version>2.7.18</spring-boot2.version>
